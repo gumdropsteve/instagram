@@ -103,4 +103,4 @@ if __name__ == "__main__":
             ig.closeBrowser()
             sleep(61)
             ig = InstagramBot(username, password)
-# ig.login()
+ig.login()
