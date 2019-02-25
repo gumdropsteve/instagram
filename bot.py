@@ -12,9 +12,7 @@ password_box = '//input[@name="password"]'
 instagram_tags_url = 'https://www.instagram.com/explore/tags/'
 scroll = "window.scrollTo(0, document.body.scrollHeight);"
 like = '//span[@aria-label="Like"]'
-tags = ['codnation', 'callofduty', 'cwl', 'twitch', 'blackout', 'killcam', 'codclips', 
-                'blackops', 'freeforall', 'twitchclips', 'blackoutgame', 'xbox', 'ps4',
-                'battleroyale', 'gamingmemes', 'bo4', 'blackops4', 'callofdutyblackops4']
+tags = ['pleasanton', 'californialife', 'californiaadventure', 'homesforsale', 'fsbo', 'californiarealestate', 'pleasantonhomesforsale', 'bayarearealestate', 'forsalebyowner']
 
 
 def print_same_line(text):
@@ -98,6 +96,7 @@ class InstagramBot:
             except:
                 sleep(2)
             unique_photos -= 1
+            print(unique_photos)
 
 if __name__ == "__main__":
 
