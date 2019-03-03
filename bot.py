@@ -3,6 +3,7 @@ from selenium.webdriver.common.keys import Keys
 from time import sleep
 import random
 import sys
+from pile import utv, ptv
 
 # plugins, base urls, and paths
 instagram = 'https://www.instagram.com/'
@@ -99,9 +100,13 @@ class InstagramBot:
             print(unique_photos)
 
 if __name__ == "__main__":
+    '''
+    change user_id and pword to strings reflecting your login info
+    current seen here are stored in a seperate file to hedge uploading 
+    '''
 
-    user_id = ''  # your username 
-    pword = ''  # your password
+    user_id = utv  # ''  # your username 
+    pword = ptv  # ''  # your password
 
     ig = InstagramBot(user_id, pword)
     ig.login()
