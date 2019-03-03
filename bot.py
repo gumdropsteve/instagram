@@ -15,11 +15,11 @@ like = '//span[@aria-label="Like"]'
 tags = ['pleasanton', 'californialife', 'californiaadventure', 'homesforsale', 'fsbo', 'californiarealestate', 'pleasantonhomesforsale', 'bayarearealestate', 'forsalebyowner']
 
 
-def print_same_line(text):
+'''def print_same_line(text):
     sys.stdout.write('\r')
     sys.stdout.flush()
     sys.stdout.write(text)
-    sys.stdout.flush()
+    sys.stdout.flush()'''  # concept 
 
 
 class InstagramBot:

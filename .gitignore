@@ -102,3 +102,16 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# _pile
+_pile
+._pile
+pile 
+_pile.py
+._pile.py
+pile.py 
+
+# vscode
+.vscode/
+.vscode
+vscode
