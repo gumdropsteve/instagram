@@ -1,7 +1,9 @@
-# imports for loading and sorting data regarding accounts of interest 
-import pandas as pd
+# for loading and sorting data regarding accounts of interest 
+import csv
 import numpy as np
-# imports for taking action on accounts of interest
+import pandas as pd
+# for taking action on accounts of interest
+from time import sleep
 from selenium import webdriver 
 
 # load accounts & info on followed
@@ -35,3 +37,18 @@ for user in keep_these:
 if safe_check != len(keep_these):
     # display unequal counts
     raise Exception(f'safe_check != len(keep_these) : {safe_check} != {len(keep_these)}')
+    
+# create csv to store accounts we have unfollowed (so do not re-follow in future)
+with open('accounts_ttvpa_used_to_follow.csv', 'w', newline='') as file:
+    # set writer to this file
+    the_writer = csv.writer(file)
+    # write column names
+    the_writer.writerow(['account_id','username','profile_url','time_unfollowed'])
+    
+# GeckoDriver options setup
+options = webdriver.FirefoxOptions()  
+# block popups (set push notifications to False)
+options.set_preference('dom.push.enabled', False) 
+# 
+
+
