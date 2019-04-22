@@ -3,7 +3,8 @@ from selenium.webdriver.common.keys import Keys
 from time import sleep
 import random
 import sys
-from pile import utv, ptv
+# loading login info (adjust to import yours or take this line out and input near bottom)
+from _pile import utv, ptv
 
 # plugins, base urls, and paths
 instagram = 'https://www.instagram.com/'
