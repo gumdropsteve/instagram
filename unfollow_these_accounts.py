@@ -1,10 +1,12 @@
 # for loading and sorting data regarding accounts of interest 
-import csv
 import numpy as np
 import pandas as pd
 # for taking action on accounts of interest
 from time import sleep
 from selenium import webdriver 
+# for documentation
+import csv
+import datetime
 
 # load accounts & info on followed
 follows_users = pd.read_csv('data/follows_users_ttv_princearthur_20190421_2205.csv')
@@ -45,10 +47,63 @@ with open('accounts_ttvpa_used_to_follow.csv', 'w', newline='') as file:
     # write column names
     the_writer.writerow(['account_id','username','profile_url','time_unfollowed'])
     
-# GeckoDriver options setup
+# geckodriver options setup
 options = webdriver.FirefoxOptions()  
 # block popups (set push notifications to False)
 options.set_preference('dom.push.enabled', False) 
-# 
+
+# id css selector for 'following' button
+following_button = '.vBF20'
+# id css selector for 'unfollow' button
+unfollow_button = 'button.aOOlW:nth-child(1)'
+
+# set webdriver w/ options
+driver = webdriver.Firefox(options=options) 
+
+# go through first 100 urls
+for user_url in unfollow_these[:100]:
+    """
+    prime the mission
+    """
+    # load the url
+    driver.get(user_url)
+    # wait for profile page to load
+    sleep(3)
+    # find and click the 'following' button 
+    driver.find_element_by_css_selector(following_button).click()
+    # wait a bit (to seem human, for web loading, and not unfollow too quickly)
+    sleep(2)
+    """
+    set up recording of transaction
+    """
+    # pull the account's record
+    this_account = follows_usernames.loc[follows_users.user_profile == user_url]
+    # account's id number
+    account_id = this_account.id
+    # account's username
+    username = this_account.username
+    # account's url
+    profile_url = this_account.user_profile
+    # double check
+    if profile_url != user_url:
+        # let us know if it's not adding up 
+        raise Exception(f'profile_url != user_url : {profile_url} != {user_url}')
+    # set values to be recorded 
+    fields = [account_id, username, profile_url, datetime.datetime.now()]
+    """
+    execute
+    """
+    # find and click 'unfollow' button in popup 
+    driver.find_element_by_css_selector(unfollow_button).click()
+    """
+    record the transaction
+    """
+    # open up the csv
+    with open('accounts_ttvpa_used_to_follow.csv', 'a') as _f:
+        # fit the writer
+        writer = csv.writer(_f)
+        # document the transaction
+        writer.writerow(fields)
+    
 
 
