@@ -52,6 +52,15 @@ options = webdriver.FirefoxOptions()
 # block popups (set push notifications to False)
 options.set_preference('dom.push.enabled', False) 
 
+# id css selector for instagram login page user box
+phone_number_username_or_email = '#f6b8547e689ee'
+# set username 
+user = ''
+# id css selector for instagram login page pwrd box 
+pass_the_word = '#f23b938cb47fdfa'
+# set passwrd
+pwrd = ''
+
 # id css selector for 'following' button
 following_button = '.vBF20'
 # id css selector for 'unfollow' button
@@ -60,8 +69,15 @@ unfollow_button = 'button.aOOlW:nth-child(1)'
 # set webdriver w/ options
 driver = webdriver.Firefox(options=options) 
 
-# go through first 100 urls
-for user_url in unfollow_these[:100]:
+# load instagram login page
+driver.get('https://www.instagram.com/accounts/login/')
+# find user box and send username 
+driver.find_element_by_css_selector(phone_number_username_or_email).send_keys(user)
+# find pass box and send pwrd
+driver.find_element_by_css_selector(pass_the_word).send_keys(pwrd)
+
+# go through first n urls
+for user_url in unfollow_these[:n]:
     """
     prime the mission
     """
