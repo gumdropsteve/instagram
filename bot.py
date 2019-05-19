@@ -1,29 +1,12 @@
+import sys
+import random
+from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from time import sleep
-import random
-import sys
 # paths & urls
-from infos import instagram, ig_login_button, username_box, password_box, instagram_tags_url, scroll, like
-# loading login info (adjust to import yours or take this line out and input near bottom)
+from infos import instagram, ig_login_button, username_box, password_box, instagram_tags_url, scroll, like, tags
+# loading login info (adjust to import yours or take these lines & set near bottom)
 from _pile import utv, ptv
-
-# plugins, base urls, and paths
-instagram = 'https://www.instagram.com/'
-ig_login_button = '//a[@href="/accounts/login/?source=auth_switcher"]'
-username_box = '//input[@name="username"]'
-password_box = '//input[@name="password"]'
-instagram_tags_url = 'https://www.instagram.com/explore/tags/'
-scroll = "window.scrollTo(0, document.body.scrollHeight);"
-like = '//span[@aria-label="Like"]'
-tags = ['pleasanton', 'californialife', 'californiaadventure', 'homesforsale', 'fsbo', 'californiarealestate', 'pleasantonhomesforsale', 'bayarearealestate', 'forsalebyowner']
-
-
-'''def print_same_line(text):
-    sys.stdout.write('\r')
-    sys.stdout.flush()
-    sys.stdout.write(text)
-    sys.stdout.flush()'''  # concept 
 
 
 class InstagramBot:
