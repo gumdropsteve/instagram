@@ -3,15 +3,13 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException      
 # paths & urls
-from infos import ig_log_page, username_box, password_box, save_info_popup, new_post_button
+from infos import ig_log_page, username_box, password_box, save_info_popup, new_post_button, user_agent
 
 # tag the options field
 options = webdriver.FirefoxOptions()  
 # disable push/popups 
 options.set_preference("dom.push.enabled", False)  
 
-# for the profile necessary to enable mobile view
-user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16"
 # tag the profile option
 profile = webdriver.FirefoxProfile() 
 # adjust profile to reflect user_agent profile
