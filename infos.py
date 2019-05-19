@@ -19,3 +19,4 @@ ig_login_button = '//a[@href="/accounts/login/?source=auth_switcher"]'
 instagram_tags_url = 'https://www.instagram.com/explore/tags/'
 scroll = "window.scrollTo(0, document.body.scrollHeight);"
 like = '//span[@aria-label="Like"]'
+tags = ['pleasanton', 'californialife', 'californiaadventure', 'homesforsale', 'fsbo', 'californiarealestate', 'pleasantonhomesforsale', 'bayarearealestate', 'forsalebyowner']
