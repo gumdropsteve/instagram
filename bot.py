@@ -3,6 +3,8 @@ from selenium.webdriver.common.keys import Keys
 from time import sleep
 import random
 import sys
+# paths & urls
+from infos import instagram, ig_login_button, username_box, password_box, instagram_tags_url, scroll, like
 # loading login info (adjust to import yours or take this line out and input near bottom)
 from _pile import utv, ptv
 
