@@ -2,17 +2,8 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException      
-
-# instagram login url (base)
-ig_log_page = 'https://instagram.com/accounts/login/'
-# xpath ; username input box
-username_box = '//input[@name="username"]'
-# xpath ; password input box
-password_box = '//input[@name="password"]'
-# xpath ; save info pupup (occours ~45% of time)
-save_info_popup = '//*[contains(text(),"Save Info")]'
-# xpath ; new post button
-new_post_button = '//span[@aria-label="New Post"]'
+# paths & urls
+from infos import ig_log_page, username_box, password_box, save_info_popup, new_post_button
 
 # tag the options field
 options = webdriver.FirefoxOptions()  
