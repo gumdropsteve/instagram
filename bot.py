@@ -3,10 +3,14 @@ import random
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-# paths & urls
-from infos import instagram, ig_login_button, username_box, password_box, instagram_tags_url, scroll, like, tags
-# loading login info (adjust to import yours or take these lines & set near bottom)
-from _pile import utv, ptv
+#urls
+from infos import ig_log_page, ig_tags_url
+# paths
+from infos import username_box, password_box, save_info_popup, like
+# misc
+from infos import scroll, plsntn_re_tags
+# outside functions
+from helpers import check_xpath
 
 
 class InstagramBot:
@@ -40,43 +44,31 @@ class InstagramBot:
         loads and logs in to instagram
         """
         # set driver
-        driver = self.driver
-        # driver load instagram.com
-        driver.get(instagram)
+        ricky = self.driver
+        # load instagram login page
+        ricky.get(ig_log_page)
         # wait (hedge load time)
         sleep(2)
-        # find and tag the login button
-        login_button = driver.find_element_by_xpath(ig_login_button)
-        # click to login
-        login_button.click()
-        # wait (hedge load time)
-        sleep(2)
-        # find and tag user box
-        user_name_elem = driver.find_element_by_xpath(username_box)
-        # get rid of anything that for whatever reason may be in there
-        user_name_elem.clear()
-        # input email, ussername, or phone
-        user_name_elem.send_keys(self.username)
-        # find and tag pwrd box
-        passworword_elem = driver.find_element_by_xpath(password_box)
-        # get rid of anything that for whatever reason may be in there
-        passworword_elem.clear()
-        # input pwrd
-        passworword_elem.send_keys(self.password)
-        # enter it (log in)
-        passworword_elem.send_keys(Keys.RETURN)
-        # and wait a bit for safety 
-        sleep(2)
+        # find user box, type in account id
+        ricky.find_element_by_xpath(username_box).send_keys(self.username)
+        # find key box and call locksmith, he should be able to punch in
+        ricky.find_element_by_xpath(password_box).send_keys(self.password, Keys.RETURN)
+        # hedge request/load time 
+        sleep(3)
+        # take care if "save info" pop-up page pops up
+        check_xpath(webdriver=ricky, xpath=save_info_popup, click=True)
 
-    def like_photo(self, hashtag):
+    def like_photos(self, hashtag):
+        from infos import ig_tags_url
         # set driver
         driver = self.driver
         # load the webpage to which the image belongs 
-        driver.get(instagram_tags_url + hashtag + '/')
+        driver.get(ig_tags_url + hashtag + '/')
         # better safe than sorry
         sleep(2)
 
-        '''gather a nice collection of posts'''
+        """gather a nice collection of posts
+        """
         # set base collection for hrefs 
         pic_hrefs = []
         # next step will be repeated 7 times to load 7 scrolls of pictures (adjustable)
@@ -102,7 +94,8 @@ class InstagramBot:
                 # and keep moving
                 continue
 
-        '''actually liking the posts'''
+        """actually liking the posts
+        """
         # note how many posts there are 
         unique_photos = len(pic_hrefs)
         # go through each one
@@ -134,30 +127,28 @@ class InstagramBot:
             # update count of remaining posts
             unique_photos -= 1
             # let us know how many remain
-            print(unique_photos)
-            
-#     def unfollow(self, profile_url):
+            print(unique_photos) 
         
 
 # make this a runable script 
 if __name__ == "__main__":
-    '''
-    change user_id and pword to strings reflecting your login info
-    current seen here are stored in a seperate file to hedge uploading 
-    '''
-    
+    """
+       ***adjust lines 135-143 to fit your style***
+    """
+    # loading login info 
+    from _pile import utv, ptv
     # your username 
-    user_id = utv  # ''  
+    u = utv 
     # your password
-    pword = ptv  # ''  
+    p = ptv  
 
     # label the bot
-    ig = InstagramBot(user_id, pword)
+    ig = InstagramBot(username=u, password=p)
     # get the party started 
     ig.login()
 
     # insert your desired hashtags here (list)
-    hashtags = tags
+    hashtags = plsntn_re_tags
 
     while True:
         # this should work until all tags have been used
@@ -165,13 +156,13 @@ if __name__ == "__main__":
             # choose a random tag from the list of tags
             tag = random.choice(hashtags)
             # like the posts under that tag
-            ig.like_photo(tag)
+            ig.like_photos(tag)
         # if it doesn't, or (hopefully) we're done
         except Exception:
             # close her down
             ig.closeBrowser()
             # take a break 
-            sleep(61)
+            sleep(600)
             # retry the bot 
-            ig = InstagramBot(user_id, pword)
+            ig = InstagramBot(username=u, password=p)
 ig.login()
