@@ -234,7 +234,7 @@ class InstagramBot:
 
 
 # determine mode
-mode=0#'unfollow'  # 'like'
+# mode='unfollow'  # 'like'
 # make this a runable script 
 if __name__ == "__main__":
     """
@@ -248,9 +248,9 @@ if __name__ == "__main__":
     p = ptv  
 
     # label the bot
-    # ig = InstagramBot(username=u, password=p)
+    ig = InstagramBot(username=u, password=p)
     # get the party started 
-    # ig.login()
+    ig.login()
 
     if mode == 'like':
         # insert your desired hashtags here (list)
@@ -274,21 +274,3 @@ if __name__ == "__main__":
 
     elif mode == 'unfollow':
         ig.unfollow(start=1500,end=1750)
-
-    else:
-        df=pd.read_csv('accounts_ttvpa_used_to_follow.csv')
-        correct=df.copy().username
-        for i in range(len(correct)):
-            q=correct[i].split(' ')
-            if len(q)==1:
-                correct[i] = q[0]
-            elif len(q)==8:
-                p = q[4]
-                q=p.split('\n')
-                correct[i]=q[0]
-            else:
-                raise Exception(f'len q == {len(q)}')
-        df.username=correct
-        df.to_csv(r'accounts_ttvpa_used_to_follow.csv')
-
-
