@@ -1,25 +1,26 @@
-# general 
-import csv
+# timing 
 import random
-import datetime
+from time import sleep
+# reading
 import numpy as np
 import pandas as pd
-from time import sleep
-# selenium
+# recording
+import csv
+import datetime
+# webdriver
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException 
+# outside functions
+from helpers import check_xpath
+# misc
+from infos import scroll, plsntn_re_tags
+# data
+from infos import follows_users, by_users
 # urls
 from infos import ig_log_page, ig_tags_url
 # paths
 from infos import username_box, password_box, save_info_popup, like, following_button, unfollow_button
-# data
-from infos import follows_users, by_users
-# misc
-from infos import scroll, plsntn_re_tags
-# outside functions
-from helpers import check_xpath
-
 
 class InstagramBot:
 
@@ -139,7 +140,7 @@ class InstagramBot:
     
     def analyze_following(self, followers=by_users, following=follows_users, to_unfollow=False, follow_backers=False):
         """identifies users who you are following that do not follow you back
-        and other stuff, we're not all negative
+        and other stuff, we're not all negative, more to come
         """
         # url of each account following us
         by_usernames = np.array(followers.user_profile)
@@ -164,6 +165,8 @@ class InstagramBot:
     
     def unfollow(self, start=0, end=250):
         """
+        NEEDS: more tuned outcomes
+
         goes through list of accounts
             loads the current account's profile url
                 makes sure that account is cleared for unfollowing
@@ -191,52 +194,35 @@ class InstagramBot:
         
         # go through first n urls
         for user_url in accounts_to_unfollow[start:end]:
-            """
-            prime the mission
-            """
+            '''prime the mission'''
             # load the url
             driver.get(user_url)
             # wait for profile page to load
             sleep(3)
-            # test for/find and click the 'following' button  (this is an issue)
+            # test for/find and click the 'following' button  
             check_xpath(webdriver=driver, xpath=following_button, click=True)
-            # wait a bit (to seem human, for web loading, and not unfollow too quickly)
+            # wait a bit (hedge load)
             sleep(2)
-            """
-            set up recording of transaction
-            """
+            
+            '''set up recording of transaction'''
             # pull the account's record
             this_account = follows_users.loc[follows_users.user_profile == user_url]
+
             # account's id number
-            account_id = this_account.id
-            for i in account_id:
-                account_id = i
+            account_id = int(this_account.id)
             # account's username
-            username = this_account.username
-            # something weird
-            for i in username:
-                # can't remember specifix
-                username = i
+            username = str(this_account.username)
             # account's url
-            profile_url = this_account.user_profile
-            # happens here too (surprise)
-            for i in profile_url:
-                # maybe something with ""s or something else probably maybe
-                profile_url = i
-            # double check 
-            if str(profile_url) != str(user_url):
-                # let us know if it's not adding up
-                raise Exception(f'profile_url != user_url : {profile_url} != {user_url}')
+            profile_url = user_url
+
             # set values to be recorded (to the ranch!)
             fields = [account_id, username, profile_url, datetime.datetime.now()]
-            """
-            execute
-            """
-            # test for/find and click 'unfollow' button in popup (this is an issue)
+            
+            '''execute'''
+            # test for/find and click 'unfollow' button in popup 
             check_xpath(webdriver=driver, xpath=unfollow_button, click=True, send_keys=False, keys=None)
-            """
-            record the transaction
-            """
+            
+            '''record the transaction'''
             # open up the csv
             with open('accounts_ttvpa_used_to_follow.csv', 'a') as _f:
                 # fit the writer
@@ -247,6 +233,8 @@ class InstagramBot:
             sleep(10)
 
 
+# determine mode
+mode='unfollow'  # 'like'
 # make this a runable script 
 if __name__ == "__main__":
     """
@@ -264,22 +252,25 @@ if __name__ == "__main__":
     # get the party started 
     ig.login()
 
-    # insert your desired hashtags here (list)
-    hashtags = plsntn_re_tags
+    if mode == 'like':
+        # insert your desired hashtags here (list)
+        hashtags = plsntn_re_tags
 
-    while True:
-        # this should work until all tags have been used
-        try:
-            # choose a random tag from the list of tags
-            tag = random.choice(hashtags)
-            # like the posts under that tag
-            ig.like_photos(tag)
-        # if it doesn't, or (hopefully) we're done
-        except Exception:
-            # close her down
-            ig.closeBrowser()
-            # take a break 
-            sleep(600)
-            # retry the bot 
-            ig = InstagramBot(username=u, password=p)
-ig.login()
+        while True:
+            # this should work until all tags have been used
+            try:
+                # choose a random tag from the list of tags
+                tag = random.choice(hashtags)
+                # like the posts under that tag
+                ig.like_photos(tag)
+            # if it doesn't, or (hopefully) we're done
+            except Exception:
+                # close her down
+                ig.closeBrowser()
+                # take a break 
+                sleep(600)
+                # retry the bot 
+                ig = InstagramBot(username=u, password=p)
+
+    elif mode == 'unfollow':
+        ig.unfollow(start=1500,end=1750)
