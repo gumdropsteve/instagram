@@ -1,12 +1,20 @@
-import sys
+# general 
+import csv
 import random
+import datetime
+import numpy as np
+import pandas as pd
 from time import sleep
+# selenium
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-#urls
+from selenium.common.exceptions import NoSuchElementException 
+# urls
 from infos import ig_log_page, ig_tags_url
 # paths
-from infos import username_box, password_box, save_info_popup, like
+from infos import username_box, password_box, save_info_popup, like, following_button, unfollow_button
+# data
+from infos import follows_users, by_users
 # misc
 from infos import scroll, plsntn_re_tags
 # outside functions
@@ -44,19 +52,19 @@ class InstagramBot:
         loads and logs in to instagram
         """
         # set driver
-        ricky = self.driver
+        driver = self.driver
         # load instagram login page
-        ricky.get(ig_log_page)
+        driver.get(ig_log_page)
         # wait (hedge load time)
         sleep(2)
         # find user box, type in account id
-        ricky.find_element_by_xpath(username_box).send_keys(self.username)
+        driver.find_element_by_xpath(username_box).send_keys(self.username)
         # find key box and call locksmith, he should be able to punch in
-        ricky.find_element_by_xpath(password_box).send_keys(self.password, Keys.RETURN)
+        driver.find_element_by_xpath(password_box).send_keys(self.password, Keys.RETURN)
         # hedge request/load time 
         sleep(3)
         # take care if "save info" pop-up page pops up
-        check_xpath(webdriver=ricky, xpath=save_info_popup, click=True)
+        check_xpath(webdriver=driver, xpath=save_info_popup, click=True)
 
     def like_photos(self, hashtag):
         from infos import ig_tags_url
@@ -127,8 +135,117 @@ class InstagramBot:
             # update count of remaining posts
             unique_photos -= 1
             # let us know how many remain
-            print(unique_photos) 
+            print(unique_photos)
+    
+    def analyze_following(self, followers=by_users, following=follows_users, to_unfollow=False, follow_backers=False):
+        """identifies users who you are following that do not follow you back
+        and other stuff, we're not all negative
+        """
+        # url of each account following us
+        by_usernames = np.array(followers.user_profile)
+        # url of each account we follow
+        follows_usernames = np.array(following.user_profile)
         
+        # requested accounts to unfollow?
+        if to_unfollow == True:
+            # output urls of profiles to unfollow 
+            return [user for user in follows_usernames if user not in by_usernames]
+
+        # requested accounts to never unfollow?
+        if follow_backers == True:
+            # output urls of profiles to keep following
+            return [user for user in follows_usernames if user in by_usernames]
+
+        #otherwise
+        else:
+            # not much
+            pass
+        
+    
+    def unfollow(self, start=0, end=250):
+        """
+        goes through list of accounts
+            loads the current account's profile url
+                makes sure that account is cleared for unfollowing
+                    unfollows the account 
+        inputs)
+            >> accounts
+                > list of accounts eligible for unfollowing
+            >> n
+                > number of those accounts we're going to unfollow right now
+                    >> rec: n < 250 , due to mass unfollowing (usually) being prohibited 
+                    >> default: 1 (i.e. two (2) accounts)
+        """
+        # create csv to store accounts we have unfollowed (so do not re-follow in future)
+        with open('accounts_ttvpa_used_to_follow.csv', 'a', newline='') as file:
+            # set writer to this file
+            the_writer = csv.writer(file)
+            # write column names
+            the_writer.writerow(['account_id','username','profile_url','time_unfollowed'])
+        
+        # generate list of accounts qualified to unfollow
+        accounts_to_unfollow = InstagramBot.analyze_following(self, to_unfollow=True)
+
+        # retag driver
+        driver = self.driver
+        
+        # go through first n urls
+        for user_url in accounts_to_unfollow[start:end]:
+            """
+            prime the mission
+            """
+            # load the url
+            driver.get(user_url)
+            # wait for profile page to load
+            sleep(3)
+            # test for/find and click the 'following' button  (this is an issue)
+            check_xpath(webdriver=driver, xpath=following_button, click=True)
+            # wait a bit (to seem human, for web loading, and not unfollow too quickly)
+            sleep(2)
+            """
+            set up recording of transaction
+            """
+            # pull the account's record
+            this_account = follows_users.loc[follows_users.user_profile == user_url]
+            # account's id number
+            account_id = this_account.id
+            for i in account_id:
+                account_id = i
+            # account's username
+            username = this_account.username
+            # something weird
+            for i in username:
+                # can't remember specifix
+                username = i
+            # account's url
+            profile_url = this_account.user_profile
+            # happens here too (surprise)
+            for i in profile_url:
+                # maybe something with ""s or something else probably maybe
+                profile_url = i
+            # double check 
+            if str(profile_url) != str(user_url):
+                # let us know if it's not adding up
+                raise Exception(f'profile_url != user_url : {profile_url} != {user_url}')
+            # set values to be recorded (to the ranch!)
+            fields = [account_id, username, profile_url, datetime.datetime.now()]
+            """
+            execute
+            """
+            # test for/find and click 'unfollow' button in popup (this is an issue)
+            check_xpath(webdriver=driver, xpath=unfollow_button, click=True, send_keys=False, keys=None)
+            """
+            record the transaction
+            """
+            # open up the csv
+            with open('accounts_ttvpa_used_to_follow.csv', 'a') as _f:
+                # fit the writer
+                writer = csv.writer(_f)
+                # document the transaction
+                writer.writerow(fields)
+            # pause so we can do this for a long time without breaching the unfollow limit 
+            sleep(10)
+
 
 # make this a runable script 
 if __name__ == "__main__":
