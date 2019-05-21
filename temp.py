@@ -24,7 +24,8 @@ df['time_unfollowed'][786:]=lower_account_times
 df['following_button'][786:]=lower_account_fb
 df['unfollow_button'][786:]=lower_account_un
 # print(df.head())
-print(df[780:].profile_url)
+# print(df[780:].profile_url)
+df.to_csv('accounts_ttvpa_used_to_follow.csv')
 """Index(['Unnamed: 0', 'Unnamed: 0.1', 'account_id', 'username', 'profile_url',
        'time_unfollowed', 'following_button', 'unfollow_button'],
       dtype='object')"""
