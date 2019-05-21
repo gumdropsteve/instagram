@@ -4,7 +4,7 @@ from time import sleep
 # bot
 from bot import InstagramBot
 # hashtags
-from infos import plsntn_re_tags
+from infos import pleasanton_tags
 
 # determine mode
 mode='unfollow'  # 'like'
@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     if mode == 'like':
         # insert your desired hashtags here (list)
-        hashtags = plsntn_re_tags
+        hashtags = pleasanton_tags
 
         while True:
             # this should work until all tags have been used
@@ -48,6 +48,6 @@ if __name__ == "__main__":
 
     elif mode == 'unfollow':
         # unfollow these people
-        ig.unfollow(start=2002,end=2300)
+        ig.unfollow(start=0,end=2300)
         # close her down
         ig.closeBrowser()
