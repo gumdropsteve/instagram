@@ -40,6 +40,5 @@ def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None):
         return 0
     # if it didn't work
     except NoSuchElementException:
-        print(f'NoSuchElementException : {xpath}')
         # element does not exist or process was unsuccessful
         return 1
