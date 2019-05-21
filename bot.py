@@ -13,10 +13,10 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException 
 # outside functions
 from helpers import check_xpath
-# misc
+# misc (.js)
 from infos import scroll
-# data
-from infos import follows_users, by_users
+# data (loaded here for future multitasking)
+from infos import follows_users, by_users, unfollow_log
 # urls
 from infos import ig_log_page, ig_tags_url
 # paths
@@ -180,16 +180,14 @@ class InstagramBot:
                 > number of those accounts we're going to unfollow right now
                     >> rec: n < 250 , due to mass unfollowing (usually) being prohibited 
                     >> default: 1 (i.e. two (2) accounts)
-        """
-        # create csv to store accounts we have unfollowed (so do not re-follow in future)
-        with open('accounts_ttvpa_used_to_follow.csv', 'a', newline='') as file:
-            # set writer to this file
-            the_writer = csv.writer(file)
-            # write column names
-            the_writer.writerow(['account_id','username','profile_url','time_unfollowed'])
-        
-        # generate list of accounts qualified to unfollow
+        """        
+        # generate full list of urls qualified to unfollow
         accounts_to_unfollow = InstagramBot.analyze_following(self, to_unfollow=True)
+        # trim list to urls in start/end range
+        accounts_in_range = accounts_to_unfollow[start:end]
+        
+        # call up the lady at the county recorders office (previously visited urls)
+        # previously_seen_ulrs = 
 
         # retag driver
         driver = self.driver
