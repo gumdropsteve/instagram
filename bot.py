@@ -192,10 +192,12 @@ class InstagramBot:
         # retag driver
         driver = self.driver
         
-        # go through first n urls
-        for user_url in accounts_to_unfollow[start:end]:
+        # go through n urls
+        for i in range(len(accounts_to_unfollow[start:end])):
             '''prime the mission'''
-            # load the url
+            # tag that url
+            user_url = accounts_to_unfollow[start:end][i]
+            # load that url
             driver.get(user_url)
             # wait for profile page to load
             sleep(3)
@@ -236,3 +238,13 @@ class InstagramBot:
             if ntract_unfollow == 0:
                 # pause so we can do this for a long time without breaching the unfollow limit 
                 sleep(random.randint(8,12))
+
+            # on first loop
+            if i == 0:
+                print(f'first account has been unfollowed; {datetime.datetime.now()}')
+
+            # every 25th loop
+            if i % 25 == 0 and i != 0:
+                # display progress
+                print(f'{int(i/len(accounts_to_unfollow[start:end]))}%')
+
