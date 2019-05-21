@@ -140,7 +140,8 @@ class InstagramBot:
             # let us know how many remain
             print(unique_photos)
     
-    def analyze_following(self, followers=by_users, following=follows_users, to_unfollow=False, follow_backers=False):
+    def analyze_following(self, followers=by_users, following=follows_users, 
+                          to_unfollow=False, follow_backers=False):
         """identifies users who you are following that do not follow you back
         and other stuff, we're not all negative, more to come
         """
@@ -182,21 +183,25 @@ class InstagramBot:
                     >> default: 1 (i.e. two (2) accounts)
         """        
         # generate full list of urls qualified to unfollow
-        accounts_to_unfollow = InstagramBot.analyze_following(self, to_unfollow=True)
+        urls_to_unfollow = InstagramBot.analyze_following(self, followers=by_users, 
+                                                          following=follows_users, to_unfollow=True)
         # trim list to urls in start/end range
-        accounts_in_range = accounts_to_unfollow[start:end]
-        
-        # call up the lady at the county recorders office (previously visited urls)
-        # previously_seen_ulrs = 
+        accounts_in_range = urls_to_unfollow[start:end]
 
+        # call up the lady at the county recorders office (previously visited urls)
+        previously_seen_ulrs = InstagramBot.analyze_following(self, followers=by_users.iloc[0],
+                                                              following=unfollow_log, to_unfollow=True)
+        # forget urls which are in the start/end range but have been visited before
+        accounts_to_unfollow = [url for url in accounts_in_range if url not in previously_seen_ulrs]
+        
         # retag driver
         driver = self.driver
         
-        # go through n urls
-        for i in range(len(accounts_to_unfollow[start:end])):
+        # within the number of loops equal to the number of urls
+        for i in range(len(accounts_to_unfollow)):
             '''prime the mission'''
-            # tag that url
-            user_url = accounts_to_unfollow[start:end][i]
+            # tag the url you encounter
+            user_url = accounts_to_unfollow[i]
             # load that url
             driver.get(user_url)
             # wait for profile page to load
@@ -222,7 +227,8 @@ class InstagramBot:
             
             '''execute'''
             # test for/find and click 'unfollow' button in popup 
-            ntract_unfollow = check_xpath(webdriver=driver, xpath=unfollow_button, click=True, send_keys=False, keys=None)
+            ntract_unfollow = check_xpath(webdriver=driver, xpath=unfollow_button, 
+                                          click=True, send_keys=False, keys=None)
             # note outcome for csv (0=success)
             fields.append(ntract_unfollow)
 
@@ -237,11 +243,12 @@ class InstagramBot:
             # did we actually successfully unfollow
             if ntract_unfollow == 0:
                 # pause so we can do this for a long time without breaching the unfollow limit 
-                sleep(random.randint(8,12))
+                sleep(random.randint(9,12))
 
             # on first loop
             if i == 0:
-                print(f'first account has been unfollowed ; {datetime.datetime.now()}')
+                # lay out the situation 
+                print(f'zeroth account has been unfollowed ; {len(accounts_to_unfollow)-1} to go ; {datetime.datetime.now()}')
 
             # every 25th loop
             if i % 25 == 0 and i != 0:
@@ -252,4 +259,4 @@ class InstagramBot:
                 # or just a quarter
                 else:
                     # display percentage completion
-                    print(f'{int(100*(i/len(accounts_to_unfollow[start:end])))}% complete ; {datetime.datetime.now()}')
+                    print(f'{int(100*(i/len(accounts_to_unfollow)))}% complete ; {datetime.datetime.now()}')
