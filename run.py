@@ -47,4 +47,7 @@ if __name__ == "__main__":
                 ig = InstagramBot(username=u, password=p)
 
     elif mode == 'unfollow':
-        ig.unfollow(start=1750,end=2000)
+        # unfollow these people
+        ig.unfollow(start=2002,end=2300)
+        # close her down
+        ig.closeBrowser()
