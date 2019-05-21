@@ -241,10 +241,15 @@ class InstagramBot:
 
             # on first loop
             if i == 0:
-                print(f'first account has been unfollowed; {datetime.datetime.now()}')
+                print(f'first account has been unfollowed ; {datetime.datetime.now()}')
 
             # every 25th loop
             if i % 25 == 0 and i != 0:
-                # display progress
-                print(f'{int(i/len(accounts_to_unfollow[start:end]))}%')
-
+                # are we on a 50th
+                if i % 50 == 0:
+                    # display raw number completion
+                    print(f'{i}/{len(accounts_to_unfollow[start:end])} complete ; {datetime.datetime.now()}')
+                # or just a quarter
+                else:
+                    # display percentage completion
+                    print(f'{int(i/len(accounts_to_unfollow[start:end]))}% complete ; {datetime.datetime.now()}')
