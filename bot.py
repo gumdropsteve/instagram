@@ -41,6 +41,8 @@ class InstagramBot:
         self.password = password
         # set driver with options 
         self.driver = webdriver.Firefox(options=options)
+        # minimize browser window
+        self.driver.minimize_window()
 
     def closeBrowser(self):
         """
