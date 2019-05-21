@@ -38,12 +38,26 @@ user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) \
 follows_users = pd.read_csv('data/follows_users_ttv_princearthur_20190421_2205.csv')
 # load accounts & info on following
 by_users = pd.read_csv('data/followed_by_users_ttv_princearthru_20190421_1846.csv')
+# load .unfollow() log
+unfollow_log = pd.read_csv('accounts_ttvpa_used_to_follow.csv')
 
-"""misc.
+"""hashtags
 """
-# pleasanton real estate tags
-plsntn_re_tags = ['pleasanton', 'californialife', 'californiaadventure', 'homesforsale', 'fsbo', 'californiarealestate', 'pleasantonhomesforsale', 'bayarearealestate', 'forsalebyowner']
-
+# general real estate
+gen_real_estate_tags = ['homesforsale', 'fsbo', 'forsalebyowner', 'realestate', 'realty', 'realtor', 'nar']
+# california real estate
+ca_real_estate_tags = ['californiarealestate']
+# bay area real estate
+bay_real_estate_tags =['bayarearealestate', 'bayareahomes']
+# general california
+gen_california_tags = ['californialife', 'californiaadventure']
+# east bay real estate
+pleasanton_tags = ['pleasanton', 'pleasantonhomesforsale']
+hashtags_2 = ['videogames', 'videogame', 'battleroyale', 'freeforall', 'codblackout', 'coptopplays',
+            'codclipsdaily', 'codclips', 'proplayer', 'like4like', 'fazetesty', 'streamer']
+hashtags = ['callofduty', 'codnation', 'blackops4', 'multiplayer', 'xbox', 'ps4', 'twitch', 'esports',
+                'coderedtourneyment', 'popupcup', 'gamingmemes', 'memes', 'ninja', 'pogchamp', 'twitch',
+            'likeback', 'cod', 'longshot', 'ttv', 'faze']
 
 
 
