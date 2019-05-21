@@ -254,4 +254,4 @@ class InstagramBot:
                 # or just a quarter
                 else:
                     # display percentage completion
-                    print(f'{int(i/len(accounts_to_unfollow[start:end]))}% complete ; {datetime.datetime.now()}')
+                    print(f'{int(100*(i/len(accounts_to_unfollow[start:end])))}% complete ; {datetime.datetime.now()}')
