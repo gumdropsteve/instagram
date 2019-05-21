@@ -24,7 +24,6 @@ def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None):
     try:
         # find xpath in question
         find_element = webdriver.find_element_by_xpath(xpath)
-        # element was found, step 1 complete
         # are we clicking
         if click == True:
             # yes, so click
@@ -37,7 +36,10 @@ def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None):
             find_element.send_keys(keys)
             # hedge time
             sleep(3)
+        # element exists and was successfull
+        return 0
     # if it didn't work
     except NoSuchElementException:
         print(f'NoSuchElementException : {xpath}')
-    pass
+        # element does not exist or process was unsuccessful
+        return 1
