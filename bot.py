@@ -14,7 +14,7 @@ from selenium.common.exceptions import NoSuchElementException
 # outside functions
 from helpers import check_xpath
 # misc
-from infos import scroll, plsntn_re_tags
+from infos import scroll
 # data
 from infos import follows_users, by_users
 # urls
@@ -199,8 +199,8 @@ class InstagramBot:
             driver.get(user_url)
             # wait for profile page to load
             sleep(3)
-            # test for/find and click the 'following' button  
-            check_xpath(webdriver=driver, xpath=following_button, click=True)
+            # test for/find and click the 'following' button (0=success)
+            ntract_following = check_xpath(webdriver=driver, xpath=following_button, click=True)
             # wait a bit (hedge load)
             sleep(2)
             
@@ -216,12 +216,14 @@ class InstagramBot:
             profile_url = user_url
 
             # set values to be recorded (to the ranch!)
-            fields = [account_id, username, profile_url, datetime.datetime.now()]
+            fields = [account_id, username, profile_url, datetime.datetime.now(), ntract_following]
             
             '''execute'''
             # test for/find and click 'unfollow' button in popup 
-            check_xpath(webdriver=driver, xpath=unfollow_button, click=True, send_keys=False, keys=None)
-            
+            ntract_unfollow = check_xpath(webdriver=driver, xpath=unfollow_button, click=True, send_keys=False, keys=None)
+            # note outcome for csv (0=success)
+            fields.append(ntract_unfollow)
+
             '''record the transaction'''
             # open up the csv
             with open('accounts_ttvpa_used_to_follow.csv', 'a') as _f:
@@ -229,48 +231,8 @@ class InstagramBot:
                 writer = csv.writer(_f)
                 # document the transaction
                 writer.writerow(fields)
-            # pause so we can do this for a long time without breaching the unfollow limit 
-            sleep(10)
-
-
-# determine mode
-# mode='unfollow'  # 'like'
-# make this a runable script 
-if __name__ == "__main__":
-    """
-       ***adjust lines 240-248 to fit your style***
-    """
-    # loading login info 
-    from _pile import utv, ptv
-    # your username 
-    u = utv 
-    # your password
-    p = ptv  
-
-    # label the bot
-    ig = InstagramBot(username=u, password=p)
-    # get the party started 
-    ig.login()
-
-    if mode == 'like':
-        # insert your desired hashtags here (list)
-        hashtags = plsntn_re_tags
-
-        while True:
-            # this should work until all tags have been used
-            try:
-                # choose a random tag from the list of tags
-                tag = random.choice(hashtags)
-                # like the posts under that tag
-                ig.like_photos(tag)
-            # if it doesn't, or (hopefully) we're done
-            except Exception:
-                # close her down
-                ig.closeBrowser()
-                # take a break 
-                sleep(600)
-                # retry the bot 
-                ig = InstagramBot(username=u, password=p)
-
-    elif mode == 'unfollow':
-        ig.unfollow(start=1500,end=1750)
+            
+            # did we actually successfully unfollow
+            if ntract_unfollow == 0:
+                # pause so we can do this for a long time without breaching the unfollow limit 
+                sleep(random.randint(8,12))
