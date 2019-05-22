@@ -3,6 +3,16 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException  
 
+"""to add
+detect if page is 404
+    by text? 
+recording info on the visuals
+    what is the account broadcasting?
+        rip sullivan --classic
+    this may be better in bot?
+        no? what is point of helpers?
+            maybe.
+"""
 
 def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None):
     """
