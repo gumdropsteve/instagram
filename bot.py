@@ -11,16 +11,18 @@ import datetime
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException 
-# outside functions
-from helpers import check_xpath
-# misc (.js)
+
+# .js help
 from infos import scroll
-# data (loaded here for future multitasking)
-from infos import follows_users, by_users, unfollow_log
+# functions
+from helpers import check_xpath
 # urls
 from infos import ig_log_page, ig_tags_url
+# data (loaded here for future multitasking)
+from infos import follows_users, by_users, unfollow_log
 # paths
 from infos import username_box, password_box, save_info_popup, like, following_button, unfollow_button
+
 
 class InstagramBot:
 
