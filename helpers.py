@@ -2,6 +2,7 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException  
+from infos import ig_not_available
 
 """to add
 detect if page is 404
@@ -50,5 +51,30 @@ def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None):
         return 0
     # if it didn't work
     except NoSuchElementException:
-        # element does not exist or process was unsuccessful
+        # run 404 test
+        test_404 = ig_page_broken_page(webdriver=webdriver)
+        # return 404 if 404 or 1 if not 404
+        return test_404
+
+
+def ig_page_broken_page(webdriver, xpath=ig_not_available):
+    """
+    determines if the current page is an instagram 404 or not
+
+    inputs)
+    > webdriver
+        >> driver being used
+    > xpath
+        >> xpath in question
+            > default is to text on Instagram's 404 page
+    """
+    # test this 
+    try:
+        # find xpath in question
+        driver.find_element_by_xpath(xpath)
+        # indicate successful find
+        return 404
+    # if it didn't work
+    except:
+        # indicate failure to find
         return 1
