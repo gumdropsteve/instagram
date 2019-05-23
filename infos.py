@@ -17,7 +17,7 @@ following_button = '//button[contains(text(),"Following")]'
 # xpath ; unfollow button 
 unfollow_button = '//button[contains(text(),"Unfollow")]'
 # xpath ; instagram 404 page text
-ig_not_available = '//span[contains(text(),"The link you followed may be broken, or the page may have been removed.")]'
+# ig_not_available = '//[contains(text(),"The link you followed may be broken, or the page may have been removed.")]'
 
 """urls
 """
