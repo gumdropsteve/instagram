@@ -54,7 +54,8 @@ def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None):
         # run 404 test
         # test_404 = ig_broken_page(webdriver=webdriver)
         # return 404 if 404 or 1 if not 404
-        return test_404
+        # return test_404
+        return 1
 
 
 # def ig_broken_page(webdriver, xpath=ig_not_available):
