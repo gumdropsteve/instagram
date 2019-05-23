@@ -48,6 +48,6 @@ if __name__ == "__main__":
 
     elif mode == 'unfollow':
         # unfollow these people
-        ig.unfollow(start=0,end=4000)
+        ig.unfollow(start=0,end=5500)
         # close her down
         ig.closeBrowser()
