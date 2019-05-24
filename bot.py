@@ -198,20 +198,21 @@ class InstagramBot:
                     >> rec: n < 250 , due to mass unfollowing (usually) being prohibited 
                     >> default: 1 (i.e. two (2) accounts)
         """        
-        # init & trim following
-        self.follows = follows_users[start:end]
-        # init & trim followers
-        self.followers = by_users[start:end]
+        # generate full list of urls qualified to unfollow
+        urls_to_unfollow = InstagramBot.analyze_following(self, followers=by_users, 
+                                                          following=follows_users, to_unfollow=True)
+        # trim list to urls in start/end range
+        accounts_in_range = urls_to_unfollow[start:end]
 
-        # generate full list of urls qualified to unfollow (include previously seen urls)
-        accounts_to_unfollow = InstagramBot.analyze_following(self, followers=self.follows, 
-                                                              following=self.followers, 
-                                                              to_unfollow=True, previous=True)
-        print(len(accounts_to_unfollow))
-        sleep(4)
+        # call up the lady at the county recorders office (previously visited urls)
+        previously_seen_ulrs = InstagramBot.analyze_following(self, followers=by_users.iloc[0],
+                                                              following=unfollow_log, to_unfollow=True)
+        # forget urls which are in the start/end range but have been visited before
+        accounts_to_unfollow = [url for url in accounts_in_range if url not in previously_seen_ulrs]
+        
         # retag driver
         driver = self.driver
-
+        
         # within the number of loops equal to the number of urls
         for i in range(len(accounts_to_unfollow)):
             '''prime the mission'''
@@ -228,9 +229,10 @@ class InstagramBot:
             
             '''set up recording of transaction'''
             # pull the account's record
-            this_account = follows_users.loc[follows_users['user_profile'] == user_url]
+            this_account = follows_users.loc[follows_users.user_profile == user_url]
+
             # account's id number
-            account_id = this_account.id.values[0]
+            account_id = int(this_account.id)
             # account's username
             username = list(this_account.username)[0]
             # account's url
