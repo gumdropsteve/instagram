@@ -7,7 +7,12 @@ from bot import InstagramBot
 from infos import pleasanton_tags
 
 # determine mode
-mode='unfollow'  # 'like'
+mode='unfollow'  # 'like' 'analyze unfollow'
+
+# determine start point in data
+genesis = 0
+# determine end point in data
+exodus = 6000
 
 # make this a runable script 
 if __name__ == "__main__":
@@ -23,10 +28,22 @@ if __name__ == "__main__":
 
     # label the bot
     ig = InstagramBot(username=u, password=p)
-    # get the party started 
-    ig.login()
+    
+    if mode == 'analyze unfollow':
+        # import data
+        from infos import by_users, follows_users
+        # analyze current selection of unfollowability
+        au = ig.analyze_following(followers=by_users[genesis:exodus], 
+                                  following=follows_users[genesis:exodus],
+                                  to_unfollow=True, previous=True)
+        # display number of subject accounts in selection 
+        print(len(au))
+        # quit driver
+        ig.closeBrowser()
 
-    if mode == 'like':
+    elif mode == 'like':
+        # get the party started 
+        ig.login()
         # insert your desired hashtags here (list)
         hashtags = pleasanton_tags
 
@@ -47,7 +64,12 @@ if __name__ == "__main__":
                 ig = InstagramBot(username=u, password=p)
 
     elif mode == 'unfollow':
+        # get the party started 
+        ig.login()
         # unfollow these people
-        ig.unfollow(start=0,end=5500)
+        ig.unfollow(start=genesis,end=exodus)
         # close her down
         ig.closeBrowser()
+
+    else:
+        print(f'mode == {mode}')
