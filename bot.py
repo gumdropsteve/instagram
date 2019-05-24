@@ -22,6 +22,8 @@ from infos import ig_log_page, ig_tags_url
 from infos import follows_users, by_users, unfollow_log
 # paths
 from infos import username_box, password_box, save_info_popup, like, following_button, unfollow_button
+# misc
+from infos import ig_tags_url
 
 
 class InstagramBot:
@@ -46,42 +48,39 @@ class InstagramBot:
         # minimize browser window
         self.driver.minimize_window()
 
-    def closeBrowser(self):
-        """
-        closes webdriver
-        """
-        self.driver.close()
-
     def login(self):
         """
         loads and logs in to instagram
         """
-        # set driver
-        driver = self.driver
         # load instagram login page
-        driver.get(ig_log_page)
+        self.driver.get(ig_log_page)
         # wait (hedge load time)
         sleep(2)
+
         # find user box, type in account id
-        driver.find_element_by_xpath(username_box).send_keys(self.username)
+        self.driver.find_element_by_xpath(username_box).send_keys(self.username)
         # find key box and call locksmith, he should be able to punch in
-        driver.find_element_by_xpath(password_box).send_keys(self.password, Keys.RETURN)
+        self.driver.find_element_by_xpath(password_box).send_keys(self.password, Keys.RETURN)
         # hedge request/load time 
         sleep(3)
+        
         # take care if "save info" pop-up page pops up
-        check_xpath(webdriver=driver, xpath=save_info_popup, click=True)
+        check_xpath(webdriver=self.driver, xpath=save_info_popup, click=True)
 
     def like_photos(self, hashtag):
-        from infos import ig_tags_url
+        """collects group of image urls by hashtag
+        then loads & likes each individually 
+        """
         # set driver
         driver = self.driver
+        
         # load the webpage to which the image belongs 
         driver.get(ig_tags_url + hashtag + '/')
         # better safe than sorry
         sleep(2)
 
-        """gather a nice collection of posts
-        """
+        '''gather a nice collection of posts
+        '''
         # set base collection for hrefs 
         pic_hrefs = []
         # next step will be repeated 7 times to load 7 scrolls of pictures (adjustable)
@@ -99,16 +98,16 @@ class InstagramBot:
                                  if '.com/p/' in elem.get_attribute('href')]
                 # building list of unique photos
                 [pic_hrefs.append(href) for href in hrefs_in_view if href not in pic_hrefs]
-                # print("Check: pic href length " + str(len(pic_hrefs)))
+                print("Check: pic href length " + str(len(pic_hrefs)))
             # but just in case
             except:
                 # let us know it didn't work, and which iteration 
-                print(f'except Exception: #{_} gathering photos')
+                print(f"except Exception: #{_} gathering photos")
                 # and keep moving
                 continue
 
-        """actually liking the posts
-        """
+        '''actually liking the posts
+        '''
         # note how many posts there are 
         unique_photos = len(pic_hrefs)
         # go through each one
@@ -141,9 +140,14 @@ class InstagramBot:
             unique_photos -= 1
             # let us know how many remain
             print(unique_photos)
-    
+
+    def closeBrowser(self):
+        """closes webdriver
+        """
+        self.driver.close()  
+
     def analyze_following(self, followers=by_users, following=follows_users, 
-                          to_unfollow=False, follow_backers=False):
+                          to_unfollow=False, follow_backers=False, previous=False):
         """identifies users who you are following that do not follow you back
         and other stuff, we're not all negative, more to come
         """
@@ -154,8 +158,18 @@ class InstagramBot:
         
         # requested accounts to unfollow?
         if to_unfollow == True:
-            # output urls of profiles to unfollow 
-            return [user for user in follows_usernames if user not in by_usernames]
+            # identify urls of profiles to unfollow 
+            un = [user for user in follows_usernames if user not in by_usernames]
+            # are we considering previous
+            if previous == True:
+                # so list out previous
+                prev = [user for user in unfollow_log.user_profile]
+                # and consider them
+                return [user for user in un if user not in prev]
+            # otherwise
+            else:
+                # gimme da loot
+                return un
 
         # requested accounts to never unfollow?
         if follow_backers == True:
@@ -184,21 +198,20 @@ class InstagramBot:
                     >> rec: n < 250 , due to mass unfollowing (usually) being prohibited 
                     >> default: 1 (i.e. two (2) accounts)
         """        
-        # generate full list of urls qualified to unfollow
-        urls_to_unfollow = InstagramBot.analyze_following(self, followers=by_users, 
-                                                          following=follows_users, to_unfollow=True)
-        # trim list to urls in start/end range
-        accounts_in_range = urls_to_unfollow[start:end]
+        # init & trim following
+        self.follows = follows_users[start:end]
+        # init & trim followers
+        self.followers = by_users[start:end]
 
-        # call up the lady at the county recorders office (previously visited urls)
-        previously_seen_ulrs = InstagramBot.analyze_following(self, followers=by_users.iloc[0],
-                                                              following=unfollow_log, to_unfollow=True)
-        # forget urls which are in the start/end range but have been visited before
-        accounts_to_unfollow = [url for url in accounts_in_range if url not in previously_seen_ulrs]
-        
+        # generate full list of urls qualified to unfollow (include previously seen urls)
+        accounts_to_unfollow = InstagramBot.analyze_following(self, followers=self.follows, 
+                                                              following=self.followers, 
+                                                              to_unfollow=True, previous=True)
+        print(len(accounts_to_unfollow))
+        sleep(4)
         # retag driver
         driver = self.driver
-        
+
         # within the number of loops equal to the number of urls
         for i in range(len(accounts_to_unfollow)):
             '''prime the mission'''
@@ -215,10 +228,9 @@ class InstagramBot:
             
             '''set up recording of transaction'''
             # pull the account's record
-            this_account = follows_users.loc[follows_users.user_profile == user_url]
-
+            this_account = follows_users.loc[follows_users['user_profile'] == user_url]
             # account's id number
-            account_id = int(this_account.id)
+            account_id = this_account.id.values[0]
             # account's username
             username = list(this_account.username)[0]
             # account's url
