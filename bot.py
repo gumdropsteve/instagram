@@ -277,7 +277,7 @@ class InstagramBot:
 
             '''record the transaction'''
             # open up the csv
-            with open('accounts_ttvpa_used_to_follow.csv', 'a') as _f:
+            with open('data/made/accounts_ttvpa_used_to_follow.csv', 'a') as _f:
                 # fit the writer
                 writer = csv.writer(_f)
                 # document the transaction
