@@ -222,8 +222,12 @@ class InstagramBot:
             driver.get(user_url)
             # wait for profile page to load
             sleep(3)
+            
             # test for/find and click the 'following' button (0=success)
             ntract_following = check_xpath(webdriver=driver, xpath=following_button, click=True)
+            
+            """# was the button found & clicked
+            if ntract_following ==  0:"""  # to be added after data for 6,12 test has been collected
             # wait a bit (hedge load)
             sleep(2)
             
@@ -245,8 +249,31 @@ class InstagramBot:
             # test for/find and click 'unfollow' button in popup 
             ntract_unfollow = check_xpath(webdriver=driver, xpath=unfollow_button, 
                                           click=True, send_keys=False, keys=None)
+            
+            """start temp fix of 1,1 logic issue"""  # adjust time measures (very slightly) to reflect
+            # 'Following' was never found/clicked
+            if ntract_following == 1:
+                # double check "impossible" case
+                if ntract_unfollow != 0:
+                    # so 'Unfollow' button was not expected
+                    ntract_unfollow = 'N/a' 
+                # double check "impossible" case
+                elif ntract_unfollow == 1:
+                    raise Exception(f'"IMPOSSIBLE" CASE : ntract_unfollow == 1')
+            """end temp fix of 1,1 logic issue"""  # adjust time measures (very slightly) to reflect
+
             # note outcome for csv (0=success)
             fields.append(ntract_unfollow)
+            """# was 'Following' button found and clicked
+            if ntract_following == 0:
+                # test for/find and click 'unfollow' button in popup 
+                ntract_unfollow = check_xpath(webdriver=driver, xpath=unfollow_button, 
+                                              click=True, send_keys=False, keys=None)
+            else:
+                ntract_unfollow = 'N/a'
+            # set values to be recorded (to the ranch!)
+            fields = [account_id, username, profile_url, datetime.datetime.now(), 
+                      ntract_following, ntract_unfollow]"""  # to be added after data for 6,12 test has been collected
 
             '''record the transaction'''
             # open up the csv
