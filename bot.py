@@ -259,7 +259,7 @@ class InstagramBot:
             # did we actually successfully unfollow
             if ntract_unfollow == 0:
                 # pause so we can do this for a long time without breaching the unfollow limit 
-                sleep(random.randint(7,12))
+                sleep(random.randint(6,12))
 
             # on first loop
             if i == 0:
