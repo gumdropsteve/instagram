@@ -37,11 +37,11 @@ user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) \
 """data
 """
 # load accounts & info on followed
-follows_users = pd.read_csv('data/follows_users_ttv_princearthur_20190421_2205.csv')
+follows_users = pd.read_csv('data/scraped/follows_users_ttv_princearthur_20190421_2205.csv')
 # load accounts & info on following
-by_users = pd.read_csv('data/followed_by_users_ttv_princearthru_20190421_1846.csv')
+by_users = pd.read_csv('data/scraped/followed_by_users_ttv_princearthru_20190421_1846.csv')
 # load .unfollow() log
-unfollow_log = pd.read_csv('accounts_ttvpa_used_to_follow.csv')
+unfollow_log = pd.read_csv('data/made/accounts_ttvpa_used_to_follow.csv')
 
 """hashtags
 """
