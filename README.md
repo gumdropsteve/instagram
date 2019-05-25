@@ -55,3 +55,4 @@ Object-oriented Selenium (Python) WebDriver class providing deep-insight and tas
 
 
 Collection of data was done via [Helper Tools for Instagram](https://bit.ly/2RarbLj)
+* currently under mass reorg; next push will implement (will not be for a few days)
