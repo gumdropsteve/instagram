@@ -1,3 +1,4 @@
+import csv
 import pandas as pd
 from time import sleep
 from datetime import datetime
@@ -16,6 +17,7 @@ def verify_unfollow(webdriver, log=unfollow_log, prior=verified_unfollow_log):
     visits each profile, checks for existance of 'Following' button
     if 'Following' button exists, account was obviously not unfollowed
     rewrites unfollow_log with new 'actually_unfollowed' and 'time_checked' columns
+        to verified_accounts_ttvpa_used_to_follow.csv
 
     inputs)
         > webdirver
@@ -32,7 +34,7 @@ def verify_unfollow(webdriver, log=unfollow_log, prior=verified_unfollow_log):
     # id urls verified
     verified_urls = [url for url in prior.user_profile]
     # focus & trim log urls
-    url_log = [url for url in log.user_profile if url not in verified_urls]
+    url_log = [url for url in log.user_profile[:100] if url not in verified_urls]
     # go through each
     for _ in range(len(url_log[:8])):
         # tag that url
@@ -58,14 +60,19 @@ def verify_unfollow(webdriver, log=unfollow_log, prior=verified_unfollow_log):
         this_user.append(datetime.now())
         # to the ranch!
         out.append(this_user)
+    '''record the transaction
+    '''
+    # open up the csv
+    with open('data/made/verified_accounts_ttvpa_used_to_follow.csv', 'a') as _f:
+        # fit the writer
+        writer = csv.writer(_f)
+        # each out is an account
+        for user in out:
+            # document the transaction
+            writer.writerow(user)
     # that's a wrap
-    webdriver.close()
-    # make dataframe
-    df=pd.DataFrame(data=out,columns=None)
-    # write it (this may not work, but)
-    df.to_csv('data/made/verified_accounts_ttvpa_used_to_follow.csv',index=False)
-    # output dataframe
-    return df
+    return webdriver.close()
+
 
 # lets do it
 if __name__=='__main__':
