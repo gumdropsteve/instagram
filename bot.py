@@ -21,7 +21,7 @@ from infos import ig_log_page, ig_tags_url
 # data (loaded here for future multitasking)
 from infos import follows_users, by_users, unfollow_log, verified_unfollow_log
 # paths
-from infos import username_box, password_box, save_info_popup, like, following_button, unfollow_button
+from infos import username_box, password_box, save_info_popup, like, following_button, unfollow_button, follow_button
 # misc
 from infos import ig_tags_url
 
@@ -229,8 +229,19 @@ class InstagramBot:
                 this_user.append(1)
             # does it not exist?
             elif check == 1:
-                # ok, so we unfollowed
+                # ok, so we unfollowed (unless it's 404)
                 this_user.append(0)
+            # check for 'Follow' button
+            check_404 = check_xpath(webdriver=self.driver, xpath=follow_button, 
+                                    click=False, send_keys=False, keys=None)
+            # does it exist?
+            if check_404 == 0:
+                # this is not a 404
+                this_user.append(0)
+            # does it not exist?
+            elif check_404 == 1:
+                # this is a possible 404
+                this_user.append(1)
             # and note the time
             this_user.append(datetime.datetime.now())
             # to the ranch!
