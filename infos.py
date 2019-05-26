@@ -14,8 +14,14 @@ like = '//span[@aria-label="Like"]'
 new_post_button = '//span[@aria-label="New Post"]'
 # xpath ; following button 
 following_button = '//button[contains(text(),"Following")]'
-# xpath ; unfollow button 
+# xpath ; unfollow button
 unfollow_button = '//button[contains(text(),"Unfollow")]'
+"""# xpath ; # posts by this account display
+following_button = '//span[contains(text(),"posts")]'
+# xpath ; # accounts following this account
+following_button = '//button[contains(text(),"followers")]'
+# xpath ; following button 
+following_button = '//button[contains(text(),"following")]'""" # soon come
 # xpath ; instagram 404 page text
 # ig_not_available = '//[contains(text(),"The link you followed may be broken, or the page may have been removed.")]'
 
@@ -43,7 +49,7 @@ by_users = pd.read_csv('data/scraped/followed_by_users_ttv_princearthru_20190421
 # load .unfollow() log
 unfollow_log = pd.read_csv('data/made/accounts_ttvpa_used_to_follow.csv')
 # load verified .unfollow() log
-verified_unfollow_log = pd.read_csv('data/made/unfollow_verified_accounts_ttvpa_used_to_follow.csv')
+verified_unfollow_log = pd.read_csv('data/made/verified_accounts_ttvpa_used_to_follow.csv')
 
 """hashtags
 """
