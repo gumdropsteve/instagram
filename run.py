@@ -12,7 +12,7 @@ mode='verify unfollowing'  # 'unfollow' 'like' 'analyze unfollow'
 # determine start point in data
 genesis = 0
 # determine end point in data
-exodus = 250
+exodus = 3500
 
 # make this a runable script 
 if __name__ == "__main__":
@@ -75,7 +75,7 @@ if __name__ == "__main__":
         # kickoff (this can be more efficient; fix when making analysis class)
         ig.login()
         # verify some unfollowings 
-        ig.verify_unfollow()
+        ig.verify_unfollow(start=genesis, end=exodus)
         # wrap it up (run.py needs to be rewritten)
         ig.close_browser()
 
