@@ -34,7 +34,7 @@ def verify_unfollow(webdriver, log=unfollow_log, prior=verified_unfollow_log):
     # focus & trim log urls
     url_log = [url for url in log.user_profile if url not in verified_urls]
     # go through each
-    for _ in range(len(url_log[:5])):
+    for _ in range(len(url_log[:8])):
         # tag that url
         url = url_log[_]
         # pull that account's info in log & make into a list of unique values
@@ -60,15 +60,10 @@ def verify_unfollow(webdriver, log=unfollow_log, prior=verified_unfollow_log):
         out.append(this_user)
     # that's a wrap
     webdriver.close()
-    # tag columns
-    cols = [column for column in log.columns.values]
-    # add column for if the account is still followed
-    cols.append('actually_unfollowed')
-    # add column for time 
-    cols.append('time_checked_au')
     # make dataframe
-    df=pd.DataFrame(data=out,columns=cols)
-    df.to_csv('test.csv',index=False)
+    df=pd.DataFrame(data=out,columns=None)
+    # write it (this may not work, but)
+    df.to_csv('data/made/verified_accounts_ttvpa_used_to_follow.csv',index=False)
     # output dataframe
     return df
 
