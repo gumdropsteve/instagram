@@ -16,6 +16,8 @@ new_post_button = '//span[@aria-label="New Post"]'
 following_button = '//button[contains(text(),"Following")]'
 # xpath ; unfollow button
 unfollow_button = '//button[contains(text(),"Unfollow")]'
+# xpath ; follow button
+follow_button = '//button[contains(text(),"Follow")]'
 
 """urls
 """
