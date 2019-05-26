@@ -141,7 +141,7 @@ class InstagramBot:
             # let us know how many remain
             print(unique_photos)
 
-    def closeBrowser(self):
+    def close_browser(self):
         """closes webdriver
         """
         self.driver.close()  
@@ -179,8 +179,7 @@ class InstagramBot:
         #otherwise
         else:
             # not much
-            pass
-        
+            pass        
     
     def unfollow(self, start=0, end=250):
         """
