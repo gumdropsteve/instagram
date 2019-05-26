@@ -16,14 +16,6 @@ new_post_button = '//span[@aria-label="New Post"]'
 following_button = '//button[contains(text(),"Following")]'
 # xpath ; unfollow button
 unfollow_button = '//button[contains(text(),"Unfollow")]'
-"""# xpath ; # posts by this account display
-following_button = '//span[contains(text(),"posts")]'
-# xpath ; # accounts following this account
-following_button = '//button[contains(text(),"followers")]'
-# xpath ; following button 
-following_button = '//button[contains(text(),"following")]'""" # soon come
-# xpath ; instagram 404 page text
-# ig_not_available = '//[contains(text(),"The link you followed may be broken, or the page may have been removed.")]'
 
 """urls
 """
