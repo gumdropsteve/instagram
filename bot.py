@@ -19,7 +19,7 @@ from helpers import check_xpath
 # urls
 from infos import ig_log_page, ig_tags_url
 # data (loaded here for future multitasking)
-from infos import follows_users, by_users, unfollow_log
+from infos import follows_users, by_users, unfollow_log, verified_unfollow_log
 # paths
 from infos import username_box, password_box, save_info_popup, like, following_button, unfollow_button
 # misc
@@ -179,7 +179,91 @@ class InstagramBot:
         #otherwise
         else:
             # not much
-            pass        
+            pass       
+
+    def verify_unfollow(self, log=unfollow_log, prior=verified_unfollow_log, 
+                        start=0, end=250):
+        """takes list of accounts that have been 'unfollowed' in unfollow_log
+        visits each profile, checks for existance of 'Following' button
+        if 'Following' button exists, account was obviously not unfollowed
+        rewrites unfollow_log with new 'actually_unfollowed' and 'time_checked' columns
+            to verified_accounts_ttvpa_used_to_follow.csv
+
+        inputs)
+            > webdirver
+                >> driver in use
+            > log 
+                >> log of accounts which have been run through bot.py 
+                    > default = unfollow_log
+            > prior 
+                >> accounts which have gone through verification process
+                    > default = verified_unfollow_log
+            > start
+                >> first instance to consider
+            > end
+                >> last instance to consider
+        """
+        # set out route
+        out = []
+        # id urls verified
+        verified_urls = [url for url in prior.user_profile]
+        # focus & trim log urls
+        url_log = [url for url in log.user_profile[start:end] if url not in verified_urls]
+        # go through each
+        for _ in range(len(url_log)):
+            # tag that url
+            url = url_log[_]
+            # pull that account's info in log & make into a list of unique values
+            this_user = [datapoint for list in log.loc[log.user_profile == url].values 
+                        for datapoint in list]
+            # load the url in question
+            self.driver.get(url)
+            # hold up
+            sleep(2)
+            # check for 'Following' button
+            check = check_xpath(webdriver=self.driver, xpath=following_button, 
+                                click=False, send_keys=False, keys=None)
+            # does it exist?
+            if check == 0:
+                # never actually unfollowed 
+                this_user.append(1)
+            # does it not exist?
+            elif check == 1:
+                # ok, so we unfollowed
+                this_user.append(0)
+            # and note the time
+            this_user.append(datetime.datetime.now())
+            # to the ranch!
+            out.append(this_user)
+            '''record the transaction
+            '''  # moved & staggered to allow ctrl + c at minimal cost
+            # every 5th we will record (and each remainder at end)
+            if _ % 5 == 0 or len(url_log) - _ < 5:
+                # open up the csv
+                with open('data/made/verified_accounts_ttvpa_used_to_follow.csv', 'a') as file:
+                    # fit the writer
+                    writer = csv.writer(file)
+                    # each out is an account
+                    for user in out:
+                        # document the transaction
+                        writer.writerow(user)
+                    # reset temp log
+                    out = []
+
+            # on first loop
+            if _ == 0:
+                # lay out the situation 
+                print(f'zeroth account has been verified ; {len(url_log)-1} to go ; {datetime.datetime.now()}')
+            # every 25th loop
+            if _ % 25 == 0 and _ != 0:
+                # are we on a 50th
+                if _ % 50 == 0:
+                    # display raw number completion
+                    print(f'{_}/{len(url_log[start:end])} complete ; {datetime.datetime.now()}')
+                # or just a quarter
+                else:
+                    # display percentage completion
+                    print(f'{int(100*(_/len(url_log)))}% complete ; {datetime.datetime.now()}')
     
     def unfollow(self, start=0, end=250):
         """
@@ -209,21 +293,18 @@ class InstagramBot:
         # forget urls which are in the start/end range but have been visited before
         accounts_to_unfollow = [url for url in accounts_in_range if url not in previously_seen_ulrs]
         
-        # retag driver
-        driver = self.driver
-        
         # within the number of loops equal to the number of urls
         for i in range(len(accounts_to_unfollow)):
             '''prime the mission'''
             # tag the url you encounter
             user_url = accounts_to_unfollow[i]
             # load that url
-            driver.get(user_url)
+            self.driver.get(user_url)
             # wait for profile page to load
             sleep(3)
             
             # test for/find and click the 'following' button (0=success)
-            ntract_following = check_xpath(webdriver=driver, xpath=following_button, click=True)
+            ntract_following = check_xpath(webdriver=self.driver, xpath=following_button, click=True)
             
             """# was the button found & clicked
             if ntract_following ==  0:"""  # to be added after data for 6,12 test has been collected
@@ -246,7 +327,7 @@ class InstagramBot:
             
             '''execute'''
             # test for/find and click 'unfollow' button in popup 
-            ntract_unfollow = check_xpath(webdriver=driver, xpath=unfollow_button, 
+            ntract_unfollow = check_xpath(webdriver=self.driver, xpath=unfollow_button, 
                                           click=True, send_keys=False, keys=None)
             
             """start temp fix of 1,1 logic issue"""  # adjust time measures (very slightly) to reflect
@@ -266,7 +347,7 @@ class InstagramBot:
             """# was 'Following' button found and clicked
             if ntract_following == 0:
                 # test for/find and click 'unfollow' button in popup 
-                ntract_unfollow = check_xpath(webdriver=driver, xpath=unfollow_button, 
+                ntract_unfollow = check_xpath(webdriver=self.driver, xpath=unfollow_button, 
                                               click=True, send_keys=False, keys=None)
             else:
                 ntract_unfollow = 'N/a'
