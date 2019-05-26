@@ -7,12 +7,12 @@ from bot import InstagramBot
 from infos import pleasanton_tags
 
 # determine mode
-mode='unfollow'  # 'like' 'analyze unfollow'
+mode='verify unfollowing'  # 'unfollow' 'like' 'analyze unfollow'
 
 # determine start point in data
 genesis = 0
 # determine end point in data
-exodus = 7250
+exodus = 250
 
 # make this a runable script 
 if __name__ == "__main__":
@@ -70,6 +70,15 @@ if __name__ == "__main__":
         ig.unfollow(start=genesis,end=exodus)
         # close her down
         ig.close_browser()
+
+    elif mode == 'verify unfollowing':
+        # kickoff (this can be more efficient; fix when making analysis class)
+        ig.login()
+        # verify some unfollowings 
+        ig.verify_unfollow()
+        # wrap it up (run.py needs to be rewritten)
+        ig.close_browser()
+
 
     else:
         print(f'mode == {mode}')
