@@ -219,7 +219,7 @@ class InstagramBot:
             # load the url in question
             self.driver.get(url)
             # hold up
-            sleep(2)
+            sleep(random.randint(2,3))
             # check for 'Following' button
             check = check_xpath(webdriver=self.driver, xpath=following_button, 
                                 click=False, send_keys=False, keys=None)
