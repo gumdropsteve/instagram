@@ -39,7 +39,7 @@ if __name__ == "__main__":
         # display number of subject accounts in selection 
         print(len(au))
         # quit driver
-        ig.closeBrowser()
+        ig.close_browser()
 
     elif mode == 'like':
         # get the party started 
@@ -57,7 +57,7 @@ if __name__ == "__main__":
             # if it doesn't, or (hopefully) we're done
             except Exception:
                 # close her down
-                ig.closeBrowser()
+                ig.close_browser()
                 # take a break 
                 sleep(600)
                 # retry the bot 
@@ -69,7 +69,7 @@ if __name__ == "__main__":
         # unfollow these people
         ig.unfollow(start=genesis,end=exodus)
         # close her down
-        ig.closeBrowser()
+        ig.close_browser()
 
     else:
         print(f'mode == {mode}')
