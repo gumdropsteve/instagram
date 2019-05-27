@@ -44,7 +44,7 @@ class InstagramBot:
         # set pwrd
         self.password = password
         # set ds
-        self.ds = self.DataScience()
+        # self.ds = self.DataScience()
         # set driver with options 
         self.driver = webdriver.Firefox(options=options)
         # minimize browser window
