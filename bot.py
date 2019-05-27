@@ -227,73 +227,81 @@ class InstagramBot:
         verified_urls = [url for url in prior.user_profile]
         # focus & trim log urls
         url_log = [url for url in log.user_profile[start:end] if url not in verified_urls]
-        # go through each
-        for _ in range(len(url_log)):
-            # tag that url
-            url = url_log[_]
-            # pull that account's info in log & make into a list of unique values
-            this_user = [datapoint for list in log.loc[log.user_profile == url].values 
-                        for datapoint in list]
-            # load the url in question
-            self.driver.get(url)
-            # hold up
-            sleep(random.randint(2,3))
-            # check for 'Following' button
-            check = check_xpath(webdriver=self.driver, xpath=following_button, 
-                                click=False, send_keys=False, keys=None)
-            # does it exist?
-            if check == 0:
-                # never actually unfollowed 
-                this_user.append(1)
-            # does it not exist?
-            elif check == 1:
-                # ok, so we unfollowed (unless it's 404)
-                this_user.append(0)
-            # check for 'Follow' button
-            check_404 = check_xpath(webdriver=self.driver, xpath=follow_button, 
+        # determine # of accounts to be verified
+        num_to_verify = len(url_log)
+        # assuming it's not 0
+        if num_to_verify != 0:
+            # go through each
+            for _ in range():
+                # tag that url
+                url = url_log[_]
+                # pull that account's info in log & make into a list of unique values
+                this_user = [datapoint for list in log.loc[log.user_profile == url].values 
+                            for datapoint in list]
+                # load the url in question
+                self.driver.get(url)
+                # hold up
+                sleep(random.randint(2,3))
+                # check for 'Following' button
+                check = check_xpath(webdriver=self.driver, xpath=following_button, 
                                     click=False, send_keys=False, keys=None)
-            # does it exist?
-            if check_404 == 0:
-                # this is not a 404
-                this_user.append(0)
-            # does it not exist?
-            elif check_404 == 1:
-                # this is a possible 404
-                this_user.append(1)
-            # and note the time
-            this_user.append(datetime.datetime.now())
-            # to the ranch!
-            out.append(this_user)
-            '''record the transaction
-            '''  # moved & staggered to allow ctrl + c at minimal cost
-            # every 5th we will record (and each remainder at end)
-            if _ % 10 == 0 or len(url_log) - _ < 1:
-                # open up the csv
-                with open('data/made/verified_accounts_ttvpa_used_to_follow.csv', 'a') as file:
-                    # fit the writer
-                    writer = csv.writer(file)
-                    # each out is an account
-                    for user in out:
-                        # document the transaction
-                        writer.writerow(user)
-                    # reset temp log
-                    out = []
+                # does it exist?
+                if check == 0:
+                    # never actually unfollowed 
+                    this_user.append(1)
+                # does it not exist?
+                elif check == 1:
+                    # ok, so we unfollowed (unless it's 404)
+                    this_user.append(0)
+                # check for 'Follow' button
+                check_404 = check_xpath(webdriver=self.driver, xpath=follow_button, 
+                                        click=False, send_keys=False, keys=None)
+                # does it exist?
+                if check_404 == 0:
+                    # this is not a 404
+                    this_user.append(0)
+                # does it not exist?
+                elif check_404 == 1:
+                    # this is a possible 404
+                    this_user.append(1)
+                # and note the time
+                this_user.append(datetime.datetime.now())
+                # to the ranch!
+                out.append(this_user)
+                '''record the transaction
+                '''  # moved & staggered to allow ctrl + c at minimal cost
+                # every 5th we will record (and each remainder at end)
+                if _ % 10 == 0 or len(url_log) - _ < 1:
+                    # open up the csv
+                    with open('data/made/verified_accounts_ttvpa_used_to_follow.csv', 'a') as file:
+                        # fit the writer
+                        writer = csv.writer(file)
+                        # each out is an account
+                        for user in out:
+                            # document the transaction
+                            writer.writerow(user)
+                        # reset temp log
+                        out = []
 
-            # on first loop
-            if _ == 0:
-                # lay out the situation 
-                print(f'zeroth account has been verified ; {len(url_log)-1} to go ; {datetime.datetime.now()}')
-            # every 25th loop
-            if _ % 25 == 0 and _ != 0:
-                # are we on a 50th
-                if _ % 50 == 0:
-                    # display raw number completion
-                    print(f'{_}/{len(url_log[start:end])} complete ; {datetime.datetime.now()}')
-                # or just a quarter
-                else:
-                    # display percentage completion
-                    print(f'{int(100*(_/len(url_log)))}% complete ; {datetime.datetime.now()}')
-    
+                # on first loop
+                if _ == 0:
+                    # lay out the situation 
+                    print(f'zeroth account has been verified ; {len(url_log)-1} to go ; {datetime.datetime.now()}')
+                # every 25th loop
+                if _ % 25 == 0 and _ != 0:
+                    # are we on a 50th
+                    if _ % 50 == 0:
+                        # display raw number completion
+                        print(f'{_}/{len(url_log[start:end])} complete ; {datetime.datetime.now()}')
+                    # or just a quarter
+                    else:
+                        # display percentage completion
+                        print(f'{int(100*(_/len(url_log)))}% complete ; {datetime.datetime.now()}')
+        # but if it is
+        else:
+            # let us know
+            print(f'{num_to_verify} accounts need verification')
+        
     def unfollow(self, start=0, end=250):
         """
         NEEDS: more tuned outcomes
