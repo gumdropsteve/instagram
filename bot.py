@@ -43,6 +43,8 @@ class InstagramBot:
         self.username = username
         # set pwrd
         self.password = password
+        # set ds
+        self.ds = self.DataScience()
         # set driver with options 
         self.driver = webdriver.Firefox(options=options)
         # minimize browser window
@@ -146,8 +148,24 @@ class InstagramBot:
         """
         self.driver.close()  
 
+    # class DataScience:
+
+    #     def __init__(self):
+    #         # account followers
+    #         self.followers = by_users
+    #         # account following
+    #         self.following = follows_users
+    #         # accounts which have been unfollowed
+    #         self.unfollowed = unfollow_log
+    #         # accounts which have been unfollow verified
+    #         self.verified = verified_unfollow_log
+    #         # set user
+    #         self.user = InstagramBot.username
+    #         # set driver
+    #         self.driver = InstagramBot(self.username, self.password).driver
+
     def analyze_following(self, followers=by_users, following=follows_users, 
-                          to_unfollow=False, follow_backers=False, previous=False):
+                        to_unfollow=False, follow_backers=False, previous=False):
         """identifies users who you are following that do not follow you back
         and other stuff, we're not all negative, more to come
         """
