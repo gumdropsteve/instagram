@@ -70,12 +70,19 @@ class Insta_Info_Scraper:
         # display number of iterations
         print(n)
         
+        # set up nan check count
+        nan_check = 0
+        # set up nan break count
+        nan_break = 0
+
         # que through n accounts in records
         for _ in range(n):
             # every 10 accounts
             if _ % 10 == 0 and _ != 0:
                 # take a pause
                 sleep(10)
+                # reset nan check
+                nan_check = 0
                 # every 100 accounts
                 if _ % 100 == 0:
                     # provide status update
@@ -86,10 +93,43 @@ class Insta_Info_Scraper:
                 if _ % 300 == 0:
                     # double the pause time
                     sleep(30)
+            
+            # check nan check
+            if nan_check > 5:
+                # too many nans
+                print(f'nan check = {nan_check}\nnan break = {nan_break}\ncurrent iteration = {_}\ntaking 10 min off')
+                # take significant time off
+                sleep(601)
+                # and reset nan check
+                nan_check = 0
+                # note how many times this has happened 
+                nan_break += 1
+                # has this happened more than 3 times?
+                if nan_break > 3:
+                    # woah
+                    print('NAN BREAK ; STOPPING FOR AN HOUR')
+                    # let's take a serious break
+                    sleep(900)
+                    # how long has it been
+                    print('NAN BREAK ; 45 MINUTES REMAINING')
+                    sleep(900)
+                    # how long has it been
+                    print('NAN BREAK ; 30 MINUTES REMAINING')
+                    sleep(900)
+                    # how long has it been
+                    print('NAN BREAK ; 15 MINUTES REMAINING')
+                    sleep(840)
+                    # how long has it been
+                    print('NAN BREAK; 60 SECONDS REMAINING')
+                    sleep(60)
+                    # we done, let's continue
+                    print('End NAN BREAK')
+                    
             # focus whichever account is up
             account = df.loc[_]
             # list out it's datapoints
             datas = [i for i in account]
+            
             # will fail if 404 
             try:
                 # pull metrics on that account via url
@@ -98,12 +138,16 @@ class Insta_Info_Scraper:
             except:
                 # real metrics (probably) don't exist
                 metrics = ['nan','nan','nan','nan']
+                # note in nan check
+                nan_check += 1 
+
             # note the time these metrics were recorded
             metrics.append(datetime.now()) 
             # go through each metric
             for metric in metrics:
                 # add it to the account's datapoints 
                 datas.append(metric)
+            
             '''record the transaction
             '''  
             # open up the csv
@@ -112,6 +156,8 @@ class Insta_Info_Scraper:
                 writer = csv.writer(file)
                 # document the transaction
                 writer.writerow(datas)
+            # slight break time
+            sleep(1)
 
 
 if __name__ == '__main__':
