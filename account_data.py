@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 import ssl
 import json
 import pandas as pd
+import csv
 
 
 class Insta_Info_Scraper:
@@ -22,11 +23,7 @@ class Insta_Info_Scraper:
         followers = text[0]
         following = text[2]
         posts = text[4]
-        print ('User:', user)
-        print ('Followers:', followers)
-        print ('Following:', following)
-        print ('Posts:', posts)
-        print ('---------------------------')
+        return user, posts, followers, following
 
     def main(self):
         self.ctx = ssl.create_default_context()
@@ -37,7 +34,16 @@ class Insta_Info_Scraper:
         urls=[i for i in df.user_profile]
 
         for url in urls[:5]:
-            self.getinfo(url)
+            user = self.getinfo(url)
+
+            '''record the transaction
+            '''  
+            # open up the csv
+            with open('data/made/test_account_data.csv', 'a') as file:
+                # fit the writer
+                writer = csv.writer(file)
+                # document the transaction
+                writer.writerow(user)
 
 
 if __name__ == '__main__':
