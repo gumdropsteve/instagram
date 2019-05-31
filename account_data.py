@@ -7,6 +7,7 @@ import urllib.error
 from bs4 import BeautifulSoup
 import ssl
 import json
+import pandas as pd
 
 
 class Insta_Info_Scraper:
@@ -32,10 +33,10 @@ class Insta_Info_Scraper:
         self.ctx.check_hostname = False
         self.ctx.verify_mode = ssl.CERT_NONE
 
-        with open('users.txt') as f:
-            self.content = f.readlines()
-        self.content = [x.strip() for x in self.content]
-        for url in self.content:
+        df=pd.read_csv('data/made/verified_accounts_ttvpa_used_to_follow.csv')
+        urls=[i for i in df.user_profile]
+
+        for url in urls[:5]:
             self.getinfo(url)
 
 
