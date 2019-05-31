@@ -1,0 +1,5 @@
+Thanks to Abhisek for writing the following: https://www.promptcloud.com/blog/how-to-scrape-instagram-data-using-python/
+
+It helped with identifying account metrics which will play a role in the "Data Science" of the Bot.
+
+Thank you.
