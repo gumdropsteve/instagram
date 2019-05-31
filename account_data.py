@@ -72,18 +72,18 @@ class Insta_Info_Scraper:
         
         # que through n accounts in records
         for _ in range(n):
-            # every 100 accounts
-            if _ % 100 == 0 and _ != 0:
+            # every 10 accounts
+            if _ % 10 == 0 and _ != 0:
                 # take a pause
                 sleep(10)
-                # every 300 accounts
-                if _ % 300 == 0:
+                # every 100 accounts
+                if _ % 100 == 0:
                     # provide status update
                     print(f'{_}/{n} : {int((_/n)*100)}%')
                     # and take extra pause
                     sleep(20)
-                # every 1200 accounts
-                if _ % 1200 == 0:
+                # every 300 accounts
+                if _ % 300 == 0:
                     # double the pause time
                     sleep(30)
             # focus whichever account is up
