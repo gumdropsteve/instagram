@@ -199,6 +199,15 @@ class InstagramBot:
             # not much
             pass       
 
+    def check_counts(self, uncounted_log=verified_unfollow_log, s=0, e=250):
+        """
+        takes list of accounts that have been through .verify_unfollow()
+        visits each profile, checks counts for posts, followers, following
+        if the user is still followed, unfollows them
+        documents all times 
+        """
+        pass
+
     def verify_unfollow(self, log=unfollow_log, prior=verified_unfollow_log, 
                         start=0, end=250):
         """takes list of accounts that have been 'unfollowed' in unfollow_log
