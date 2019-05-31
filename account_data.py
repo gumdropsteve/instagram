@@ -10,6 +10,7 @@ import json
 from time import sleep
 import pandas as pd
 import csv
+from infos import verified_unfollow_log
 from datetime import datetime
 
 
@@ -61,17 +62,25 @@ class Insta_Info_Scraper:
         self.ctx = ssl.create_default_context()
         self.ctx.check_hostname = False
         self.ctx.verify_mode = ssl.CERT_NONE
+        
         # load the record log
-        df=pd.read_csv('data/made/verified_accounts_ttvpa_used_to_follow.csv')
-        # que through each account in records
-        for _ in range(len(df[:int(len(df)/3)])):
+        df = verified_unfollow_log
+        # determine number of iterations
+        n = len(df[:int(len(df)/3)])
+        # display number of iterations
+        print(n)
+        
+        # que through n accounts in records
+        for _ in range(n):
             # every 100 accounts
             if _ % 100 == 0 and _ != 0:
                 # take a pause
                 sleep(10)
                 # every 300 accounts
                 if _ % 300 == 0:
-                    # take extra pause
+                    # provide status update
+                    print(f'{_}/{n} : {int((_/n)*100)}%')
+                    # and take extra pause
                     sleep(20)
                 # every 1200 accounts
                 if _ % 1200 == 0:
