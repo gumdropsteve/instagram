@@ -22,10 +22,13 @@ class Insta_Info_Scraper:
         soup = BeautifulSoup(html, 'html.parser')
         # identify interest 
         data = soup.find_all('meta', attrs={'property': 'og:description'})
+        
         # tag & bag data 
         text = data[0].get('content').split()
+        
         # user name as account calls itself
         user = '%s %s' % (text[-3], text[-2])
+        
         # number of followers
         followers = text[0]
         # scan for number abbreviatiions
@@ -34,11 +37,23 @@ class Insta_Info_Scraper:
             followers = followers
         # if there are no indicators 
         else:
+            # report with an int
             followers = int(followers.replace(',',''))
+        
         # number of accounts followed
-        following = int(text[2].replace(',',''))
+        following = text[2]
+        # scan for number abbreviatiions
+        if 'k' in followers or 'm' in following:
+            # keep exactly how is, for sutdy
+            following = following
+        # if there are no inficators
+        else:
+            # report with an int
+            following = int(following.replace(',',''))
+        
         # number of posts
         posts = int(text[4].replace(',',''))
+
         # output user/username with #posts, #followers, and #accounts that user is following 
         return user, posts, followers, following
 
@@ -49,7 +64,19 @@ class Insta_Info_Scraper:
         # load the record log
         df=pd.read_csv('data/made/verified_accounts_ttvpa_used_to_follow.csv')
         # que through each account in records
-        for _ in range(len(df[:30])):
+        for _ in range(len(df[:int(len(df)/3)])):
+            # every 100 accounts
+            if _ % 100 == 0 and _ != 0:
+                # take a pause
+                sleep(10)
+                # every 300 accounts
+                if _ % 300 == 0:
+                    # take extra pause
+                    sleep(20)
+                # every 1200 accounts
+                if _ % 1200 == 0:
+                    # double the pause time
+                    sleep(30)
             # focus whichever account is up
             account = df.loc[_]
             # list out it's datapoints
@@ -58,8 +85,9 @@ class Insta_Info_Scraper:
             try:
                 # pull metrics on that account via url
                 metrics = list(self.getinfo(account.user_profile))
-            # so for the potential 426 fails
+            # so for the potential 426 fails (on full df)
             except:
+                # real metrics (probably) don't exist
                 metrics = ['nan','nan','nan','nan']
             # note the time these metrics were recorded
             metrics.append(datetime.now()) 
