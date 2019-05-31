@@ -147,8 +147,127 @@ class InstagramBot:
         """closes webdriver
         """
         self.driver.close()  
+        
+    def unfollow(self, start=0, end=250):
+        """
+        NEEDS: more tuned outcomes
 
-    # class DataScience:
+        goes through list of accounts
+            loads the current account's profile url
+                makes sure that account is cleared for unfollowing
+                    unfollows the account 
+        inputs)
+            >> accounts
+                > list of accounts eligible for unfollowing
+            >> n
+                > number of those accounts we're going to unfollow right now
+                    >> rec: n < 250 , due to mass unfollowing (usually) being prohibited 
+                    >> default: 1 (i.e. two (2) accounts)
+        """        
+        # generate full list of urls qualified to unfollow
+        urls_to_unfollow = InstagramBot.analyze_following(self, followers=by_users, 
+                                                          following=follows_users, to_unfollow=True)
+        # trim list to urls in start/end range
+        accounts_in_range = urls_to_unfollow[start:end]
+
+        # call up the lady at the county recorders office (previously visited urls)
+        previously_seen_ulrs = InstagramBot.analyze_following(self, followers=by_users.iloc[0],
+                                                              following=unfollow_log, to_unfollow=True)
+        # forget urls which are in the start/end range but have been visited before
+        accounts_to_unfollow = [url for url in accounts_in_range if url not in previously_seen_ulrs]
+        
+        # within the number of loops equal to the number of urls
+        for i in range(len(accounts_to_unfollow)):
+            '''prime the mission'''
+            # tag the url you encounter
+            user_url = accounts_to_unfollow[i]
+            # load that url
+            self.driver.get(user_url)
+            # wait for profile page to load
+            sleep(3)
+            
+            # test for/find and click the 'following' button (0=success)
+            ntract_following = check_xpath(webdriver=self.driver, xpath=following_button, click=True)
+            
+            """# was the button found & clicked
+            if ntract_following ==  0:"""  # to be added after data for 6,12 test has been collected
+            # wait a bit (hedge load)
+            sleep(2)
+            
+            '''set up recording of transaction'''
+            # pull the account's record
+            this_account = follows_users.loc[follows_users.user_profile == user_url]
+
+            # account's id number
+            account_id = int(this_account.id)
+            # account's username
+            username = list(this_account.username)[0]
+            # account's url
+            profile_url = user_url
+
+            # set values to be recorded (to the ranch!)
+            fields = [account_id, username, profile_url, datetime.datetime.now(), ntract_following]
+            
+            '''execute'''
+            # test for/find and click 'unfollow' button in popup 
+            ntract_unfollow = check_xpath(webdriver=self.driver, xpath=unfollow_button, 
+                                          click=True, send_keys=False, keys=None)
+            
+            """start temp fix of 1,1 logic issue"""  # adjust time measures (very slightly) to reflect
+            # 'Following' was never found/clicked
+            if ntract_following == 1:
+                # double check "impossible" case
+                if ntract_unfollow != 0:
+                    # so 'Unfollow' button was not expected
+                    ntract_unfollow = 'N/a' 
+                # double check "impossible" case
+                elif ntract_unfollow == 1:
+                    raise Exception(f'"IMPOSSIBLE" CASE : ntract_unfollow == 1')
+            """end temp fix of 1,1 logic issue"""  # adjust time measures (very slightly) to reflect
+
+            # note outcome for csv (0=success)
+            fields.append(ntract_unfollow)
+            """# was 'Following' button found and clicked
+            if ntract_following == 0:
+                # test for/find and click 'unfollow' button in popup 
+                ntract_unfollow = check_xpath(webdriver=self.driver, xpath=unfollow_button, 
+                                              click=True, send_keys=False, keys=None)
+            else:
+                ntract_unfollow = 'N/a'
+            # set values to be recorded (to the ranch!)
+            fields = [account_id, username, profile_url, datetime.datetime.now(), 
+                      ntract_following, ntract_unfollow]"""  # to be added after data for 6,12 test has been collected
+
+            '''record the transaction'''
+            # open up the csv
+            with open('data/made/accounts_ttvpa_used_to_follow.csv', 'a') as _f:
+                # fit the writer
+                writer = csv.writer(_f)
+                # document the transaction
+                writer.writerow(fields)
+            
+            # did we actually successfully unfollow
+            if ntract_unfollow == 0:
+                # pause so we can do this for a long time without breaching the unfollow limit 
+                sleep(random.randint(6,12))
+
+            # on first loop
+            if i == 0:
+                # lay out the situation 
+                print(f'zeroth account has been unfollowed ; {len(accounts_to_unfollow)-1} to go ; {datetime.datetime.now()}')
+
+            # every 25th loop
+            if i % 25 == 0 and i != 0:
+                # are we on a 50th
+                if i % 50 == 0:
+                    # display raw number completion
+                    print(f'{i}/{len(accounts_to_unfollow[start:end])} complete ; {datetime.datetime.now()}')
+                # or just a quarter
+                else:
+                    # display percentage completion
+                    print(f'{int(100*(i/len(accounts_to_unfollow)))}% complete ; {datetime.datetime.now()}')
+
+    """# class DataScience:
 
     #     def __init__(self):
     #         # account followers
@@ -162,7 +281,8 @@ class InstagramBot:
     #         # set user
     #         self.user = InstagramBot.username
     #         # set driver
-    #         self.driver = InstagramBot(self.username, self.password).driver
+    #         self.driver = InstagramBot(self.username, self.password).driver"""  # coming; eventually 
+    # ALL BELOW ARE METHODS OF DataScience SUB-class
 
     def analyze_following(self, followers=by_users, following=follows_users, 
                         to_unfollow=False, follow_backers=False, previous=False):
@@ -310,122 +430,4 @@ class InstagramBot:
         else:
             # let us know
             print(f'{num_to_verify} accounts need verification')
-        
-    def unfollow(self, start=0, end=250):
-        """
-        NEEDS: more tuned outcomes
 
-        goes through list of accounts
-            loads the current account's profile url
-                makes sure that account is cleared for unfollowing
-                    unfollows the account 
-        inputs)
-            >> accounts
-                > list of accounts eligible for unfollowing
-            >> n
-                > number of those accounts we're going to unfollow right now
-                    >> rec: n < 250 , due to mass unfollowing (usually) being prohibited 
-                    >> default: 1 (i.e. two (2) accounts)
-        """        
-        # generate full list of urls qualified to unfollow
-        urls_to_unfollow = InstagramBot.analyze_following(self, followers=by_users, 
-                                                          following=follows_users, to_unfollow=True)
-        # trim list to urls in start/end range
-        accounts_in_range = urls_to_unfollow[start:end]
-
-        # call up the lady at the county recorders office (previously visited urls)
-        previously_seen_ulrs = InstagramBot.analyze_following(self, followers=by_users.iloc[0],
-                                                              following=unfollow_log, to_unfollow=True)
-        # forget urls which are in the start/end range but have been visited before
-        accounts_to_unfollow = [url for url in accounts_in_range if url not in previously_seen_ulrs]
-        
-        # within the number of loops equal to the number of urls
-        for i in range(len(accounts_to_unfollow)):
-            '''prime the mission'''
-            # tag the url you encounter
-            user_url = accounts_to_unfollow[i]
-            # load that url
-            self.driver.get(user_url)
-            # wait for profile page to load
-            sleep(3)
-            
-            # test for/find and click the 'following' button (0=success)
-            ntract_following = check_xpath(webdriver=self.driver, xpath=following_button, click=True)
-            
-            """# was the button found & clicked
-            if ntract_following ==  0:"""  # to be added after data for 6,12 test has been collected
-            # wait a bit (hedge load)
-            sleep(2)
-            
-            '''set up recording of transaction'''
-            # pull the account's record
-            this_account = follows_users.loc[follows_users.user_profile == user_url]
-
-            # account's id number
-            account_id = int(this_account.id)
-            # account's username
-            username = list(this_account.username)[0]
-            # account's url
-            profile_url = user_url
-
-            # set values to be recorded (to the ranch!)
-            fields = [account_id, username, profile_url, datetime.datetime.now(), ntract_following]
-            
-            '''execute'''
-            # test for/find and click 'unfollow' button in popup 
-            ntract_unfollow = check_xpath(webdriver=self.driver, xpath=unfollow_button, 
-                                          click=True, send_keys=False, keys=None)
-            
-            """start temp fix of 1,1 logic issue"""  # adjust time measures (very slightly) to reflect
-            # 'Following' was never found/clicked
-            if ntract_following == 1:
-                # double check "impossible" case
-                if ntract_unfollow != 0:
-                    # so 'Unfollow' button was not expected
-                    ntract_unfollow = 'N/a' 
-                # double check "impossible" case
-                elif ntract_unfollow == 1:
-                    raise Exception(f'"IMPOSSIBLE" CASE : ntract_unfollow == 1')
-            """end temp fix of 1,1 logic issue"""  # adjust time measures (very slightly) to reflect
-
-            # note outcome for csv (0=success)
-            fields.append(ntract_unfollow)
-            """# was 'Following' button found and clicked
-            if ntract_following == 0:
-                # test for/find and click 'unfollow' button in popup 
-                ntract_unfollow = check_xpath(webdriver=self.driver, xpath=unfollow_button, 
-                                              click=True, send_keys=False, keys=None)
-            else:
-                ntract_unfollow = 'N/a'
-            # set values to be recorded (to the ranch!)
-            fields = [account_id, username, profile_url, datetime.datetime.now(), 
-                      ntract_following, ntract_unfollow]"""  # to be added after data for 6,12 test has been collected
-
-            '''record the transaction'''
-            # open up the csv
-            with open('data/made/accounts_ttvpa_used_to_follow.csv', 'a') as _f:
-                # fit the writer
-                writer = csv.writer(_f)
-                # document the transaction
-                writer.writerow(fields)
-            
-            # did we actually successfully unfollow
-            if ntract_unfollow == 0:
-                # pause so we can do this for a long time without breaching the unfollow limit 
-                sleep(random.randint(6,12))
-
-            # on first loop
-            if i == 0:
-                # lay out the situation 
-                print(f'zeroth account has been unfollowed ; {len(accounts_to_unfollow)-1} to go ; {datetime.datetime.now()}')
-
-            # every 25th loop
-            if i % 25 == 0 and i != 0:
-                # are we on a 50th
-                if i % 50 == 0:
-                    # display raw number completion
-                    print(f'{i}/{len(accounts_to_unfollow[start:end])} complete ; {datetime.datetime.now()}')
-                # or just a quarter
-                else:
-                    # display percentage completion
-                    print(f'{int(100*(i/len(accounts_to_unfollow)))}% complete ; {datetime.datetime.now()}')
