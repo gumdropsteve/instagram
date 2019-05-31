@@ -20,9 +20,9 @@ class Insta_Info_Scraper:
                              })
         text = data[0].get('content').split()
         user = '%s %s %s' % (text[-3], text[-2], text[-1])
-        followers = text[0]
-        following = text[2]
-        posts = text[4]
+        followers = int(text[0].replace(',',''))
+        following = int(text[2].replace(',',''))
+        posts = int(text[4].replace(',',''))
         return user, posts, followers, following
 
     def main(self):
