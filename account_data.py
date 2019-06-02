@@ -95,7 +95,7 @@ class Insta_Info_Scraper:
                     sleep(30)
             
             # check nan check
-            if nan_check > 5:
+            if nan_check > 7:
                 # too many nans
                 print(f'nan check = {nan_check}\nnan break = {nan_break}\ncurrent iteration = {_}\ntaking 10 min off')
                 # take significant time off
@@ -157,7 +157,7 @@ class Insta_Info_Scraper:
                 # document the transaction
                 writer.writerow(datas)
             # slight break time
-            sleep(1)
+            sleep(2)
 
 
 if __name__ == '__main__':
