@@ -253,7 +253,7 @@ class InstagramBot:
             # on first loop
             if i == 0:
                 # lay out the situation 
-                print(f'zeroth account has been unfollowed ; {len(accounts_to_unfollow)-1} to go ; {datetime.datetime.now()}')
+                print(f'up and running ; {len(accounts_to_unfollow)-1} to go ; {datetime.datetime.now()}')
 
             # every 25th loop
             if i % 25 == 0 and i != 0:
