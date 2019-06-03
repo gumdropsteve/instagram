@@ -44,6 +44,8 @@ by_users = pd.read_csv('data/scraped/followed_by_users_ttv_princearthru_20190421
 unfollow_log = pd.read_csv('data/made/accounts_ttvpa_used_to_follow.csv')
 # load verified .unfollow() log
 verified_unfollow_log = pd.read_csv('data/made/verified_accounts_ttvpa_used_to_follow.csv')
+# load redo.unfollow() log
+redo_unfollow_log = pd.read_csv('data/made/redone_accounts_ttvpa_used_to_follow.csv')
 
 """hashtags
 """
