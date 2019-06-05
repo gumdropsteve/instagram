@@ -450,7 +450,7 @@ class InstagramBot:
                 print(f'up and running ; {len(urls_to_redo)-1} to go ; {datetime.datetime.now()}')
 
             # every 25th loop
-            if n % 25 == 0 and n != 0:
+            elif n % 25 == 0:
                 # are we on a 50th
                 if n % 50 == 0:
                     # display raw number completion
