@@ -266,7 +266,7 @@ class InstagramBot:
                     # display percentage completion
                     print(f'{int(100*(i/len(accounts_to_unfollow)))}% complete ; {datetime.datetime.now()}')
 
-    def redo_unfollow(self, start=0, end=250, verification=True):
+    def redo_unfollow(self, start=0, end=250, verification=True, record_thresh=10):
         # pull urls 
         potential_urls = [url for url in verified_unfollow_log.user_profile]
         # pull previously redone 
@@ -362,6 +362,8 @@ class InstagramBot:
                             print(f'5th test == pass')
                             # reset temp unfollowed log
                             re_unfollowed = []
+                        # and break normally
+                        sleep(30)
                     # the (defined) usual
                     elif verification == True:
                         # normal verification
@@ -388,10 +390,16 @@ class InstagramBot:
                                 print(f'25th test == pass')
                                 # reset temp unfollowed log
                                 re_unfollowed = []
+                        # break normally
+                        sleep(30)
                     # no verification 
                     elif verification == False:
-                        # carry on
-                        print(f"verification == {verification}")
+                        # ok, but every once in a while
+                        if redone_count % 25 == 0:
+                            # remind us
+                            print(f"verification == {verification}")
+                        # and don't forget break
+                        sleep(30)
                     # unknown verification
                     else:
                         # let us know
@@ -414,7 +422,7 @@ class InstagramBot:
                         print(f'\nredone_count == {redone_count}   >> taking an extra minute\n')
                         # take extra break 
                         sleep(60)
-                # idk
+                # idk (would be unexpected)
                 else:
                     # so indicate
                     raise Exception(f"redone_count == {redone_count}")
@@ -422,8 +430,9 @@ class InstagramBot:
             else:
                 # so make it known
                 raise Exception(f'info[6] == {info[6]}')
-            # this is a 10th iteration (or we're almost done)
-            if n % 10 == 0 or len(urls_to_redo) - n < 2:
+
+            # this is a nth iteration (or we're almost done)
+            if n % record_thresh == 0 or len(urls_to_redo) - n < 2:
                 # open up that redo log 
                 with open('data/made/redone_accounts_ttvpa_used_to_follow.csv', 'a') as _f:
                     # fit the writer
@@ -434,6 +443,7 @@ class InstagramBot:
                         writer.writerow(info)
                     # reset temp log
                     log = []
+                    
             # on first loop
             if n == 0:
                 # lay out the situation 
