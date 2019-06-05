@@ -75,7 +75,7 @@ if __name__ == "__main__":
         # kickoff (this can be more efficient; fix when making analysis class)
         ig.login()
         # verify some unfollowings 
-        ig.verify_unfollow(start=genesis, end=exodus)
+        ig.verify_unfollow(start=genesis, end=exodus, verification='hyper', record_thresh=5, speed=0.75)
         # wrap it up (run.py needs to be rewritten)
         ig.close_browser()
 
