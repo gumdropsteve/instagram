@@ -266,7 +266,7 @@ class InstagramBot:
                     # display percentage completion
                     print(f'{int(100*(i/len(accounts_to_unfollow)))}% complete ; {datetime.datetime.now()}')
 
-    def redo_unfollow(self, start=0, end=250, verification=True, record_thresh=10):
+    def redo_unfollow(self, start=0, end=250, verification=True, record_thresh=10, speed=1):
         # pull urls 
         potential_urls = [url for url in verified_unfollow_log.user_profile]
         # pull previously redone 
@@ -302,7 +302,7 @@ class InstagramBot:
                 # add the account to temp log
                 log.append(info)
                 # did not unfollow or load page, minimal time off 
-                sleep(1)
+                sleep(1 * (1/speed))
             # account was not actually unfollowed
             elif info[6] == 1:
                 # load that url
@@ -334,7 +334,7 @@ class InstagramBot:
                 # this isn't a 5th unfollow
                 if redone_count % 5 != 0:
                     # take some time off so we hopefully don't get blocked 
-                    sleep(30)
+                    sleep(30 * (1/speed))
                 
                 # unfollow verification (for nth unfollowing) 
                 elif redone_count % 5 == 0:
@@ -363,7 +363,7 @@ class InstagramBot:
                             # reset temp unfollowed log
                             re_unfollowed = []
                         # and break normally
-                        sleep(30)
+                        sleep(30 * (1/speed))
                     # the (defined) usual
                     elif verification == True:
                         # normal verification
@@ -391,7 +391,7 @@ class InstagramBot:
                                 # reset temp unfollowed log
                                 re_unfollowed = []
                         # break normally
-                        sleep(30)
+                        sleep(30 * (1/speed))
                     # no verification 
                     elif verification == False:
                         # ok, but every once in a while
@@ -399,7 +399,7 @@ class InstagramBot:
                             # remind us
                             print(f"verification == {verification}")
                         # and don't forget break
-                        sleep(30)
+                        sleep(30 * (1/speed))
                     # unknown verification
                     else:
                         # let us know
@@ -443,7 +443,7 @@ class InstagramBot:
                         writer.writerow(info)
                     # reset temp log
                     log = []
-                    
+
             # on first loop
             if n == 0:
                 # lay out the situation 
