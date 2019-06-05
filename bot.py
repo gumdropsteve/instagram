@@ -330,10 +330,14 @@ class InstagramBot:
                 log.append(info)
                 # note instance 
                 re_unfollowed.append(url)
-                # take some time off so we hopefully don't get blocked 
-                sleep(30)
-                # check for nth unfollowing 
-                if redone_count % 5 == 0:
+                
+                # this isn't a 5th unfollow
+                if redone_count % 5 != 0:
+                    # take some time off so we hopefully don't get blocked 
+                    sleep(30)
+                
+                # unfollow verification (for nth unfollowing) 
+                elif redone_count % 5 == 0:
                     # hyper verification?
                     if verification == 'hyper':
                         # tag 1st from this set of 5
@@ -410,6 +414,10 @@ class InstagramBot:
                         print(f'\nredone_count == {redone_count}   >> taking an extra minute\n')
                         # take extra break 
                         sleep(60)
+                # idk
+                else:
+                    # so indicate
+                    raise Exception(f"redone_count == {redone_count}")
             # this would be unexpected
             else:
                 # so make it known
