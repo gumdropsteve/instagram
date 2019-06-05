@@ -266,7 +266,7 @@ class InstagramBot:
                     # display percentage completion
                     print(f'{int(100*(i/len(accounts_to_unfollow)))}% complete ; {datetime.datetime.now()}')
 
-    def redo_unfollow(self, start=0, end=250):
+    def redo_unfollow(self, start=0, end=250, verification=True):
         # pull urls 
         potential_urls = [url for url in verified_unfollow_log.user_profile]
         # pull previously redone 
@@ -308,7 +308,7 @@ class InstagramBot:
                 # load that url
                 self.driver.get(url)      
                 # wait for profile to load
-                sleep(3)
+                sleep(5)
                 # test for/find and click the 'following' button (0=success)
                 ntract_following = check_xpath(webdriver=self.driver, xpath=following_button, click=True)
                 # add to account log
@@ -333,45 +333,81 @@ class InstagramBot:
                 # take some time off so we hopefully don't get blocked 
                 sleep(30)
                 # check for nth unfollowing 
-                if redone_count % 25 == 0:
-                    # tag middle unfollow for this set
-                    middle = re_unfollowed[12]
-                    # load middle unfollow 
-                    self.driver.get(middle) 
-                    # wait for load
-                    sleep(3)
-                    # check for 'Following' button 
-                    fing_button = check_xpath(webdriver=self.driver, xpath=following_button, click=True)
-                    # it exists; we did not unfollow 
-                    if fing_button == 0:
-                        # halt progress; we are probably blocked
-                        raise Exception(f"fing_button == {fing_button} ;\naccount == {middle}\n\nrecent unfollows == {re_unfollowed}")
-                    # it does not exist; we unfollowed
+                if redone_count % 5 == 0:
+                    # hyper verification?
+                    if verification == 'hyper':
+                        # tag 1st from this set of 5
+                        first = re_unfollowed[0]
+                        # load first unfollow
+                        self.driver.get(first)
+                        # wait for load
+                        sleep(5)
+                        # check for 'Following' button 
+                        fing_button = check_xpath(webdriver=self.driver, xpath=following_button, click=True)
+                        # it exists; we did not unfollow 
+                        if fing_button == 0:
+                            # halt progress; we are probably blocked
+                            raise Exception(f"fing_button == {fing_button} ;\naccount == {middle}\n\nrecent unfollows == {re_unfollowed}")
+                        # it does not exist; we unfollowed
+                        else:
+                            # some sort of glitch
+                            if fing_button != 1:
+                                # so that's noteworthy
+                                raise Exception(f'fing_button != 1 ;\nfing_button == {fing_button} ;\naccount == {middle}')
+                            # otherwise, good; so let us know
+                            print(f'5th test == pass')
+                            # reset temp unfollowed log
+                            re_unfollowed = []
+                    # the (defined) usual
+                    elif verification == True:
+                        # normal verification
+                        if redone_count % 25 == 0:
+                            # tag middle unfollow for this set
+                            middle = re_unfollowed[12]
+                            # load middle unfollow 
+                            self.driver.get(middle) 
+                            # wait for load
+                            sleep(5)
+                            # check for 'Following' button 
+                            fing_button = check_xpath(webdriver=self.driver, xpath=following_button, click=True)
+                            # it exists; we did not unfollow 
+                            if fing_button == 0:
+                                # halt progress; we are probably blocked
+                                raise Exception(f"fing_button == {fing_button} ;\naccount == {middle}\n\nrecent unfollows == {re_unfollowed}")
+                            # it does not exist; we unfollowed
+                            else:
+                                # some sort of glitch
+                                if fing_button != 1:
+                                    # so that's noteworthy
+                                    raise Exception(f'fing_button != 1 ;\nfing_button == {fing_button} ;\naccount == {middle}')
+                                # otherwise, good; so let us know
+                                print(f'25th test == pass')
+                                # reset temp unfollowed log
+                                re_unfollowed = []
+                    # no verification 
+                    elif verification == False:
+                        # carry on
+                        print(f"verification == {verification}")
+                    # unknown verification
                     else:
-                        # some sort of glitch
-                        if fing_button != 1:
-                            # so that's noteworthy
-                            raise Exception(f'fing_button != 1 ;\nfing_button == {fing_button} ;\naccount == {middle}')
-                        # otherwise, good; so let us know
-                        print(f'25th test == pass')
-                        # reset temp unfollowed log
-                        re_unfollowed = []
+                        # let us know
+                        print(f"\nERROR ; non-fatal ERROR ; verification method unknown ; verification == {verification}\n")
                     # it's a 500th
                     if redone_count % 500 == 0:
                         # let us know
-                        print(f'redone_count == {redone_count}   >> taking an extra 10 minutes')
+                        print(f'\nredone_count == {redone_count}   >> taking an extra 10 minutes\n')
                         # take extra break 
                         sleep(60*10)
                     # it's a 100th 
                     elif redone_count % 100 == 0:
                         # let us know
-                        print(f'redone_count == {redone_count}   >> taking an extra 5 minutes')
+                        print(f'\nredone_count == {redone_count}   >> taking an extra 5 minutes\n')
                         # take extra break 
                         sleep(60*5)
                     # it's a 50th
                     elif redone_count % 50 == 0:
                         # let us know
-                        print(f'redone_count == {redone_count}   >> taking an extra minute')
+                        print(f'\nredone_count == {redone_count}   >> taking an extra minute\n')
                         # take extra break 
                         sleep(60)
             # this would be unexpected
