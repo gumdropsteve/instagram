@@ -46,6 +46,8 @@ unfollow_log = pd.read_csv('data/made/accounts_ttvpa_used_to_follow.csv')
 verified_unfollow_log = pd.read_csv('data/made/verified_accounts_ttvpa_used_to_follow.csv')
 # load redo.unfollow() log
 redo_unfollow_log = pd.read_csv('data/made/redone_accounts_ttvpa_used_to_follow.csv')
+# load re-revified .unfollow() log
+re_verified_unfollow_log = pd.read_csv('data/made/re_verified_accounts_ttvpa_used_to_follow.csv')
 
 """hashtags
 """
