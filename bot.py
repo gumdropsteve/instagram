@@ -661,7 +661,7 @@ class InstagramBot:
         # assuming it's not 0
         if num_to_verify != 0:
             # go through each
-            for _ in range():
+            for _ in range(num_to_verify):
                 # tag that url
                 url = url_log[_]
                 # pull that account's info in log & make into a list of unique values
@@ -670,7 +670,7 @@ class InstagramBot:
                 # load the url in question
                 self.driver.get(url)
                 # hold up
-                sleep(random.randint(2,3))
+                sleep(3)
                 # check for 'Following' button
                 check = check_xpath(webdriver=self.driver, xpath=following_button, 
                                     click=False, send_keys=False, keys=None)
@@ -702,7 +702,7 @@ class InstagramBot:
                 # every 5th we will record (and each remainder at end)
                 if _ % 10 == 0 or num_to_verify - _ < 1:
                     # open up the csv
-                    with open('data/made/verified_accounts_ttvpa_used_to_follow.csv', 'a') as file:
+                    with open('data/made/re_verified_accounts_ttvpa_used_to_follow.csv', 'a') as file:
                         # fit the writer
                         writer = csv.writer(file)
                         # each out is an account
