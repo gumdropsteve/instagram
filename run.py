@@ -7,7 +7,7 @@ from bot import InstagramBot
 from infos import pleasanton_tags
 
 # determine mode
-mode='redo unfollow'  # 'verify unfollowing' 'unfollow' 'like' 'analyze unfollow'
+mode= 're_verify unfollowing'  # 'redo unfollow' 'verify unfollowing' 'unfollow' 'like' 'analyze unfollow'
 
 # determine start point in data
 genesis = 0
@@ -87,7 +87,7 @@ if __name__ == "__main__":
         # wrap it up (run.py needs to be rewritten)
         ig.close_browser()
 
-    elif mode == 'reverify unfollowing':
+    elif mode == 're_verify unfollowing':
         # kickoff (this can be more efficient; fix when making analysis class)
         ig.login()
         # verify some unfollowings 
