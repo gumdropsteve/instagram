@@ -652,8 +652,10 @@ class InstagramBot:
         out = []
         # id urls verified
         verified_urls = [url for url in prior.user_profile]
-        # focus & trim log urls
-        url_log = [url for url in log.user_profile[start:end] if url not in verified_urls]
+        # focus log urls
+        url_focus = [url for url in log.user_profile if url not in verified_urls]
+        # trim list to range
+        url_log = url_focus[start:end]
         # determine # of accounts to be verified
         num_to_verify = len(url_log)
         # assuming it's not 0
