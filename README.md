@@ -1,3 +1,4 @@
+-* up to date status: unlikely
 # Instagram
 ## InstagramBot ([bot.py](https://github.com/gumdropsteve/instagram/blob/master/bot.py))
 Object-oriented Selenium (Python) WebDriver class providing deep-insight and task automation for Instagram users.
