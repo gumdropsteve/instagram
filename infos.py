@@ -18,6 +18,8 @@ following_button = '//button[contains(text(),"Following")]'
 unfollow_button = '//button[contains(text(),"Unfollow")]'
 # xpath ; follow button
 follow_button = '//button[contains(text(),"Follow")]'
+# xpath ; # of followers
+# num_followers = '//span[@href=f"/{username}/followers/"]'
 
 """urls
 """
