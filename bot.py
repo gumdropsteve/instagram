@@ -669,8 +669,12 @@ class InstagramBot:
                             for datapoint in list]
                 # extra hold for night run
                 if _ % 10 == 0:
+                    # rarely
+                    if _ % 500 == 0:
+                        # take a snooze
+                        sleep(500)
                     # once in a while
-                    if _ % 50 == 0:
+                    elif _ % 50 == 0:
                         # less short
                         sleep(50)
                     # but normally
