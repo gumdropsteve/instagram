@@ -667,6 +667,16 @@ class InstagramBot:
                 # pull that account's info in log & make into a list of unique values
                 this_user = [datapoint for list in log.loc[log.user_profile == url].values 
                             for datapoint in list]
+                # extra hold for night run
+                if _ % 10 == 0:
+                    # once in a while
+                    if _ % 50 == 0:
+                        # less short
+                        sleep(50)
+                    # but normally
+                    else:
+                        # short
+                        sleep(3)
                 # load the url in question
                 self.driver.get(url)
                 # hold up
