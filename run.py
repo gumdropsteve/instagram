@@ -12,7 +12,7 @@ mode= 're_verify unfollowing'  # 'redo unfollow' 'verify unfollowing' 'unfollow'
 # determine start point in data
 genesis = 0
 # determine end point in data
-exodus = 500
+exodus = 1500
 
 # make this a runable script 
 if __name__ == "__main__":
