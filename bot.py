@@ -716,7 +716,7 @@ class InstagramBot:
                 '''record the transaction
                 '''  # moved & staggered to allow ctrl + c at minimal cost
                 # every 5th we will record (and each remainder at end)
-                if _ % 10 == 0 or num_to_verify - _ < 1:
+                if _ % 10 == 0 or num_to_verify - _ <= 1:
                     # open up the csv
                     with open('data/made/re_verified_accounts_ttvpa_used_to_follow.csv', 'a') as file:
                         # fit the writer
