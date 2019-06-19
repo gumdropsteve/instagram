@@ -18,8 +18,6 @@ following_button = '//button[contains(text(),"Following")]'
 unfollow_button = '//button[contains(text(),"Unfollow")]'
 # xpath ; follow button
 follow_button = '//button[contains(text(),"Follow")]'
-# xpath ; # of followers
-# num_followers = '//span[@href=f"/{username}/followers/"]'
 
 """urls
 """
@@ -50,6 +48,14 @@ verified_unfollow_log = pd.read_csv('data/made/verified_accounts_ttvpa_used_to_f
 redo_unfollow_log = pd.read_csv('data/made/redone_accounts_ttvpa_used_to_follow.csv')
 # load re-revified .unfollow() log
 re_verified_unfollow_log = pd.read_csv('data/made/re_verified_accounts_ttvpa_used_to_follow.csv')
+# load mass log from 2nd scrape
+second_round_all=pd.read_csv('data/scraped/All_users_ttv.princearthur_20190613_2119.csv')
+# followers from 2nd round (len = 1458)
+s2_follows_princearthur=[url for url in df.loc[df.user_followed_by==True].user_profile]
+# following from 2nd round (len = 1080)
+s2_princearthur_follows=[url for url in df.loc[df.user_follows==True].user_profile]
+# 2nd round accounts following that are not followers (len = 441)
+s2_eligible_for_unfollowing=[url for url in princearthur_follows if url not in follows_princearthur]
 
 """hashtags
 """
@@ -63,8 +69,10 @@ bay_real_estate_tags =['bayarearealestate', 'bayareahomes']
 gen_california_tags = ['californialife', 'californiaadventure']
 # east bay real estate
 pleasanton_tags = ['pleasanton', 'pleasantonhomesforsale']
+# gaming tags
 hashtags_2 = ['videogames', 'videogame', 'battleroyale', 'freeforall', 'codblackout', 'coptopplays',
             'codclipsdaily', 'codclips', 'proplayer', 'like4like', 'fazetesty', 'streamer']
+# gaming tags
 hashtags = ['callofduty', 'codnation', 'blackops4', 'multiplayer', 'xbox', 'ps4', 'twitch', 'esports',
                 'coderedtourneyment', 'popupcup', 'gamingmemes', 'memes', 'ninja', 'pogchamp', 'twitch',
             'likeback', 'cod', 'longshot', 'ttv', 'faze']
