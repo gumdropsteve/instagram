@@ -51,11 +51,11 @@ re_verified_unfollow_log = pd.read_csv('data/made/re_verified_accounts_ttvpa_use
 # load mass log from 2nd scrape
 second_round_all=pd.read_csv('data/scraped/All_users_ttv.princearthur_20190613_2119.csv')
 # followers from 2nd round (len = 1458)
-s2_follows_princearthur=[url for url in df.loc[df.user_followed_by==True].user_profile]
+s2_follows_princearthur=[url for url in second_round_all.loc[second_round_all.user_followed_by==True].user_profile]
 # following from 2nd round (len = 1080)
-s2_princearthur_follows=[url for url in df.loc[df.user_follows==True].user_profile]
+s2_princearthur_follows=[url for url in second_round_all.loc[second_round_all.user_follows==True].user_profile]
 # 2nd round accounts following that are not followers (len = 441)
-s2_eligible_for_unfollowing=[url for url in princearthur_follows if url not in follows_princearthur]
+s2_eligible_for_unfollowing=[url for url in s2_princearthur_follows if url not in s2_follows_princearthur]
 
 """hashtags
 """
