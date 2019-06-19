@@ -461,7 +461,7 @@ class InstagramBot:
                     print(f'{int(100*(n/len(urls_to_redo)))}% complete ; {datetime.datetime.now()}')        
 
 
-    def round_2_unfollow(self, start=0, end=250, verification=True, record_thresh=10, speed=1):
+    def unfollow(self, start=0, end=250, verification=True, record_thresh=10, speed=1):
         # pull urls 
         potential_urls = [url for url in verified_unfollow_log.user_profile]
         # pull previously redone 
