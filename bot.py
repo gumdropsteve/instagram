@@ -627,7 +627,7 @@ class InstagramBot:
             print(f'{num_to_verify} accounts need verification')
 
     def re_verify_unfollow(self, log=redo_unfollow_log, prior=re_verified_unfollow_log, 
-                           start=0, end=250):
+                           start=0, end=250, out_log='data/made/re_verified_accounts_ttvpa_used_to_follow.csv'):
         """takes list of accounts that have been 'unfollowed' in unfollow_log
         visits each profile, checks for existance of 'Following' button
         if 'Following' button exists, account was obviously not unfollowed
@@ -718,7 +718,7 @@ class InstagramBot:
                 # every 5th we will record (and each remainder at end)
                 if _ % 10 == 0 or num_to_verify - _ <= 1:
                     # open up the csv
-                    with open('data/made/re_verified_accounts_ttvpa_used_to_follow.csv', 'a') as file:
+                    with open(out_log, 'a') as file:
                         # fit the writer
                         writer = csv.writer(file)
                         # each out is an account
