@@ -15,9 +15,8 @@ recording info on the visuals
             maybe.
 """
 
-def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None):
-    """
-    checks if an xpath exists on the current page
+def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None, hedge_load=1):
+    """checks if an xpath exists on the current page
 
     inputs)
         > webdriver
@@ -30,7 +29,15 @@ def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None):
             >> if sending keys to element once/if found
         > keys
             >> keys being sent if sending keys (i.e. send_keys=True)
+
+    output)
+        > if successful
+            >> 0
+        > if unsuccessful
+            >> 1
     """
+    # hedge laod time
+    sleep(hedge_load)
     # test this 
     try:
         # find xpath in question
