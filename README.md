@@ -1,20 +1,18 @@
--* up to date status: unlikely
+-* up to date status: reasonably
 # Instagram
 ## InstagramBot ([bot.py](https://github.com/gumdropsteve/instagram/blob/master/bot.py))
 Object-oriented Selenium (Python) WebDriver class providing deep-insight and task automation for Instagram users.
 
+<a href="https://github.com/SeleniumHQ/selenium">
+  <img src="https://img.shields.io/badge/built%20with-Selenium-yellow.svg" /></a>
+<a href="https://www.python.org/">
+  <img src="https://img.shields.io/badge/built%20with-Python3-red.svg" /></a>
+ 
 #### Abilities: 
   - Log in to Instagram
-    - login()
-  - like Instagram posts based on hashtag(s)
-    - like_photos(hashtag)
-  - Evaluate following
-    - analyze_following(followers, following, to_unfollow=False, follow_backers=False)
-      - if to_unfollow=True
-        - returns urls of accounts which the user follows but is not followed by
-      - if follow_backers=True
-        - returns urls of accounts which the user both follows and is followed by
-      - must be given data
+    - .login()
+  - Like posts based on hashtag
+    - .like_posts(hashtag, hrefs)
   - Unfollow specific accounts
     - unfollow(start, end)
       - records the following about each unfollowed account in .csv
@@ -40,6 +38,7 @@ Object-oriented Selenium (Python) WebDriver class providing deep-insight and tas
   - Follow accounts
     - By hashtag
     - By other accounts
+  - Bring back .analyze_following()
   - More follower analysis
     - Compairson to other accounts
     - Identify similar accounts
