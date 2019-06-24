@@ -7,7 +7,7 @@ from bot import InstagramBot
 from infos import pleasanton_tags
 
 # determine mode
-mode= 're_verify unfollowing'  # 'redo unfollow' 'verify unfollowing' 'unfollow' 'like' 'analyze unfollow'
+mode= 'like' #'re_verify unfollowing' 'redo unfollow' 'verify unfollowing' 'unfollow' 'like' 'analyze unfollow'
 
 # determine start point in data
 genesis = 0
@@ -28,72 +28,85 @@ if __name__ == "__main__":
 
     # label the bot
     ig = InstagramBot(username=u, password=p)
+
+    # in testing mode
+    if mode == 'like':
+        # log in
+        ig.login()
+        # set hashtag
+        hashtag = 'codnation'
+        # gather posts
+        to_like = ig.gather_posts(hashtag=hashtag)
+        # like posts 
+        ig.like_posts(hashtag=hashtag, hrefs=to_like)
+        # close up shop
+        ig.close_browser()
     
-    if mode == 'analyze unfollow':
-        # import data
-        from infos import by_users, follows_users
-        # analyze current selection of unfollowability
-        au = ig.analyze_following(followers=by_users[genesis:exodus], 
-                                  following=follows_users[genesis:exodus],
-                                  to_unfollow=True, previous=True)
-        # display number of subject accounts in selection 
-        print(len(au))
-        # quit driver
-        ig.close_browser()
+    # if mode == 'analyze unfollow':
+    #     # import data
+    #     from infos import by_users, follows_users
+    #     # analyze current selection of unfollowability
+    #     au = ig.analyze_following(followers=by_users[genesis:exodus], 
+    #                               following=follows_users[genesis:exodus],
+    #                               to_unfollow=True, previous=True)
+    #     # display number of subject accounts in selection 
+    #     print(len(au))
+    #     # quit driver
+    #     ig.close_browser()
 
-    elif mode == 'like':
-        # get the party started 
-        ig.login()
-        # insert your desired hashtags here (list)
-        hashtags = pleasanton_tags
+    # elif mode == 'like':
+    #     # get the party started 
+    #     ig.login()
+    #     # insert your desired hashtags here (list)
+    #     hashtags = pleasanton_tags
 
-        while True:
-            # this should work until all tags have been used
-            try:
-                # choose a random tag from the list of tags
-                tag = random.choice(hashtags)
-                # like the posts under that tag
-                ig.like_photos(tag)
-            # if it doesn't, or (hopefully) we're done
-            except Exception:
-                # close her down
-                ig.close_browser()
-                # take a break 
-                sleep(600)
-                # retry the bot 
-                ig = InstagramBot(username=u, password=p)
+    #     while True:
+    #         # this should work until all tags have been used
+    #         try:
+    #             # choose a random tag from the list of tags
+    #             tag = random.choice(hashtags)
+    #             # like the posts under that tag
+    #             ig.like_photos(tag)
+    #         # if it doesn't, or (hopefully) we're done
+    #         except Exception:
+    #             # close her down
+    #             ig.close_browser()
+    #             # take a break 
+    #             sleep(600)
+    #             # retry the bot 
+    #             ig = InstagramBot(username=u, password=p)
 
-    elif mode == 'unfollow':
-        # get the party started 
-        ig.login()
-        # unfollow these people
-        ig.unfollow(start=genesis,end=exodus)
-        # close her down
-        ig.close_browser()
+    # elif mode == 'unfollow':
+    #     # get the party started 
+    #     ig.login()
+    #     # unfollow these people
+    #     ig.unfollow(start=genesis,end=exodus)
+    #     # close her down
+    #     ig.close_browser()
 
-    elif mode == 'verify unfollowing':
-        # kickoff (this can be more efficient; fix when making analysis class)
-        ig.login()
-        # verify some unfollowings 
-        ig.verify_unfollow(start=genesis, end=exodus)
-        # wrap it up (run.py needs to be rewritten)
-        ig.close_browser()
+    # elif mode == 'verify unfollowing':
+    #     # kickoff (this can be more efficient; fix when making analysis class)
+    #     ig.login()
+    #     # verify some unfollowings 
+    #     ig.verify_unfollow(start=genesis, end=exodus)
+    #     # wrap it up (run.py needs to be rewritten)
+    #     ig.close_browser()
 
-    elif mode == 'redo unfollow':
-        # kickoff (this can be more efficient; fix when making analysis class)
-        ig.login()
-        # verify some unfollowings 
-        ig.redo_unfollow(start=genesis, end=exodus, verification=True, record_thresh=5, speed=0.5)
-        # wrap it up (run.py needs to be rewritten)
-        ig.close_browser()
+    # elif mode == 'redo unfollow':
+    #     # kickoff (this can be more efficient; fix when making analysis class)
+    #     ig.login()
+    #     # verify some unfollowings 
+    #     ig.redo_unfollow(start=genesis, end=exodus, verification=True, record_thresh=5, speed=0.5)
+    #     # wrap it up (run.py needs to be rewritten)
+    #     ig.close_browser()
 
-    elif mode == 're_verify unfollowing':
-        # kickoff (this can be more efficient; fix when making analysis class)
-        ig.login()
-        # verify some unfollowings 
-        ig.re_verify_unfollow(start=genesis, end=exodus)
-        # wrap it up (run.py needs to be rewritten)
-        ig.close_browser()
+    # elif mode == 're_verify unfollowing':
+    #     # kickoff (this can be more efficient; fix when making analysis class)
+    #     ig.login()
+    #     # verify some unfollowings 
+    #     ig.re_verify_unfollow(start=genesis, end=exodus)
+    #     # wrap it up (run.py needs to be rewritten)
+    #     ig.close_browser()
 
     else:
         print(f'mode == {mode}')
