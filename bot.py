@@ -193,18 +193,13 @@ class InstagramBot:
         # load the account's profile
         self.driver.get(account_url) 
         # test for/find and click the 'following' button (0=success)
-        ntract_following = check_xpath(webdriver=self.driver, 
-                                    xpath=following_button, 
-                                    click=True,
-                                    hedge_load=5)
+        ntract_following = check_xpath(webdriver=self.driver, xpath=following_button, click=True, hedge_load=5)
         # following button went well
         if ntract_following == 0:
             # wait a bit (hedge load)
             sleep(3)                    
             # test for/find and click the 'unfollow' button (0=success)
-            ntract_unfollow = check_xpath(webdriver=self.driver, 
-                                        xpath=unfollow_button, 
-                                        click=True)
+            ntract_unfollow = check_xpath(webdriver=self.driver, xpath=unfollow_button, click=True)
         # following buttion did not go well
         else:
             # unfollow no longer possible
