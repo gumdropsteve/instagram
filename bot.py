@@ -33,26 +33,17 @@ class InstagramBot:
         options = webdriver.FirefoxOptions()  
         # disable push/popups 
         options.set_preference("dom.push.enabled", False)  
-        '''
-        options allows the blocking of popups 
-        this is not required for this script as it is currently written
-        may become necessary in future editions
-        to disable, change (options=options) to ()
-        '''
         # set user
         self.username = username
         # set pwrd
         self.password = password
-        # set ds
-        # self.ds = self.DataScience()
         # set driver with options 
         self.driver = webdriver.Firefox(options=options)
         # minimize browser window
         self.driver.minimize_window()
 
     def login(self):
-        """
-        loads and logs in to instagram
+        """loads and logs in to instagram
         """
         # load instagram login page
         self.driver.get(ig_log_page)
@@ -64,83 +55,94 @@ class InstagramBot:
         self.driver.find_element_by_xpath(password_box).send_keys(self.password, Keys.RETURN)
         # hedge request/load time 
         sleep(3)
-        
         # take care if "save info" pop-up page pops up
         check_xpath(webdriver=self.driver, xpath=save_info_popup, click=True)
 
-    def like_photos(self, hashtag):
-        """collects group of image urls by hashtag
-        then loads & likes each individually 
-        """
-        # set driver
-        driver = self.driver
-        
-        # load the webpage to which the image belongs 
-        driver.get(ig_tags_url + hashtag + '/')
-        # better safe than sorry
-        sleep(2)
+    def gather_posts(self, hashtag):
+        """collects group of post urls by hashtag
 
-        '''gather a nice collection of posts
-        '''
+        input) 
+        > hashtag 
+            >> hashtag from which to gather posts
+
+        output)
+        > post_hrefs
+            >> collection of urls to posts form hashtag 
+        """
+        # load the webpage to which the image belongs 
+        self.driver.get(ig_tags_url + hashtag + '/')
+        # better safe than sorry
+        sleep(3)
+
         # set base collection for hrefs 
-        pic_hrefs = []
-        # next step will be repeated 7 times to load 7 scrolls of pictures (adjustable)
+        post_hrefs = []
+        # next step will be repeated 7 times to load 7 scrolls of pictures (adjustable, rec odds)
         for _ in range(7):
             # this should work
             try:
                 # it's almost like we're human
-                driver.execute_script(scroll)
+                self.driver.execute_script(scroll)
                 # so pause and maybe they won't catch on
                 sleep(2)
                 # get page tags
-                hrefs_in_view = driver.find_elements_by_tag_name('a')
+                hrefs_in_view = self.driver.find_elements_by_tag_name('a')
                 # finding relevant hrefs
                 hrefs_in_view = [elem.get_attribute('href') for elem in hrefs_in_view
                                  if '.com/p/' in elem.get_attribute('href')]
                 # building list of unique photos
-                [pic_hrefs.append(href) for href in hrefs_in_view if href not in pic_hrefs]
-                print("Check: pic href length " + str(len(pic_hrefs)))
+                [post_hrefs.append(href) for href in hrefs_in_view if href not in post_hrefs]
+                # so as not to spam
+                if _ % 2 != 0:
+                    # display length of list to user
+                    print("Check: pic href length " + str(len(post_hrefs)))
             # but just in case
             except:
                 # let us know it didn't work, and which iteration 
                 print(f"except Exception: #{_} gathering photos")
                 # and keep moving
                 continue
+        # output collection of hrefs
+        return post_hrefs
 
-        '''actually liking the posts
-        '''
+    def like_posts(self, hashtag, hrefs, indicator_thresh=5):
+        """load and 'like' posts from given list
+
+        input)
+        > hashtag
+            >> hashtag from which the posts have been collected
+        > hrefs
+            >> list of posts (by url) to be liked
+        > indicator_thresh
+            >> how many posts to process between printing progress 
+        """
         # note how many posts there are 
-        unique_photos = len(pic_hrefs)
+        n_unique_posts = len(hrefs)
         # go through each one
-        for pic_href in pic_hrefs:
+        for post_href in hrefs:
             # load the post
-            driver.get(pic_href)
+            self.driver.get(post_href)
             # hedge for whatever
-            sleep(2)
+            sleep(random.randint(3,5))
             # move around a bit, make sure we can see the heart (like button)
-            driver.execute_script(scroll)
+            self.driver.execute_script(scroll)
             # this should work
             try:
-                # hesitate a bit; you're human, right?
-                sleep(random.randint(2, 4))
                 # find the like button 
-                like_button = lambda: driver.find_element_by_xpath(like).click()
+                like_button = lambda: self.driver.find_element_by_xpath(like).click()
                 # click the like button
                 like_button().click()
-                
-                for second in reversed(range(0, random.randint(18, 28))):
-                    print_same_line("#" + hashtag + ': unique photos left: ' + str(unique_photos)
-                                    + " | Sleeping " + str(second))
-                    # take a minimal break 
-                    sleep(1)
+                # hedge over-liking
+                sleep(random.randint(14, 22))
             # if it doesn't work
             except:
-                # we don't really have a backup plan.. so take a break ig..
+                # don't really have a backup plan.. so take a break ig..
                 sleep(2)
             # update count of remaining posts
-            unique_photos -= 1
-            # let us know how many remain
-            print(unique_photos)
+            n_unique_posts -= 1
+            # check for asked indication
+            if n_unique_posts % indicator_thresh == 0:
+                # let us know how many remain
+                print(f'#{hashtag} : remaining = {n_unique_posts}')
 
     def close_browser(self):
         """closes webdriver
