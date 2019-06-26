@@ -1,19 +1,19 @@
 # general
 import random
 from time import sleep
+from datetime import datetime
 # bot
 from bot import InstagramBot
 # hashtags
-from infos import pleasanton_tags
+from infos import pleasanton_tags, s2_eligible_for_unfollowing, second_round_all, draft_log
 
 # determine mode
-mode= 'like' #'re_verify unfollowing' 'redo unfollow' 'verify unfollowing' 'unfollow' 'like' 'analyze unfollow'
+mode= 'unfollow'  #'like' #'re_verify unfollowing' 'redo unfollow' 'verify unfollowing' 'unfollow' 'like' 'analyze unfollow'
 
 # determine start point in data
 genesis = 0
 # determine end point in data
-exodus = 1500
-
+exodus = 100
 # make this a runable script 
 if __name__ == "__main__":
     """
@@ -41,7 +41,47 @@ if __name__ == "__main__":
         ig.like_posts(hashtag=hashtag, hrefs=to_like)
         # close up shop
         ig.close_browser()
-    
+
+    # in testing mode
+    if mode == 'unfollow':
+        # log in
+        ig.login()
+        # tag database 
+        db = second_round_all
+        # pull unfollowed urls
+        inelgible = [url for url in draft_log.user_profile]
+        # adjust elgible
+        elgible = [url for url in s2_eligible_for_unfollowing if url not in inelgible][genesis:exodus]
+        # set record log
+        log = []
+        # start interations
+        for i in range(len(elgible)):
+            # tag url
+            url = elgible[i]
+            # pull account id and username 
+            account = [_ for __ in db.loc[db.user_profile == url].values for _ in __][:2]
+            # tack on url
+            account.append(url)
+            # tag unfollowing of account
+            unfollow = ig.unfollow(url)
+            # add unfollow info to account info
+            for p in unfollow:
+                account.append(p)
+            # record transaction
+            ig.record(record=account, log='data/made/unfollow_log.csv')
+            # every 25 accounts
+            if i % 25 == 0 and i != 0:
+                # update user as to progress
+                print(f"{int((i/len(elgible))*100)}% complete ; {datetime.now()}")
+                # take an extended break
+                sleep(75)
+            #otherwise
+            else:
+                # take regular break
+                sleep(15)
+        # close up shop
+        ig.close_browser()
+
     # if mode == 'analyze unfollow':
     #     # import data
     #     from infos import by_users, follows_users
