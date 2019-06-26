@@ -56,6 +56,8 @@ s2_follows_princearthur=[url for url in second_round_all.loc[second_round_all.us
 s2_princearthur_follows=[url for url in second_round_all.loc[second_round_all.user_follows==True].user_profile]
 # 2nd round accounts following that are not followers (len = 441)
 s2_eligible_for_unfollowing=[url for url in s2_princearthur_follows if url not in s2_follows_princearthur]
+# draft final database layout
+draft_log = pd.read_csv('data/made/unfollow_log.csv')
 
 """hashtags
 """
