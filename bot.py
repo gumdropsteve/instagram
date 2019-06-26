@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 # recording
 import csv
-import datetime
+from datetime import datetime
 # webdriver
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -205,23 +205,21 @@ class InstagramBot:
             # unfollow no longer possible
             ntract_unfollow = 'nan'
         # output instance of unfollowing for log
-        return list(ntract_following, ntract_unfollow, datetime.datetime.now())
+        return [ntract_following, ntract_unfollow, datetime.now()]
 
-    def record_recents(self, recents, record_log):
-        """record given info into csv log 
+    def record(self, record, log):
+        """record given info into given csv 
 
         inputs:
-        > recents
-            >> information (from recent transactions) to be recorded
-        > record_log
+        > record
+            >> information to be recorded
+        > log
             >> csv file where information is to be recorded
         """
         # open up that redo log 
-        with open(record_log, 'a') as f:
+        with open(log, 'a') as f:
             # fit the writer
             writer = csv.writer(f)
-            # go though each information point 
-            for transaction in recents:
-                # document the information
-                writer.writerow(transaction)    
+            # document the information
+            writer.writerow(record)    
 
