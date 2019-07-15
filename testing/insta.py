@@ -7,22 +7,17 @@ from user import u, p
 insta_username = u
 insta_password = p
 
-comments = ['Nice shot! @{}',
-            'I love your profile! @{}',
-            'Your feed is an inspiration :thumbsup:',
-            'Just incredible :open_mouth:',
-            'What camera did you use @{}?',
-            'Love your posts @{}',
-            'Looks awesome @{}',
-            'Getting inspired by you @{}',
-            ':raised_hands: Yes!',
-            'I can feel your passion @{} :muscle:']
-
 # get an InstaPy session!
 # set headless_browser=True to run InstaPy in the background
 session = InstaPy(username=insta_username,
                   password=insta_password,
-                  headless_browser=False)
+                  headless_browser=True)
+
+# set call of duty hashtags
+cod_tags = ["codnation","callofduty","codblackout","blackout","blackops4","bo4",
+            "modernwarfare","codtoplays","callofdutymodernwarfare","bo4clips",
+            "callofdutybo4","codclips","blackops4clips","bo4multiplayer","codbo4",
+            "callofdutyclips","treyarch","activision"]
 
 with smart_run(session):
     """ Activity flow """		
@@ -30,9 +25,7 @@ with smart_run(session):
     session.set_dont_include(["friend1", "friend2", "friend3"])		
 
     # activity		
-    session.like_by_tags(["codnation"], amount=10)
+    session.like_by_tags(cod_tags, amount=11)
 
     # Joining Engagement Pods
-    #   session.set_do_comment(enabled=True, percentage=35)
-    #   session.set_comments(comments)
     session.join_pods()
