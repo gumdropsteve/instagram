@@ -1,6 +1,6 @@
+import time
 import pandas as pd
 from instapy import InstaPy, relationship_tools, smart_run, unfollow_util
-# login credentials
 from user import u, p
 
 # set InstaPy session
@@ -18,11 +18,6 @@ with smart_run(session):
                                        amount="full", 
                                        live_match=True, 
                                        store_locally=False)
-
-# identify accounts our account is following that are followers of our account
-follow_backers = [account for account in following if account in followers]
-# identify accounts our account is following that are NOT followers of our account
-non_follow_backers = [account for account in following if account not in followers]
 
 # merge for single list of all unique accounts in following/followers
 unique_accounts = list(set(followers + following))
@@ -50,4 +45,5 @@ df['follower'] = bool_followers
 df['following'] = bool_following
 
 # record dataframe as csv
-df.to_csv(path_or_buf='t_data/followers_and_following.csv', index=False)
+file = 't_data/followers_and_following' + time.strftime("%Y%m%d-%H%M%S") + '.csv'
+df.to_csv(path_or_buf=file, index=False)
