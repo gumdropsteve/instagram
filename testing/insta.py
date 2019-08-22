@@ -11,6 +11,7 @@ from user import u, p
 # set headless_browser=True to run InstaPy in the background
 session = InstaPy(username=u,
                   password=p,
+                  use_firefox=True,
                   headless_browser=True)
 
 # set call of duty hashtags
