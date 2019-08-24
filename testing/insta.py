@@ -48,7 +48,7 @@ def record_followers_and_following(account="ttv.princearthur"):
     df['following'] = bool_following
 
     # record dataframe as csv
-    file = 't_data/followers_and_following/'+ time.strftime("%A/").lower() + time.strftime("%Y%m%d_%H%M%S") + '.csv'
+    file = 't_data/followers_and_following/'+ time.strftime("%A_").lower() + time.strftime("%Y%m%d_%H%M%S") + '.csv'
     df.to_csv(path_or_buf=file, index=False)
     # output file name
     return file
