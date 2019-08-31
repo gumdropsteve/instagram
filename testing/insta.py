@@ -81,10 +81,12 @@ def check_unfollowable(ref='ask'):
         to_unfollow = input('would you like to unfollow any non-follow backers (y/n)? ')
         if to_unfollow == 'y':
             # determine how many accounts to unfollow
-            n_unfollow = int(input('how many would you like to unfollow (int)? '))
+            n_unfollow = int(input('how many would you like to unfollow (int <= 24)? '))
             # limit it (low)
-            if n_unfollow > 10:
-                n_unfollow = 10
+            if n_unfollow > 24:
+                print(f'\nWARNING: MAX UNFOLLOWS EXCEEDED\nmax n_unfollow = {24}\n'
+                      f'resetting n_unfollow from {n_unfollow} to {24}\n\n')
+                n_unfollow = 24
             # cut down to accounts to unfollow
             accounts_to_unfollow = list(non_follow_backers[:n_unfollow])
             # start a session
