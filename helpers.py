@@ -1,7 +1,13 @@
-from time import sleep
+import time
+import random
+import pandas as pd
+# selenium
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException  
+# instapy
+from instapy import InstaPy, relationship_tools, smart_run, unfollow_util
+from user import u, p
 
 '''
 to add
@@ -38,7 +44,7 @@ def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None, hedge
             >> 1
     """
     # hedge laod time
-    sleep(hedge_load)
+    time.sleep(hedge_load)
     # test this 
     try:
         # find xpath in question
@@ -48,13 +54,13 @@ def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None, hedge
             # yes, so click
             find_element.click()
             # hedge time
-            sleep(3)
+            time.sleep(3)
         # are we sending keys
         if send_keys == True:
             # yes, so send them
             find_element.send_keys(keys)
             # hedge time
-            sleep(3)
+            time.sleep(3)
         # element exists and was successfull
         return 0
     # if it didn't work
@@ -63,297 +69,103 @@ def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None, hedge
         return 1
 
 
+def record_followers_and_following(account="ttv.princearthur"):
+    # set InstaPy session
+    session = InstaPy(username=u, password=p, headless_browser=True)
 
-# below is pending rewrite & approval
-'''
-    """# class DataScience:
+    # start the session
+    with smart_run(session):
+        # grab followers (list)
+        followers = session.grab_followers(username=account, 
+                                        amount="full", 
+                                        live_match=True, 
+                                        store_locally=False)
+        # grab following (list)
+        following = session.grab_following(username=account, 
+                                        amount="full", 
+                                        live_match=True, 
+                                        store_locally=False)
 
-    #     def __init__(self):
-    #         # account followers
-    #         self.followers = by_users
-    #         # account following
-    #         self.following = follows_users
-    #         # accounts which have been unfollowed
-    #         self.unfollowed = unfollow_log
-    #         # accounts which have been unfollow verified
-    #         self.verified = verified_unfollow_log
-    #         # set user
-    #         self.user = InstagramBot.username
-    #         # set driver
-    #         self.driver = InstagramBot(self.username, self.password).driver"""  # coming; eventually 
-    # ALL BELOW ARE METHODS OF DataScience SUB-class
+    # merge for single list of all unique accounts in following/followers
+    unique_accounts = list(set(followers + following))
 
-    def analyze_following(self, 
-                          followers=by_users, 
-                          following=follows_users,
-                          to_unfollow=False, 
-                          follow_backers=False, 
-                          previous=False):
-        """identifies users who you are following that do not follow you back
-        and other stuff, we're not all negative, more to come
-        """
-        # url of each account following us
-        by_usernames = np.array(followers.user_profile)
-        # url of each account we follow
-        follows_usernames = np.array(following.user_profile)
-        
-        # requested accounts to unfollow?
-        if to_unfollow == True:
-            # identify urls of profiles to unfollow 
-            un = [user for user in follows_usernames if user not in by_usernames]
-            # are we considering previous
-            if previous == True:
-                # so list out previous
-                prev = [user for user in unfollow_log.user_profile]
-                # and consider them
-                return [user for user in un if user not in prev]
-            # otherwise
-            else:
-                # gimme da loot
-                return un
+    # make dataframe of all (unique) accounts
+    df = pd.DataFrame(columns=['account'], data=unique_accounts)
 
-        # requested accounts to never unfollow?
-        if follow_backers == True:
-            # output urls of profiles to keep following
-            return [user for user in follows_usernames if user in by_usernames]
-
-        #otherwise
+    # make bool list of followers (1 == True)
+    bool_followers = []
+    for account in df['account']:
+        if account in followers:
+            bool_followers.append(1)
         else:
-            # not much
-            pass       
-
-    def check_counts(self, uncounted_log=verified_unfollow_log, s=0, e=250):
-        """
-        takes list of accounts that have been through .verify_unfollow()
-        visits each profile, checks counts for posts, followers, following
-        if the user is still followed, unfollows them
-        documents all times 
-        """
-        pass
-
-    def verify_unfollow(self, log=unfollow_log, prior=verified_unfollow_log, 
-                        start=0, end=250):
-        """takes list of accounts that have been 'unfollowed' in unfollow_log
-        visits each profile, checks for existance of 'Following' button
-        if 'Following' button exists, account was obviously not unfollowed
-        rewrites unfollow_log with new 'actually_unfollowed' and 'time_checked' columns
-            to verified_accounts_ttvpa_used_to_follow.csv
-
-        inputs)
-            > webdirver
-                >> driver in use
-            > log 
-                >> log of accounts which have been run through bot.py 
-                    > default = unfollow_log
-            > prior 
-                >> accounts which have gone through verification process
-                    > default = verified_unfollow_log
-            > start
-                >> first instance to consider
-            > end
-                >> last instance to consider
-        """
-        # set out route
-        out = []
-        # id urls verified
-        verified_urls = [url for url in prior.user_profile]
-        # focus & trim log urls
-        url_log = [url for url in log.user_profile[start:end] if url not in verified_urls]
-        # determine # of accounts to be verified
-        num_to_verify = len(url_log)
-        # assuming it's not 0
-        if num_to_verify != 0:
-            # go through each
-            for _ in range():
-                # tag that url
-                url = url_log[_]
-                # pull that account's info in log & make into a list of unique values
-                this_user = [datapoint for list in log.loc[log.user_profile == url].values 
-                            for datapoint in list]
-                # load the url in question
-                self.driver.get(url)
-                # hold up
-                sleep(random.randint(2,3))
-                # check for 'Following' button
-                check = check_xpath(webdriver=self.driver, xpath=following_button, 
-                                    click=False, send_keys=False, keys=None)
-                # does it exist?
-                if check == 0:
-                    # never actually unfollowed 
-                    this_user.append(1)
-                # does it not exist?
-                elif check == 1:
-                    # ok, so we unfollowed (unless it's 404)
-                    this_user.append(0)
-                # check for 'Follow' button
-                check_404 = check_xpath(webdriver=self.driver, xpath=follow_button, 
-                                        click=False, send_keys=False, keys=None)
-                # does it exist?
-                if check_404 == 0:
-                    # this is not a 404
-                    this_user.append(0)
-                # does it not exist?
-                elif check_404 == 1:
-                    # this is a possible 404
-                    this_user.append(1)
-                # and note the time
-                this_user.append(datetime.datetime.now())
-                # to the ranch!
-                out.append(this_user)
-                record the transaction
-                # moved & staggered to allow ctrl + c at minimal cost
-                # every 5th we will record (and each remainder at end)
-                if _ % 10 == 0 or num_to_verify - _ < 1:
-                    # open up the csv
-                    with open('data/made/verified_accounts_ttvpa_used_to_follow.csv', 'a') as file:
-                        # fit the writer
-                        writer = csv.writer(file)
-                        # each out is an account
-                        for user in out:
-                            # document the transaction
-                            writer.writerow(user)
-                        # reset temp log
-                        out = []
-
-                # on first loop
-                if _ == 0:
-                    # lay out the situation 
-                    print(f'zeroth account has been verified ; {len(url_log)-1} to go ; {datetime.datetime.now()}')
-                # every 25th loop
-                if _ % 25 == 0 and _ != 0:
-                    # are we on a 50th
-                    if _ % 50 == 0:
-                        # display raw number completion
-                        print(f'{_}/{len(url_log[start:end])} complete ; {datetime.datetime.now()}')
-                    # or just a quarter
-                    else:
-                        # display percentage completion
-                        print(f'{int(100*(_/len(url_log)))}% complete ; {datetime.datetime.now()}')
-        # but if it is
+            bool_followers.append(0)
+    # make bool list of following (1 == True)
+    bool_following = []
+    for account in df['account']:
+        if account in following:
+            bool_following.append(1)
         else:
-            # let us know
-            print(f'{num_to_verify} accounts need verification')
+            bool_following.append(0)
 
-    def re_verify_unfollow(self, log=redo_unfollow_log, prior=re_verified_unfollow_log, 
-                           start=0, end=250, out_log='data/made/re_verified_accounts_ttvpa_used_to_follow.csv'):
-        """takes list of accounts that have been 'unfollowed' in unfollow_log
-        visits each profile, checks for existance of 'Following' button
-        if 'Following' button exists, account was obviously not unfollowed
-        rewrites unfollow_log with new 'actually_unfollowed' and 'time_checked' columns
-            to verified_accounts_ttvpa_used_to_follow.csv
+    # add bool columns to dataframe
+    df['follower'] = bool_followers
+    df['following'] = bool_following
 
-        inputs)
-            > webdirver
-                >> driver in use
-            > log 
-                >> log of accounts which have been run through bot.py 
-                    > default = unfollow_log
-            > prior 
-                >> accounts which have gone through verification process
-                    > default = verified_unfollow_log
-            > start
-                >> first instance to consider
-            > end
-                >> last instance to consider
-        """
-        # set out route
-        out = []
-        # id urls verified
-        verified_urls = [url for url in prior.user_profile]
-        # focus log urls
-        url_focus = [url for url in log.user_profile if url not in verified_urls]
-        # trim list to range
-        url_log = url_focus[start:end]
-        # determine # of accounts to be verified
-        num_to_verify = len(url_log)
-        # assuming it's not 0
-        if num_to_verify != 0:
-            # go through each
-            for _ in range(num_to_verify):
-                # tag that url
-                url = url_log[_]
-                # pull that account's info in log & make into a list of unique values
-                this_user = [datapoint for list in log.loc[log.user_profile == url].values 
-                            for datapoint in list]
-                # not the first time
-                if _ != 0:
-                    # extra hold for night run
-                    if _ % 10 == 0:
-                        # rarely
-                        if _ % 500 == 0:
-                            # take a snooze
-                            sleep(500)
-                        # once in a while
-                        elif _ % 50 == 0:
-                            # less short
-                            sleep(50)
-                        # but normally
-                        else:
-                            # short
-                            sleep(3)
-                # load the url in question
-                self.driver.get(url)
-                # hold up
-                sleep(3)
-                # check for 'Following' button
-                check = check_xpath(webdriver=self.driver, xpath=following_button, 
-                                    click=False, send_keys=False, keys=None)
-                # does it exist?
-                if check == 0:
-                    # never actually unfollowed 
-                    this_user.append(1)
-                # does it not exist?
-                elif check == 1:
-                    # ok, so we unfollowed (unless it's 404)
-                    this_user.append(0)
-                # check for 'Follow' button
-                check_404 = check_xpath(webdriver=self.driver, xpath=follow_button, 
-                                        click=False, send_keys=False, keys=None)
-                # does it exist?
-                if check_404 == 0:
-                    # this is not a 404
-                    this_user.append(0)
-                # does it not exist?
-                elif check_404 == 1:
-                    # this is a possible 404
-                    this_user.append(1)
-                # and note the time
-                this_user.append(datetime.datetime.now())
-                # to the ranch!
-                out.append(this_user)
-                # # record the transaction
-                # moved & staggered to allow ctrl + c at minimal cost
-                # every 5th we will record (and each remainder at end)
-                if _ % 10 == 0 or num_to_verify - _ <= 1:
-                    # open up the csv
-                    with open(out_log, 'a') as file:
-                        # fit the writer
-                        writer = csv.writer(file)
-                        # each out is an account
-                        for user in out:
-                            # document the transaction
-                            writer.writerow(user)
-                        # reset temp log
-                        out = []
-
-                # on first loop
-                if _ == 0:
-                    # lay out the situation 
-                    print(f'zeroth account has been verified ; {len(url_log)-1} to go ; {datetime.datetime.now()}')
-                # every 25th loop
-                if _ % 25 == 0 and _ != 0:
-                    # are we on a 50th
-                    if _ % 50 == 0:
-                        # display raw number completion
-                        print(f'{_}/{len(url_log[start:end])} complete ; {datetime.datetime.now()}')
-                    # or just a quarter
-                    else:
-                        # display percentage completion
-                        print(f'{int(100*(_/len(url_log)))}% complete ; {datetime.datetime.now()}')
-        # but if it is
-        else:
-            # let us know
-            print(f'{num_to_verify} accounts need verification')
-'''
+    # record dataframe as csv
+    file = 'data/made/followers_and_following/'+ time.strftime("%A_").lower() + time.strftime("%Y%m%d_%H%M%S") + '.csv'
+    df.to_csv(path_or_buf=file, index=False)
+    # output file name
+    return file
 
 
+def check_non_followbackers(ref='ask'):
+    # check there's a file loaded
+    if ref == 'ask':
+        # ask for reference file
+        ref = input('csv to run: ')
+    # load data into frame
+    df = pd.read_csv(ref)
+
+    # tag the followers
+    followers = df.account.loc[df.follower == 1]
+    # tag the following
+    following = df.account.loc[df.following == 1]
+    # identify accounts our account is following that are followers of our account
+    follow_backers = df.account.loc[((df.follower == 1) & (df.following == 1))]
+    # identify accounts our account is following that are NOT followers of our account
+    non_follow_backers = df.account.loc[((df.follower == 0) & (df.following == 1))]
+
+    # display number of follow backers and number of non follow backers
+    print(f'\n{len(followers)} followers\n'
+        f'{len(following)} following\n'
+        f'{len(follow_backers)} follow backers\n'
+        f'{len(non_follow_backers)} non-follow backers\n')
+
+    if len(non_follow_backers) > 0:
+        to_unfollow = input('would you like to unfollow any non-follow backers (y/n)? ')
+        if to_unfollow == 'y':
+            # determine how many accounts to unfollow
+            n_unfollow = int(input('how many would you like to unfollow (int <= 24)? '))
+            # limit it (low)
+            if n_unfollow > 24:
+                print(f'\nWARNING: MAX UNFOLLOWS EXCEEDED\nmax n_unfollow = {24}\n'
+                      f'resetting n_unfollow from {n_unfollow} to {24}\n\n')
+                n_unfollow = 24
+            # cut down to accounts to unfollow
+            accounts_to_unfollow = list(non_follow_backers[:n_unfollow])
+            # start a session
+            session = InstaPy(username=u, password=p, headless_browser=True)
+            with smart_run(session):
+                # unfollow those accounts
+                followers = session.unfollow_users(amount = n_unfollow,
+                                                custom_list_enabled = True,
+                                                custom_list = accounts_to_unfollow,
+                                                custom_list_param = "all",
+                                                instapy_followed_enabled = False,
+                                                instapy_followed_param = "all",
+                                                nonFollowers = False,
+                                                allFollowing = False,
+                                                style = "FIFO",
+                                                unfollow_after = None,
+                                                delay_followbackers = 0,  # 864000 = 10 days, 0 = don't delay
+                                                sleep_delay = 600)
