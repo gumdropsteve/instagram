@@ -27,12 +27,12 @@ if __name__ == "__main__":
     p = ptv  
 
     # label the bot
-    ig = InstagramBot(username=u, password=p)
+    ig = InstagramBot(username=u)
 
     # in testing mode
     if mode == 'like':
         # log in
-        ig.login()
+        ig.login(password=p)
         # set hashtag
         hashtag = 'codnation'
         # gather posts
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     # in testing mode
     if mode == 'unfollow':
         # log in
-        ig.login()
+        ig.login(password=p)
         # tag database 
         db = second_round_all
         # pull unfollowed urls

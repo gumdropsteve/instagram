@@ -28,21 +28,19 @@ from infos import ig_tags_url
 
 class InstagramBot:
 
-    def __init__(self, username, password):
+    def __init__(self, username):
         # tag the options field
         options = webdriver.FirefoxOptions()  
         # disable push/popups 
         options.set_preference("dom.push.enabled", False)  
         # set user
         self.username = username
-        # set pwrd
-        self.password = password
         # set driver with options 
         self.driver = webdriver.Firefox(options=options)
         # minimize browser window
         self.driver.minimize_window()
 
-    def login(self):
+    def login(self, password):
         """loads and logs in to instagram
         """
         # load instagram login page
@@ -52,7 +50,7 @@ class InstagramBot:
         # find user box, type in account id
         self.driver.find_element_by_xpath(username_box).send_keys(self.username)
         # find key box and call locksmith, he should be able to punch in
-        self.driver.find_element_by_xpath(password_box).send_keys(self.password, Keys.RETURN)
+        self.driver.find_element_by_xpath(password_box).send_keys(password, Keys.RETURN)
         # hedge request/load time 
         sleep(3)
         # take care if "save info" pop-up page pops up
