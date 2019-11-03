@@ -7,8 +7,25 @@ from bot import InstagramBot
 # hashtags
 from infos import pleasanton_tags, s2_eligible_for_unfollowing, second_round_all, draft_log
 
+def rec_n_check():
+    from helpers import record_followers_and_following, check_non_followbackers
+    """
+    record followers and following then check for non-followbackers to unfollow
+    """
+    # variable to make record
+    record = record_followers_and_following()
+    # variable to check that record
+    run = check_non_followbackers(record)
+    # record then check followbackers
+    print(run)
+
+"""
+BELOW NEEDS TO BE REFORMATTED LIKE ABOVE
+NEW STRAT IS QUASI-API OF SPECIFIC USES
+"""
+
 # determine mode
-mode= 'unfollow'  #'like' #'re_verify unfollowing' 'redo unfollow' 'verify unfollowing' 'unfollow' 'like' 'analyze unfollow'
+mode= 'like'  #'unfollow' #'re_verify unfollowing' 'redo unfollow' 'verify unfollowing' 'unfollow' 'like' 'analyze unfollow'
 
 # determine start point in data
 genesis = 0
@@ -33,12 +50,13 @@ if __name__ == "__main__":
     if mode == 'like':
         # log in
         ig.login(password=p)
-        # set hashtag
-        hashtag = 'codnation'
-        # gather posts
-        to_like = ig.gather_posts(hashtag=hashtag)
-        # like posts 
-        ig.like_posts(hashtag=hashtag, hrefs=to_like)
+        # set hashtags
+        hashtags = ['codnation', 'callofdutymodernwarfare', 'modernwarfare', 'callofduty', 'blackops4']
+        for hashtag in hashtags:
+            # gather posts
+            to_like = ig.gather_posts(hashtag=hashtag)
+            # like posts 
+            ig.like_posts(hashtag=hashtag, hrefs=to_like)
         # close up shop
         ig.close_browser()
 
