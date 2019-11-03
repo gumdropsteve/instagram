@@ -142,13 +142,8 @@ class InstagramBot:
                 # let us know how many remain
                 print(f'#{hashtag} : remaining = {n_unique_posts}')
 
-    def add_hashtags(self, post, hashtags):
-        '''
-        log in
-            load most recent post (of own account)
-                add comment of hashtags
-                    close
-                        remove firefox thing from dock (annoying and needed across all)
+    def comment(self, post, comment):
+        '''load given post then comment given comment
         '''
         # pull up post 
         self.driver.get(post)
