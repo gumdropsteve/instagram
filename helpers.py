@@ -180,12 +180,17 @@ def check_non_followbackers(ref='ask'):
             # determine how many accounts to unfollow
             n_unfollow = int(input('how many would you like to unfollow (int <= 24)? '))
             
-            # limit it (low)
-            if n_unfollow > 24:
-                print(f'\nWARNING: MAX UNFOLLOWS EXCEEDED\nmax n_unfollow = {24}\n'
-                      f'resetting n_unfollow from {n_unfollow} to {24}\n\n')
-                # current max = 24 per session
-                n_unfollow = 24
+            # set a cap (limit number of unfollows per session)
+            cap = 24
+            # is desired number of unfollow more than max amount allowed per session (cap)?
+            if n_unfollow > cap:
+                # output warning, action and times to read 
+                print(f'\nWARNING: MAX UNFOLLOWS EXCEEDED\nmax n_unfollow = {cap}\n')
+                time.sleep(1)
+                print(f'resetting n_unfollow from {n_unfollow} to {cap}\n\n')
+                time.sleep(1)
+                # enforce cap
+                n_unfollow = cap
             
             # cut down to accounts to unfollow
             accounts_to_unfollow = list(non_follow_backers[:n_unfollow])
