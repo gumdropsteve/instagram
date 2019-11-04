@@ -19,9 +19,12 @@ from helpers import check_xpath
 # urls
 from infos import ig_log_page, ig_tags_url
 # data (loaded here for future multitasking)
-from infos import follows_users, by_users, unfollow_log, verified_unfollow_log, redo_unfollow_log, re_verified_unfollow_log
+from infos import follows_users, by_users, unfollow_log 
+from infos import verified_unfollow_log, redo_unfollow_log, re_verified_unfollow_log
 # paths
-from infos import username_box, password_box, save_info_popup, like, following_button, unfollow_button, follow_button
+from infos import username_box, password_box, save_info_popup, like
+from infos import following_button, unfollow_button, follow_button 
+from infos import comment_button, comment_box
 # misc
 from infos import ig_tags_url
 
@@ -142,18 +145,21 @@ class InstagramBot:
                 # let us know how many remain
                 print(f'#{hashtag} : remaining = {n_unique_posts}')
 
-    def comment(self, post, comment):
+    def comment(self, post='', comment=''):
         '''load given post then comment given comment
         '''
+        # testing purposes
+        post = 'https://www.instagram.com/p/h37uShOR42m2pqOM6bgnPx_MSUZgopYTBCLXE0/'
+        comment = 'this is a basic comment...'
+
         # pull up post 
         self.driver.get(post)
         # locate & click comment button
-        # self.driver.find_element_by_....click()
+        self.driver.find_element_by_xpath(comment_button).click()
         # write out hashtags
-        # self.driver.find_element_by_....send_keys(hashtags)
-        # find button & submit comment
-        # self.driver.find_element_by_....click()
-        pass
+        self.driver.find_element_by_xpath(comment_box).send_keys(comment, Keys.RETURN)
+        # let us know what happened
+        print(f'\ncomment added to post\npost: {post}\ncomment: {comment}\n')
 
     def close_browser(self):
         """closes webdriver
