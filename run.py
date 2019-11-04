@@ -6,6 +6,8 @@ from datetime import datetime
 from bot import InstagramBot
 # hashtags
 from infos import pleasanton_tags, s2_eligible_for_unfollowing, second_round_all, draft_log
+# login info
+from _pile import utv, ptv, u, p
 
 def rec_n_check():
     from helpers import record_followers_and_following, check_non_followbackers
@@ -45,13 +47,6 @@ genesis = 0
 exodus = 100
 # make this a runable script 
 if __name__ == "__main__":
-    # login info
-    from _pile import utv
-    # your username 
-    u = utv 
-    # your password
-    p = ptv  
-
     # label the bot
     ig = InstagramBot(username=u)
 
