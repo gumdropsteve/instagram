@@ -19,9 +19,12 @@ from helpers import check_xpath
 # urls
 from infos import ig_log_page, ig_tags_url
 # data (loaded here for future multitasking)
-from infos import follows_users, by_users, unfollow_log, verified_unfollow_log, redo_unfollow_log, re_verified_unfollow_log
+from infos import follows_users, by_users, unfollow_log 
+from infos import verified_unfollow_log, redo_unfollow_log, re_verified_unfollow_log
 # paths
-from infos import username_box, password_box, save_info_popup, like, following_button, unfollow_button, follow_button
+from infos import username_box, password_box, save_info_popup
+from infos import following_button, unfollow_button, follow_button 
+from infos import comment_button, comment_box, like
 # misc
 from infos import ig_tags_url
 
@@ -142,6 +145,18 @@ class InstagramBot:
                 # let us know how many remain
                 print(f'#{hashtag} : remaining = {n_unique_posts}')
 
+    def comment(self, post, comment):
+        '''load given post then comment given comment
+        '''
+        # pull up post 
+        self.driver.get(post)
+        # locate & click comment button
+        self.driver.find_element_by_xpath(comment_button).click()
+        # write out hashtags
+        self.driver.find_element_by_xpath(comment_box).send_keys(comment, Keys.RETURN)
+        # let us know what happened
+        print(f'\ncomment added to post\npost: {post}\ncomment: {comment}\n')
+
     def close_browser(self):
         """closes webdriver
         """
@@ -219,5 +234,4 @@ class InstagramBot:
             # fit the writer
             writer = csv.writer(f)
             # document the information
-            writer.writerow(record)    
-
+            writer.writerow(record)

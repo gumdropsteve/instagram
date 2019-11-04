@@ -1,22 +1,26 @@
 import pandas as pd 
 
-"""paths
+"""xpaths
 """
-# xpath ; username input box
+# username input box
 username_box = '//input[@name="username"]'
-# xpath ; password input box
+# password input box
 password_box = '//input[@name="password"]'
-# xpath ; save info pupup (occours ~45% of time)
+# save info pupup (occours ~45% of time)
 save_info_popup = '//*[contains(text(),"Save Info")]'
-# xpath ; like button (heart)
+# like button (heart)
 like = '//span[@aria-label="Like"]'
-# xpath ; new post button
+# comment button 
+comment_button = '//span[@aria-label="Comment"]'
+# comment box
+comment_box = '//*[@aria-label="Add a comment…"]'
+# new post button
 new_post_button = '//span[@aria-label="New Post"]'
-# xpath ; following button 
+# following button 
 following_button = '//button[contains(text(),"Following")]'
-# xpath ; unfollow button
+# unfollow button
 unfollow_button = '//button[contains(text(),"Unfollow")]'
-# xpath ; follow button
+# follow button
 follow_button = '//button[contains(text(),"Follow")]'
 
 """urls
