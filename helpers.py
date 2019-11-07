@@ -119,11 +119,11 @@ def record_followers_and_following(account="ttv.princearthur", **output_df):
     df['following'] = bool_following
 
     # id day of week 
-    doy = time.strftime("%A_").lower()
+    dow = time.strftime("%A_").lower()
     # numerical year, month, day _ hour, minute, second
     ymdhms = time.strftime("%Y%m%d_%H%M%S")
     # generate file name
-    file = 'data/made/followers_and_following/' + doy + ymdhms + '.csv'
+    file = 'data/made/followers_and_following/' + dow + ymdhms + '.csv'
     
     # record dataframe as csv
     df.to_csv(path_or_buf=file, index=False)
