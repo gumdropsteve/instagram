@@ -1,4 +1,5 @@
 # timing 
+import time
 import random
 from time import sleep
 # reading
@@ -59,7 +60,7 @@ class InstagramBot:
         # take care if "save info" pop-up page pops up
         check_xpath(webdriver=self.driver, xpath=save_info_popup, click=True)
 
-    def gather_posts(self, hashtag):
+    def gather_posts(self, hashtag, scroll_range=5, limit=False):
         """collects group of post urls by hashtag
 
         input) 
@@ -78,7 +79,7 @@ class InstagramBot:
         # set base collection for hrefs 
         post_hrefs = []
         # next step will be repeated 7 times to load 7 scrolls of pictures (adjustable, rec odds)
-        for _ in range(7):
+        for _ in range(scroll_range):
             # this should work
             try:
                 # it's almost like we're human
@@ -102,10 +103,26 @@ class InstagramBot:
                 print(f"except Exception: #{_} gathering photos")
                 # and keep moving
                 continue
+        # check for limit
+        if limit:
+            # check if we are over the limit
+            if len(post_hrefs) > limit:
+                # apply the limit (assumes limit is within range)
+                post_hrefs = post_hrefs[:limit]
+        
+        """
+        # temp data solution #
+        """
+        df = pd.DataFrame(post_hrefs)
+        dow = time.strftime("%A_").lower()
+        ymdhms = time.strftime("%Y%m%d_%H%M%S")
+        partal = 'data/made/temp/post_hrefs/' + hashtag + '_'
+        route = partal + dow + ymdhms + '.csv' 
+        df.to_csv(route, index=False)
         # output collection of hrefs
         return post_hrefs
 
-    def like_posts(self, hashtag, hrefs, indicator_thresh=5):
+    def like_posts(self, hashtag, hrefs, indicator_thresh=10):
         """load and 'like' posts from given list
 
         input)
@@ -123,7 +140,7 @@ class InstagramBot:
             # load the post
             self.driver.get(post_href)
             # hedge for whatever
-            sleep(random.randint(3,5))
+            sleep(5)
             # move around a bit, make sure we can see the heart (like button)
             self.driver.execute_script(scroll)
             # this should work
@@ -133,7 +150,7 @@ class InstagramBot:
                 # click the like button
                 like_button().click()
                 # hedge over-liking
-                sleep(random.randint(14, 22))
+                sleep(10)
             # if it doesn't work
             except:
                 # don't really have a backup plan.. so take a break ig..
