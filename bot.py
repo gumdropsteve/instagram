@@ -111,14 +111,39 @@ class InstagramBot:
                 post_hrefs = post_hrefs[:limit]
         
         """
-        # temp data solution #
+        START # temp data solution #
         """
-        df = pd.DataFrame(post_hrefs)
-        dow = time.strftime("%A_").lower()
+        # '''build dataframe'''
+        # define dataframe of hrefs
+        df = pd.DataFrame(post_hrefs, columns=['href'])
+        # determine day of week and key strings
+        day = time.strftime("%A").lower()
         ymdhms = time.strftime("%Y%m%d_%H%M%S")
-        partal = 'data/made/temp/post_hrefs/' + hashtag + '_'
-        route = partal + dow + ymdhms + '.csv' 
-        df.to_csv(route, index=False)
+        # make lists for day of week and key columns
+        dow = (((day + ',') * (len(df) - 1)) + day ).split(',')
+        key = (((ymdhms + ',') * (len(df) - 1)) + ymdhms ).split(',')
+        # define day of week and key columns
+        df['dow'] = dow
+        df['key'] = key
+        # '''write dataframe to csv'''
+        # identify the route
+        route = 'data/made/post_hrefs/' + hashtag  + '.csv'
+        # see if the record for this hashtag already exists
+        try:
+            # dataframe this hashtag's existing csv file 
+            og_df = pd.read_csv(route)
+            # add new dataframe to existing 
+            df = pd.concat([og_df, df], axis=0)
+            # write the new dataframe over the old dataframe in csv (w/o index)
+            df.to_csv(route, index=False)
+        # this hashtag has no record
+        except:
+            # so start one
+            df.to_csv(route, index=False)
+        """
+        END # temp data solution #
+        """
+            
         # output collection of hrefs
         return post_hrefs
 
