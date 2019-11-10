@@ -1,4 +1,5 @@
 # timing 
+import time
 import random
 from time import sleep
 # reading
@@ -18,9 +19,6 @@ from infos import scroll
 from helpers import check_xpath
 # urls
 from infos import ig_log_page, ig_tags_url
-# data (loaded here for future multitasking)
-from infos import follows_users, by_users, unfollow_log 
-from infos import verified_unfollow_log, redo_unfollow_log, re_verified_unfollow_log
 # paths
 from infos import username_box, password_box, save_info_popup
 from infos import following_button, unfollow_button, follow_button 
@@ -59,7 +57,8 @@ class InstagramBot:
         # take care if "save info" pop-up page pops up
         check_xpath(webdriver=self.driver, xpath=save_info_popup, click=True)
 
-    def gather_posts(self, hashtag):
+    def gather_posts(self, hashtag, scroll_range=5, 
+                     limit=False, certify=True, r_log_on=True):
         """collects group of post urls by hashtag
 
         input) 
@@ -70,15 +69,17 @@ class InstagramBot:
         > post_hrefs
             >> collection of urls to posts form hashtag 
         """
+        # determine day of week and key strings
+        day = time.strftime("%A").lower()
+        key = time.strftime("%Y%m%d_%H%M%S")
         # load the webpage to which the image belongs 
         self.driver.get(ig_tags_url + hashtag + '/')
-        # better safe than sorry
+        # hedge load time
         sleep(3)
-
         # set base collection for hrefs 
         post_hrefs = []
-        # next step will be repeated 7 times to load 7 scrolls of pictures (adjustable, rec odds)
-        for _ in range(7):
+        # load n (scroll_range) scrolls of pictures
+        for n in range(scroll_range):
             # this should work
             try:
                 # it's almost like we're human
@@ -93,17 +94,57 @@ class InstagramBot:
                 # building list of unique photos
                 [post_hrefs.append(href) for href in hrefs_in_view if href not in post_hrefs]
                 # so as not to spam
-                if _ % 2 != 0:
+                if n % 2 != 0:
                     # display length of list to user
                     print("Check: pic href length " + str(len(post_hrefs)))
             # but just in case
             except:
                 # let us know it didn't work, and which iteration 
-                print(f"except Exception: #{_} gathering photos")
+                print(f"except Exception: #{n} gathering photos")
                 # and keep moving
                 continue
+        # check for limit
+        if limit != False:
+            # check if we are over the limit
+            if len(post_hrefs) > limit:
+                # apply the limit 
+                post_hrefs = post_hrefs[:limit]
+        # identify log route
+        route = 'data/made/post_hrefs/log'
+        # dataframe this hashtag's existing csv file 
+        log = pd.read_csv(route)     
+        # are we making sure these are unique? (default : yes)
+        if certify:
+            # tag previously seen hrefs
+            repeats = [href for href in post_hrefs if href in list(log.href)]
+            # remove previously seen hrefs 
+            post_hrefs = [href for href in post_hrefs if href not in repeats]
+            # are we recording repeats? (default : yes)
+            if r_log_on:
+                # tag repeat log route
+                r_route = 'data/made/post_hrefs/r_log'
+                # read in repeat log
+                repeat_log = pd.read_csv(r_route)
+                # build dataframe
+                r_df = pd.DataFrame(repeats, columns=['href'])
+                # make lists for day of week, key, and tag columns
+                r_df['dow'] = (  (  (day + ',') * (len(r_df)-1) ) + day).split(',')
+                r_df['key'] = (  (  (key + ',') * (len(r_df)-1) ) + key).split(',')
+                r_df['tag'] = (((hashtag + ',') * (len(r_df)-1) ) + hashtag).split(',')    
+                # join and write the new repeat log
+                pd.concat([repeat_log, r_df], axis=0).to_csv(r_route, index=False)       
+        # define dataframe of hrefs
+        df = pd.DataFrame(post_hrefs, columns=['href'])
+        # make lists for day of week and key columns
+        df['dow'] = (  (  (day + ',') * (len(df)-1) ) + day).split(',')
+        df['key'] = (  (  (key + ',') * (len(df)-1) ) + key).split(',')
+        df['tag'] = (((hashtag + ',') * (len(df)-1) ) + hashtag).split(',')
+        # add new dataframe to existing 
+        df = pd.concat([log, df], axis=0)
+        # write the new dataframe over the old dataframe in csv (w/o index)
+        df.to_csv(route, index=False)
         # output collection of hrefs
-        return post_hrefs
+        return post_hrefs        
 
     def like_posts(self, hashtag, hrefs, indicator_thresh=5):
         """load and 'like' posts from given list
@@ -123,7 +164,7 @@ class InstagramBot:
             # load the post
             self.driver.get(post_href)
             # hedge for whatever
-            sleep(random.randint(3,5))
+            sleep(5)
             # move around a bit, make sure we can see the heart (like button)
             self.driver.execute_script(scroll)
             # this should work
@@ -133,7 +174,7 @@ class InstagramBot:
                 # click the like button
                 like_button().click()
                 # hedge over-liking
-                sleep(random.randint(14, 22))
+                sleep(10)
             # if it doesn't work
             except:
                 # don't really have a backup plan.. so take a break ig..
