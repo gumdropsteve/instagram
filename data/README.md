@@ -1,8 +1,13 @@
--* up to date status: unlikely
 ## Data
-- scraped
-    - data which was scraped 
-    - old_data
-        - qued for eventual deletion
 - made
-    - data which was produced as result of [bot.py](https://github.com/gumdropsteve/instagram/blob/master/bot.py) 
+    - followers_and_following
+        - sunday_20191103_052032.csv (sample data)
+        - other files with similar names 
+            - redy to go with [rec_n_check()](https://github.com/gumdropsteve/instagram/blob/master/run.py#L8) from [run.py](https://github.com/gumdropsteve/instagram/blob/master/run.py)
+    - post_hrefs
+        - log
+            - log of all unique hrefs gathered (1 row sample data)
+        - r_log
+            - log of all hrefs seen more than once (1 row sample data, plays off sample from log)
+- scraped
+    - data which was scraped (not in use at this time)
