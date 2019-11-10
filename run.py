@@ -1,28 +1,31 @@
 from bot import InstagramBot
 from helpers import record_followers_and_following, check_non_followbackers
-# login info
-from _pile import utv, ptv, u, p
+# login info (set your own)
+user = 'arthur'  
+pwrd = 'area11ybadpAssword'
 
 
 def rec_n_check():
     """
     record followers and following then check for non-followbackers to unfollow
+        > if there are accounts to follow a prompt (with details) will ask how many to unfollow 
+            >> range: 0-24
 
     methods used:
         > record_followers_and_following (helpers.py)
         > check_non_followbackers (helpers.py)
     """
     # variable to make record
-    record = record_followers_and_following()
+    record = record_followers_and_following(account=user)
     # variable to check that record
     run = check_non_followbackers(record)
     # record then check followbackers (display output)
     print(run)
 
 
-def comment(post, comment):
+def add_hashtags(post, comment):
     """
-    post a comment on a given post
+    add hashtags (as a comment) to a given post
 
     methods used:
         > login
@@ -30,16 +33,16 @@ def comment(post, comment):
         > close_browser
     """
     # tag bot instance
-    ig = InstagramBot(username=u)
+    ig = InstagramBot(username=user)
     # log in
-    ig.login(password=p)
+    ig.login(password=pwrd)
     # comment (display output)
     print(ig.comment(post, comment))
     # close
     ig.close_browser()
 
 
-def like_by_hashtag(hashtags, scroll_range=5, indicator_thresh=5, limit=False):
+def like_by_hashtag(hashtags, scroll_range=5, indicator_thresh=5, limit=50):
     """
     identify then like posts from given hashtags
 
@@ -50,9 +53,9 @@ def like_by_hashtag(hashtags, scroll_range=5, indicator_thresh=5, limit=False):
         > close_browser
     """
     # tag bot instance
-    ig = InstagramBot(username=u)
+    ig = InstagramBot(username=user)
     # log in
-    ig.login(password=p)
+    ig.login(password=pwrd)
     # go through hashtags
     for tag in hashtags:
         # gather posts 
