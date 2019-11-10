@@ -1,17 +1,23 @@
-# Instagram ([bot.py](https://github.com/gumdropsteve/instagram/blob/master/bot.py))
-Object-oriented Selenium (Python) WebDriver class providing insight and task automation for Instagram users.
+## Instagram ([bot.py](https://github.com/gumdropsteve/instagram/blob/master/bot.py))
+Object-oriented Selenium (Python) WebDriver class providing insight and task automation for Instagram users. 
 
 <a href="https://github.com/SeleniumHQ/selenium" target="_blank">
   <img src="https://img.shields.io/badge/built%20with-Selenium-yellow.svg" /></a>
 <a href="https://www.python.org/" target="_blank">
   <img src="https://img.shields.io/badge/built%20with-Python3-red.svg" /></a>
 
-### Primary Abilities: 
+#### Primary Abilities: 
 - Log in to Instagram
-  - [.login()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L46)
+  - ig.[login()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L46)
 - Gather posts by hashtag
-  - [.gather_posts()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L62)
+  - ig.[gather_posts()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L62)
 - Like posts based on hashtag
-  - [.like_posts()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L174)
+  - ig.[like_posts()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L174)
 - Comment or add hashtags to a post
-  - [.comment()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L214)
+  - ig.[comment()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L214)
+
+#### Example Uses:
+- [add_hashtags](https://github.com/gumdropsteve/instagram/blob/master/run.py#L26) to a post as a comment
+- Gather posts then [like_by_hashtag](https://github.com/gumdropsteve/instagram/blob/master/run.py#L45) after making sure you haven't already liked them 
+- [rec_n_check](https://github.com/gumdropsteve/instagram/blob/develop/run.py#L8) an account's followers and following to identify then (optionally) unfollow non-followbackers
+  
