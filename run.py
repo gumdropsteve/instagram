@@ -4,13 +4,13 @@ from time import sleep
 from datetime import datetime
 # bot
 from bot import InstagramBot
+from helpers import record_followers_and_following, check_non_followbackers
 # hashtags
-from infos import pleasanton_tags, s2_eligible_for_unfollowing, second_round_all, draft_log
+# from infos import pleasanton_tags, s2_eligible_for_unfollowing, second_round_all, draft_log
 # login info
 from _pile import utv, ptv, u, p
 
 def rec_n_check():
-    from helpers import record_followers_and_following, check_non_followbackers
     """
     record followers and following then check for non-followbackers to unfollow
     """
@@ -33,13 +33,28 @@ def comment(post, comment):
     ig.close_browser()
 
 
+def like_by_hashtag(hashtags):
+    # log in
+    ig.login(password=p)
+    # go through hashtags
+    for hashtag in hashtags:
+        # gather posts
+        to_like = ig.gather_posts(hashtag=hashtag, scroll_range=5)
+        # like posts 
+        ig.like_posts(hashtag=hashtag, hrefs=to_like)
+    # close up shop
+    ig.close_browser()
+
+mw_tags = ['quickscope', 'codnation', 'callofdutymodernwarfare', 
+           'modernwarfare', 'callofduty', 'blackops4', 'codmw']
+
 """
 BELOW NEEDS TO BE REFORMATTED LIKE ABOVE
 NEW STRAT IS QUASI-API OF SPECIFIC USES
 """
 
 # determine mode
-mode= 'like'  #'unfollow' #'re_verify unfollowing' 'redo unfollow' 'verify unfollowing' 'unfollow' 'like' 'analyze unfollow'
+mode =  'pass' #'like'  #'unfollow' #'re_verify unfollowing' 'redo unfollow' 'verify unfollowing' 'unfollow' 'like' 'analyze unfollow'
 
 # determine start point in data
 genesis = 0
@@ -47,62 +62,75 @@ genesis = 0
 exodus = 100
 # make this a runable script 
 if __name__ == "__main__":
-    # label the bot
-    ig = InstagramBot(username=u)
-
+    if mode != 'pass':
+        # label the bot
+        ig = InstagramBot(username=u)
     # in testing mode
-    if mode == 'like':
+    elif mode == 'like':
         # log in
         ig.login(password=p)
         # set hashtags
-        hashtags = ['codnation', 'callofdutymodernwarfare', 'modernwarfare', 'callofduty', 'blackops4']
+        # hashtags = ['quickscope', 'codnation', 'callofdutymodernwarfare', 'modernwarfare', 'callofduty', 'blackops4', 'codmw']
+        # hashtags = ['blackops3', 'callofdutyinfinitewarfare', 'codtopplays']
+        hashtags = ['callofduty', 'codtopplays', 'modernwarfare', 'clipagame']#, 'killstreak', 'modernwarfare']
+        # hashtags = ['killstreak', 'modernwarfare']
+        # hashtags = ['tagsforlikes', 'tagsforlikes']
+        # hashtags = ['t4l', 'likeforlike', 'tagsforlikes']
+        for hashtag in hashtags:
+            # gather posts 
+            to_like = ig.gather_posts(hashtag=hashtag, scroll_range=2, limit=15)
+            # like posts 
+            ig.like_posts(hashtag=hashtag, hrefs=to_like, indicator_thresh=5)
+        # wait 20 min for people to upload new stuff 
+        sleep(1200)
+        # let's see if we can get repeats
         for hashtag in hashtags:
             # gather posts
-            to_like = ig.gather_posts(hashtag=hashtag)
+            to_like = ig.gather_posts(hashtag=hashtag, scroll_range=2, limit=15)
             # like posts 
-            ig.like_posts(hashtag=hashtag, hrefs=to_like)
+            ig.like_posts(hashtag=hashtag, hrefs=to_like, indicator_thresh=5)
         # close up shop
         ig.close_browser()
 
-    # in testing mode
-    if mode == 'unfollow':
-        # log in
-        ig.login(password=p)
-        # tag database 
-        db = second_round_all
-        # pull unfollowed urls
-        inelgible = [url for url in draft_log.user_profile]
-        # adjust elgible
-        elgible = [url for url in s2_eligible_for_unfollowing if url not in inelgible][genesis:exodus]
-        # set record log
-        log = []
-        # start interations
-        for i in range(len(elgible)):
-            # tag url
-            url = elgible[i]
-            # pull account id and username 
-            account = [_ for __ in db.loc[db.user_profile == url].values for _ in __][:2]
-            # tack on url
-            account.append(url)
-            # tag unfollowing of account
-            unfollow = ig.unfollow(url)
-            # add unfollow info to account info
-            for p in unfollow:
-                account.append(p)
-            # record transaction
-            ig.record(record=account, log='data/made/unfollow_log.csv')
-            # every 25 accounts
-            if i % 25 == 0 and i != 0:
-                # update user as to progress
-                print(f"{int((i/len(elgible))*100)}% complete ; {datetime.now()}")
-                # take an extended break
-                sleep(75)
-            #otherwise
-            else:
-                # take regular break
-                sleep(15)
-        # close up shop
-        ig.close_browser()
+    # # in testing mode
+    # elif mode == 'unfollow':
+    #     # log in
+    #     ig.login(password=p)
+    #     # tag database 
+    #     db = second_round_all
+    #     # pull unfollowed urls
+    #     inelgible = [url for url in draft_log.user_profile]
+    #     # adjust elgible
+    #     elgible = [url for url in s2_eligible_for_unfollowing if url not in inelgible][genesis:exodus]
+    #     # set record log
+    #     log = []
+    #     # start interations
+    #     for i in range(len(elgible)):
+    #         # tag url
+    #         url = elgible[i]
+    #         # pull account id and username 
+    #         account = [_ for __ in db.loc[db.user_profile == url].values for _ in __][:2]
+    #         # tack on url
+    #         account.append(url)
+    #         # tag unfollowing of account
+    #         unfollow = ig.unfollow(url)
+    #         # add unfollow info to account info
+    #         for p in unfollow:
+    #             account.append(p)
+    #         # record transaction
+    #         ig.record(record=account, log='data/made/unfollow_log.csv')
+    #         # every 25 accounts
+    #         if i % 25 == 0 and i != 0:
+    #             # update user as to progress
+    #             print(f"{int((i/len(elgible))*100)}% complete ; {datetime.now()}")
+    #             # take an extended break
+    #             sleep(75)
+    #         #otherwise
+    #         else:
+    #             # take regular break
+    #             sleep(15)
+    #     # close up shop
+    #     ig.close_browser()
 
     # if mode == 'analyze unfollow':
     #     # import data
