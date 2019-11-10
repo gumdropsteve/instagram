@@ -1,17 +1,14 @@
 # timing 
 import time
-import random
 from time import sleep
 # reading
 import numpy as np
 import pandas as pd
 # recording
 import csv
-from datetime import datetime
 # webdriver
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException 
 
 # .js help
 from infos import scroll
@@ -21,7 +18,6 @@ from helpers import check_xpath
 from infos import ig_log_page, ig_tags_url
 # paths
 from infos import username_box, password_box, save_info_popup
-from infos import following_button, unfollow_button, follow_button 
 from infos import comment_button, comment_box, like
 # misc
 from infos import ig_tags_url
@@ -29,15 +25,21 @@ from infos import ig_tags_url
 
 class InstagramBot:
 
-    def __init__(self, username):
-        # tag the options field
-        options = webdriver.FirefoxOptions()  
-        # disable push/popups 
-        options.set_preference("dom.push.enabled", False)  
-        # set user
+    def __init__(self, username, block=True):
+        # set & greet user
         self.username = username
-        # set driver with options 
-        self.driver = webdriver.Firefox(options=options)
+        print(f'hello, {self.username}.')
+        # do we want to block pop-ups? (default = yes)
+        if block:
+            # tag the options field
+            options = webdriver.FirefoxOptions()  
+            # disable push/popups 
+            options.set_preference("dom.push.enabled", False)  
+            # set driver with options 
+            self.driver = webdriver.Firefox(options=options)
+        # we do not want to block pop ups. 
+        else:
+            self.driver = webdriver.Firefox()
         # minimize browser window
         self.driver.minimize_window()
 
@@ -61,13 +63,36 @@ class InstagramBot:
                      limit=False, certify=True, r_log_on=True):
         """collects group of post urls by hashtag
 
-        input) 
+        inputs) 
         > hashtag 
             >> hashtag from which to gather posts
+        > scroll_range
+            >> how many times to scroll the hashtag page
+                > note: more scrolls = more posts
+                > default is 5 scrolls (a lot of posts)
+        > limit
+            >> maximum number of posts to consider 
+                > does not affect scroll_range
+                    >> if you have a limit, you may lower scroll_range to save time
+                > limit is applied before certification of new posts {certify}
+        > certify
+            >> compare the post_hrefs found to post hrefs you've seen before {log}
+                > drops posts which have been seen before
+                > adds new ones to log (r_log_on option)
+        > r_log_on
+            >> record href, day, key, and hashtag for pulled hrefs that were already in log
+            >> dependent on certify (does not work if certify=False)
 
         output)
         > post_hrefs
             >> collection of urls to posts form hashtag 
+        > log (optional)
+            >> record of seen hrefs and some info on time & hashtag found under
+            >> default: it's on, suggusted: turn off if you have no interest in keeping record
+        > r_log (optional)
+                > "repeat log"
+            >> record of multi-sighting hrefs and some info on time & hashtag found under (each time)
+            >> default: it's on, suggusted: turn off if no interest in keeping record or only want unique record {log}
         """
         # determine day of week and key strings
         day = time.strftime("%A").lower()
@@ -202,65 +227,7 @@ class InstagramBot:
         """closes webdriver
         """
         self.driver.close()  
-        
-    def generate_actionable_uls(self, potential_accounts, n, white_list_accounts):
-        """identify accounts elgible for action from pd dataframe via 
-        compairson to dataframe of non/previously-actionable accounts
-
-        inputs:
-        > potential_accounts
-            >> pandas dataframe of accounts up for action
-                > with account urls in .user_profile column
-        > n
-            >> number of accounts on which action will be taken in this round
-        > white_list_accounts
-            >> pandas dataframe of accounts which have already been acted upon
-                > with account urls in .user_profile column
-
-        output:
-        > list of urls belonging to potential_accounts not found in white_list_accounts
-        """
-        # pull/tag potential urls 
-        potential_urls = [url for url in potential_accounts.user_profile]
-        # pull/tag previously seen urls
-        already_actioned = [url for url in white_list_accounts.user_profile]
-        # forget already actioned urls
-        elgible_urls = [url for url in potential_urls if url not in already_actioned]
-        # range matters
-        if n != False:
-            # shrink numer of accounts to desired range
-            elgible_urls = elgible_urls[:n]
-        # output actionable accounts
-        return elgible_urls
-
-    def unfollow(self, account_url):
-        """unfollow given account 
-
-        inputs:
-        > account_url
-            >> url of account to unfollow
-
-        output:
-        > list detailing transaction
-            >> check/click 'following', check/click 'unfollowing', datetime
-        """
-        # load the account's profile
-        self.driver.get(account_url) 
-        # test for/find and click the 'following' button (0=success)
-        ntract_following = check_xpath(webdriver=self.driver, xpath=following_button, click=True, hedge_load=5)
-        # following button went well
-        if ntract_following == 0:
-            # wait a bit (hedge load)
-            sleep(3)                    
-            # test for/find and click the 'unfollow' button (0=success)
-            ntract_unfollow = check_xpath(webdriver=self.driver, xpath=unfollow_button, click=True)
-        # following buttion did not go well
-        else:
-            # unfollow no longer possible
-            ntract_unfollow = 'nan'
-        # output instance of unfollowing for log
-        return [ntract_following, ntract_unfollow, datetime.now()]
-
+ 
     def record(self, record, log):
         """record given info into given csv 
 
