@@ -1,5 +1,3 @@
-import pandas as pd 
-
 """xpaths
 """
 # username input box
@@ -38,7 +36,7 @@ scroll = "window.scrollTo(0, document.body.scrollHeight);"
 user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) \
               AppleWebKit/528.18 (KHTML,like Gecko) Version/4.0 Mobile/7A341 Safari/528.16"
 
-"""hashtags
+"""hashtag sets
 """
 # general real estate
 gen_real_estate_tags = ['homesforsale', 'fsbo', 'forsalebyowner', 'realestate', 'realty', 'realtor', 'nar']
@@ -57,9 +55,10 @@ hashtags_2 = ['videogames', 'videogame', 'battleroyale', 'freeforall', 'codblack
 hashtags = ['callofduty', 'codnation', 'blackops4', 'multiplayer', 'xbox', 'ps4', 'twitch', 'esports',
                 'coderedtourneyment', 'popupcup', 'gamingmemes', 'memes', 'ninja', 'pogchamp', 'twitch',
             'likeback', 'cod', 'longshot', 'ttv', 'faze']
-
-
-
-
-
-
+# cod modern warfare (related) tags
+mw_tags = ['quickscope', 'codnation', 'callofdutymodernwarfare', 
+           'modernwarfare', 'callofduty', 'blackops4', 'codmw']
+# tags for likes
+tags4likes = ['t4l', 'likeforlike', 'tagsforlikes', 'like4like']
+# default 
+default = ['callofduty', 'codtopplays', 'modernwarfare', 'clipagame', 'killstreak']
