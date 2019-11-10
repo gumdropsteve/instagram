@@ -75,16 +75,14 @@ class InstagramBot:
         # determine day of week and key strings
         day = time.strftime("%A").lower()
         key = time.strftime("%Y%m%d_%H%M%S")
-
         # load the webpage to which the image belongs 
         self.driver.get(ig_tags_url + hashtag + '/')
-        # better safe than sorry
+        # hedge load time
         sleep(3)
-
         # set base collection for hrefs 
         post_hrefs = []
-        # next step will be repeated 7 times to load 7 scrolls of pictures (adjustable, rec odds)
-        for _ in range(scroll_range):
+        # load n (scroll_range) scrolls of pictures
+        for n in range(scroll_range):
             # this should work
             try:
                 # it's almost like we're human
@@ -99,13 +97,13 @@ class InstagramBot:
                 # building list of unique photos
                 [post_hrefs.append(href) for href in hrefs_in_view if href not in post_hrefs]
                 # so as not to spam
-                if _ % 2 != 0:
+                if n % 2 != 0:
                     # display length of list to user
                     print("Check: pic href length " + str(len(post_hrefs)))
             # but just in case
             except:
                 # let us know it didn't work, and which iteration 
-                print(f"except Exception: #{_} gathering photos")
+                print(f"except Exception: #{n} gathering photos")
                 # and keep moving
                 continue
         # check for limit
@@ -114,19 +112,14 @@ class InstagramBot:
             if len(post_hrefs) > limit:
                 # apply the limit 
                 post_hrefs = post_hrefs[:limit]
-    
-        """
-        START # temp data solution #
-        """
         # identify log route
         route = 'data/made/post_hrefs/log'
         # dataframe this hashtag's existing csv file 
         log = pd.read_csv(route)     
-
         # are we making sure these are unique? (default : yes)
         if certify:
             # tag previously seen hrefs
-            repeats = [href for href in post_hrefs if href in log.href]
+            repeats = [href for href in post_hrefs if href in list(log.href)]
             # remove previously seen hrefs 
             post_hrefs = [href for href in post_hrefs if href not in repeats]
             # are we recording repeats? (default : yes)
@@ -135,7 +128,6 @@ class InstagramBot:
                 r_route = 'data/made/post_hrefs/r_log'
                 # read in repeat log
                 repeat_log = pd.read_csv(r_route)
-                # href,dow,key,tag
                 # build dataframe
                 r_df = pd.DataFrame(repeats, columns=['href'])
                 # make lists for day of week, key, and tag columns
@@ -144,62 +136,20 @@ class InstagramBot:
                 r_df['tag'] = (((hashtag + ',') * (len(r_df)-1) ) + hashtag).split(',')    
                 # join and write the new repeat log
                 pd.concat([repeat_log, r_df], axis=0).to_csv(r_route, index=False)       
-
-        # '''build dataframe'''
         # define dataframe of hrefs
         df = pd.DataFrame(post_hrefs, columns=['href'])
         # make lists for day of week and key columns
         df['dow'] = (  (  (day + ',') * (len(df)-1) ) + day).split(',')
         df['key'] = (  (  (key + ',') * (len(df)-1) ) + key).split(',')
         df['tag'] = (((hashtag + ',') * (len(df)-1) ) + hashtag).split(',')
-        # '''write dataframe to csv'''
         # add new dataframe to existing 
         df = pd.concat([log, df], axis=0)
         # write the new dataframe over the old dataframe in csv (w/o index)
         df.to_csv(route, index=False)
-        
-        # # are we going to certify before liking? (default=True)
-        # if certify:
-        #     # remember this dataframe for certifying 
-        #     self.df = df
-        """
-        END # temp data solution #
-        """
-        
         # output collection of hrefs
-        return post_hrefs
-    """
-    ISSUEs 
-        # compare hrefs to prior for this hashtag #
-        # compare hrefs to prior during this session #
-        THOUGHTs
-            # want to avoid wasting time on previously seen #
-            # and document tagging patterns # 
-    """
-    # def certify_posts(self, hashtag, hrefs):
-    #     # load hashtag specific log 
-    #     log = pd.read_csv('data/made/post_hrefs/_all.csv')
-    #     # pull list of previously seen posts
-    #     log = list(log['href'])
-    #     # bool list on if href has not been seen before (1=new, 0=seen)
-    #     certified_new = []
-    #     for href in hrefs:
-    #         if href not in log:
-    #             certified_new.append(1)
-    #         else:
-    #             certified_new.append(0)
-    #     # certified_new = [True for href in hrefs if href not in log else False]
-    #     # add column to dataframe
-    #     self.df['certified'] = certified_new
-    #     # extract dataframe of only certified new posts and drop bool column
-    #     df = self.df.loc[self.df.certified == 1].drop('certified')
-    #     # add certified new dataframe to all log (has already been added to own log)
-    #     pd.concat([log, df], axis=0).to_csv('data/made/post_hrefs/_all.csv', index=False)
+        return post_hrefs        
 
-
-        
-
-    def like_posts(self, hashtag, hrefs, indicator_thresh=10):
+    def like_posts(self, hashtag, hrefs, indicator_thresh=5):
         """load and 'like' posts from given list
 
         input)
