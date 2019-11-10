@@ -1,30 +1,17 @@
 import time
-import random
 import pandas as pd
 # selenium
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException  
 # instapy
-from instapy import InstaPy, relationship_tools, smart_run, unfollow_util
-from _pile import u, p
+from instapy import InstaPy, smart_run
+# login info (set your own)
+user = 'arthur'  
+pwrd = 'area11ybadpAssword'
 
-'''
-to add
-detect if page is 404
-    by text? 
-recording info on the visuals
-    what is the account broadcasting?
-        rip sullivan --classic
-    this may be better in bot?
-        no? what is point of helpers?
-            maybe.
-'''
-
-
-def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None, hedge_load=1):
+def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None, hedge_load=2):
     """checks if an xpath exists on the current page
-
     inputs)
         > webdriver
             >> driver being used
@@ -36,7 +23,6 @@ def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None, hedge
             >> if sending keys to element once/if found
         > keys
             >> keys being sent if sending keys (i.e. send_keys=True)
-
     output)
         > if successful
             >> 0
@@ -69,7 +55,7 @@ def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None, hedge
         return 1
 
 
-def record_followers_and_following(account="ttv.princearthur", **output_df):
+def record_followers_and_following(account, **output_df):
     """
     > pull up a given account and record it's followers and following to csv
         >> then return that file path 
@@ -77,7 +63,7 @@ def record_followers_and_following(account="ttv.princearthur", **output_df):
             > print file name & return the pandas dataframe
     """
     # set InstaPy session
-    session = InstaPy(username=u, password=p, headless_browser=True)
+    session = InstaPy(username=user, password=pwrd, headless_browser=True)
 
     # start the session
     with smart_run(session):
@@ -119,11 +105,11 @@ def record_followers_and_following(account="ttv.princearthur", **output_df):
     df['following'] = bool_following
 
     # id day of week 
-    doy = time.strftime("%A_").lower()
+    dow = time.strftime("%A_").lower()
     # numerical year, month, day _ hour, minute, second
     ymdhms = time.strftime("%Y%m%d_%H%M%S")
     # generate file name
-    file = 'data/made/followers_and_following/' + doy + ymdhms + '.csv'
+    file = 'data/made/followers_and_following/' + dow + ymdhms + '.csv'
     
     # record dataframe as csv
     df.to_csv(path_or_buf=file, index=False)
