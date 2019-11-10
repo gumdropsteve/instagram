@@ -60,7 +60,8 @@ class InstagramBot:
         # take care if "save info" pop-up page pops up
         check_xpath(webdriver=self.driver, xpath=save_info_popup, click=True)
 
-    def gather_posts(self, hashtag, scroll_range=5, limit=False):
+    def gather_posts(self, hashtag, scroll_range=5, 
+                     limit=False, certify=True, r_log_on=True):
         """collects group of post urls by hashtag
 
         input) 
@@ -71,6 +72,10 @@ class InstagramBot:
         > post_hrefs
             >> collection of urls to posts form hashtag 
         """
+        # determine day of week and key strings
+        day = time.strftime("%A").lower()
+        key = time.strftime("%Y%m%d_%H%M%S")
+
         # load the webpage to which the image belongs 
         self.driver.get(ig_tags_url + hashtag + '/')
         # better safe than sorry
@@ -104,48 +109,95 @@ class InstagramBot:
                 # and keep moving
                 continue
         # check for limit
-        if limit:
+        if limit != False:
             # check if we are over the limit
             if len(post_hrefs) > limit:
-                # apply the limit (assumes limit is within range)
+                # apply the limit 
                 post_hrefs = post_hrefs[:limit]
-        
+    
         """
         START # temp data solution #
         """
+        # identify log route
+        route = 'data/made/post_hrefs/log'
+        # dataframe this hashtag's existing csv file 
+        log = pd.read_csv(route)     
+
+        # are we making sure these are unique? (default : yes)
+        if certify:
+            # tag previously seen hrefs
+            repeats = [href for href in post_hrefs if href in log.href]
+            # remove previously seen hrefs 
+            post_hrefs = [href for href in post_hrefs if href not in repeats]
+            # are we recording repeats? (default : yes)
+            if r_log_on:
+                # tag repeat log route
+                r_route = 'data/made/post_hrefs/r_log'
+                # read in repeat log
+                repeat_log = pd.read_csv(r_route)
+                # href,dow,key,tag
+                # build dataframe
+                r_df = pd.DataFrame(repeats, columns=['href'])
+                # make lists for day of week, key, and tag columns
+                r_df['dow'] = (  (  (day + ',') * (len(r_df)-1) ) + day).split(',')
+                r_df['key'] = (  (  (key + ',') * (len(r_df)-1) ) + key).split(',')
+                r_df['tag'] = (((hashtag + ',') * (len(r_df)-1) ) + hashtag).split(',')    
+                # join and write the new repeat log
+                pd.concat([repeat_log, r_df], axis=0).to_csv(r_route, index=False)       
+
         # '''build dataframe'''
         # define dataframe of hrefs
         df = pd.DataFrame(post_hrefs, columns=['href'])
-        # determine day of week and key strings
-        day = time.strftime("%A").lower()
-        ymdhms = time.strftime("%Y%m%d_%H%M%S")
         # make lists for day of week and key columns
-        dow = (((day + ',') * (len(df) - 1)) + day ).split(',')
-        key = (((ymdhms + ',') * (len(df) - 1)) + ymdhms ).split(',')
-        # define day of week and key columns
-        df['dow'] = dow
-        df['key'] = key
+        df['dow'] = (  (  (day + ',') * (len(df)-1) ) + day).split(',')
+        df['key'] = (  (  (key + ',') * (len(df)-1) ) + key).split(',')
+        df['tag'] = (((hashtag + ',') * (len(df)-1) ) + hashtag).split(',')
         # '''write dataframe to csv'''
-        # identify the route
-        route = 'data/made/post_hrefs/' + hashtag  + '.csv'
-        # see if the record for this hashtag already exists
-        try:
-            # dataframe this hashtag's existing csv file 
-            og_df = pd.read_csv(route)
-            # add new dataframe to existing 
-            df = pd.concat([og_df, df], axis=0)
-            # write the new dataframe over the old dataframe in csv (w/o index)
-            df.to_csv(route, index=False)
-        # this hashtag has no record
-        except:
-            # so start one
-            df.to_csv(route, index=False)
+        # add new dataframe to existing 
+        df = pd.concat([log, df], axis=0)
+        # write the new dataframe over the old dataframe in csv (w/o index)
+        df.to_csv(route, index=False)
+        
+        # # are we going to certify before liking? (default=True)
+        # if certify:
+        #     # remember this dataframe for certifying 
+        #     self.df = df
         """
         END # temp data solution #
         """
-            
+        
         # output collection of hrefs
         return post_hrefs
+    """
+    ISSUEs 
+        # compare hrefs to prior for this hashtag #
+        # compare hrefs to prior during this session #
+        THOUGHTs
+            # want to avoid wasting time on previously seen #
+            # and document tagging patterns # 
+    """
+    # def certify_posts(self, hashtag, hrefs):
+    #     # load hashtag specific log 
+    #     log = pd.read_csv('data/made/post_hrefs/_all.csv')
+    #     # pull list of previously seen posts
+    #     log = list(log['href'])
+    #     # bool list on if href has not been seen before (1=new, 0=seen)
+    #     certified_new = []
+    #     for href in hrefs:
+    #         if href not in log:
+    #             certified_new.append(1)
+    #         else:
+    #             certified_new.append(0)
+    #     # certified_new = [True for href in hrefs if href not in log else False]
+    #     # add column to dataframe
+    #     self.df['certified'] = certified_new
+    #     # extract dataframe of only certified new posts and drop bool column
+    #     df = self.df.loc[self.df.certified == 1].drop('certified')
+    #     # add certified new dataframe to all log (has already been added to own log)
+    #     pd.concat([log, df], axis=0).to_csv('data/made/post_hrefs/_all.csv', index=False)
+
+
+        
 
     def like_posts(self, hashtag, hrefs, indicator_thresh=10):
         """load and 'like' posts from given list
