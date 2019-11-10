@@ -19,9 +19,6 @@ from infos import scroll
 from helpers import check_xpath
 # urls
 from infos import ig_log_page, ig_tags_url
-# data (loaded here for future multitasking)
-from infos import follows_users, by_users, unfollow_log 
-from infos import verified_unfollow_log, redo_unfollow_log, re_verified_unfollow_log
 # paths
 from infos import username_box, password_box, save_info_popup
 from infos import following_button, unfollow_button, follow_button 
