@@ -1,2 +1,3 @@
-selenium>=3.141.0
+pandas>=0.24.1
 instapy>=0.6.2
+selenium>=3.141.0
