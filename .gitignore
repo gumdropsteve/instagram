@@ -1,5 +1,7 @@
-geckodriver.log
 __pycache__/
 /theories/
 /data/
+.vscode/
+_pile.py
+geckodriver.log
 *.ipynb
