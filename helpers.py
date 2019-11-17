@@ -6,9 +6,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException  
 # instapy
 from instapy import InstaPy, smart_run
-# login info (set your own)
-user = 'arthur'  
-pwrd = 'area11ybadpAssword'
+# login info 
+from user import user, pwrd
+
 
 def check_xpath(webdriver, xpath, click=False, send_keys=False, keys=None, hedge_load=2):
     """checks if an xpath exists on the current page
