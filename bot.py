@@ -45,6 +45,10 @@ class InstagramBot:
             >> if True, minimize the browser window
             >> default == True
         """
+        # check username isn't blank
+        if username == '':
+            # let this person know they need to set their username
+            raise Exception(f'username not found error\nusername = {username}\nplease set username in user.py')
         # set & greet user
         self.username = username
         print(f'hello, {self.username}.')
@@ -70,6 +74,10 @@ class InstagramBot:
         > password (str)
             >> password to the account logging in
         """
+        # check username isn't blank
+        if password == '':
+            # let this person know they need to set their username
+            raise Exception(f'password not found error\npassword = {password}\nplease set password in user.py')
         # load instagram login page
         self.driver.get(ig_log_page)
         # wait (hedge load time)
@@ -104,25 +112,22 @@ class InstagramBot:
             >> compare the post_hrefs found to post hrefs you've seen before {log}
                 > drops posts which have been seen before
                 > adds new ones to log 
+                    > default recording location: 'data/made/post_hrefs/log'
+                    > record info: first sighting of pulled hrefs + some info on time & hashtag found under
                 > adds repeats to r_log if r_log_on == True 
             >> default == True
+                > suggusted: turn off if you have no interest in keeping record
         > r_log_on (bool)
             >> record href, day, key, and hashtag for pulled hrefs that were already in log
+                > default recording location: 'data/made/post_hrefs/r_log'
+                > record info: multi-sighting hrefs + some info on time & hashtag found under (each time)
             >> dependent on certify (does not work if certify=False)
             >> default == True 
+                > suggusted: turn off if no interest in keeping record or only want unique record {log}
 
         outputs:
         > post_hrefs (list)
             >> collection of urls to posts form hashtag 
-
-        recording:
-        > log (optional) (bool)
-            >> record of seen hrefs and some info on time & hashtag found under
-            >> default: it's on, suggusted: turn off if you have no interest in keeping record
-        > r_log (optional) (bool)
-                > "repeat log"
-            >> record of multi-sighting hrefs and some info on time & hashtag found under (each time)
-            >> default: it's on, suggusted: turn off if no interest in keeping record or only want unique record {log}
         """
         # determine day of week and key strings
         day = time.strftime("%A").lower()
@@ -213,6 +218,8 @@ class InstagramBot:
         > indicator_thresh (int)
             >> how many posts to process between printing progress 
         """
+        # remember starting time
+        now = time.time()
         # note how many posts there are 
         n_unique_posts = len(hrefs)
         # go through each one
@@ -241,6 +248,10 @@ class InstagramBot:
             if n_unique_posts % indicator_thresh == 0:
                 # let us know how many remain
                 print(f'#{hashtag} : remaining = {n_unique_posts}')
+        # note ending time
+        then = time.time()
+        # output what just happened 
+        return f'liked {n_unique_posts} posts from #{hashtag} in {int(now-then)} seconds'
 
     def comment(self, post, comment):
         '''load given post then comment given comment
