@@ -104,25 +104,22 @@ class InstagramBot:
             >> compare the post_hrefs found to post hrefs you've seen before {log}
                 > drops posts which have been seen before
                 > adds new ones to log 
+                    > default recording location: 'data/made/post_hrefs/log'
+                    > record info: first sighting of pulled hrefs + some info on time & hashtag found under
                 > adds repeats to r_log if r_log_on == True 
             >> default == True
+                > suggusted: turn off if you have no interest in keeping record
         > r_log_on (bool)
             >> record href, day, key, and hashtag for pulled hrefs that were already in log
+                > default recording location: 'data/made/post_hrefs/r_log'
+                > record info: multi-sighting hrefs + some info on time & hashtag found under (each time)
             >> dependent on certify (does not work if certify=False)
             >> default == True 
+                > suggusted: turn off if no interest in keeping record or only want unique record {log}
 
         outputs:
         > post_hrefs (list)
             >> collection of urls to posts form hashtag 
-
-        recording:
-        > log (optional) (bool)
-            >> record of seen hrefs and some info on time & hashtag found under
-            >> default: it's on, suggusted: turn off if you have no interest in keeping record
-        > r_log (optional) (bool)
-                > "repeat log"
-            >> record of multi-sighting hrefs and some info on time & hashtag found under (each time)
-            >> default: it's on, suggusted: turn off if no interest in keeping record or only want unique record {log}
         """
         # determine day of week and key strings
         day = time.strftime("%A").lower()
