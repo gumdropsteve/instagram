@@ -27,31 +27,41 @@ from infos import ig_tags_url
 
 class InstagramBot:
 
-    def __init__(self, username, block=True):
-        """
+    def __init__(self, username, 
+                 cold_start=False, block=True, mini=True):
+        """set username and start up a webdriver session
+
         inputs:
         > username (str)
             >> username of the account being used
+            >> tied to the instance (self.username)
+        > cold_start (bool)
+            >> if True, don't start up webdriver
+            >> default == False
         > block (bool)
             >> if True, block pop ups, else don't 
             >> default == True 
+        > mini (bool)
+            >> if True, minimize the browser window
+            >> default == True
         """
         # set & greet user
         self.username = username
         print(f'hello, {self.username}.')
-        # do we want to block pop-ups? (default = yes)
-        if block:
+        # start up webdriver? (default = yes)
+        if not cold_start:
             # tag the options field
             options = webdriver.FirefoxOptions()  
-            # disable push/popups 
-            options.set_preference("dom.push.enabled", False)  
+            # do we want to block pop-ups? (default = yes)
+            if block:
+                # disable push/popups 
+                options.set_preference("dom.push.enabled", False)  
             # set driver with options 
             self.driver = webdriver.Firefox(options=options)
-        # we do not want to block pop ups. 
-        else:
-            self.driver = webdriver.Firefox()
-        # minimize browser window
-        self.driver.minimize_window()
+            # do we want to minimize the webdriver window? (default = yes)
+            if mini:
+                # minimize browser window
+                self.driver.minimize_window()
 
     def login(self, password):
         """loads and logs in to instagram
@@ -73,7 +83,8 @@ class InstagramBot:
         # take care if "save info" pop-up page pops up
         check_xpath(webdriver=self.driver, xpath=save_info_popup, click=True)
 
-    def gather_posts(self, hashtag, scroll_range=5, 
+    def gather_posts(self, hashtag, 
+                     scroll_range=5, 
                      limit=False, certify=True, r_log_on=True):
         """collects group of post urls by hashtag
 
@@ -190,7 +201,8 @@ class InstagramBot:
         # output collection of hrefs
         return post_hrefs        
 
-    def like_posts(self, hashtag, hrefs, indicator_thresh=5):
+    def like_posts(self, hashtag, hrefs, 
+                   indicator_thresh=5):
         """load and 'like' posts from given list
 
         inputs:
