@@ -45,6 +45,10 @@ class InstagramBot:
             >> if True, minimize the browser window
             >> default == True
         """
+        # check username isn't blank
+        if username == '':
+            # let this person know they need to set their username
+            raise Exception(f'username not found error\nusername = {username}\nplease set username in user.py')
         # set & greet user
         self.username = username
         print(f'hello, {self.username}.')
@@ -70,6 +74,10 @@ class InstagramBot:
         > password (str)
             >> password to the account logging in
         """
+        # check username isn't blank
+        if password == '':
+            # let this person know they need to set their username
+            raise Exception(f'password not found error\npassword = {password}\nplease set password in user.py')
         # load instagram login page
         self.driver.get(ig_log_page)
         # wait (hedge load time)
@@ -210,6 +218,8 @@ class InstagramBot:
         > indicator_thresh (int)
             >> how many posts to process between printing progress 
         """
+        # remember starting time
+        now = time.time()
         # note how many posts there are 
         n_unique_posts = len(hrefs)
         # go through each one
@@ -238,6 +248,10 @@ class InstagramBot:
             if n_unique_posts % indicator_thresh == 0:
                 # let us know how many remain
                 print(f'#{hashtag} : remaining = {n_unique_posts}')
+        # note ending time
+        then = time.time()
+        # output what just happened 
+        return f'liked {n_unique_posts} posts from #{hashtag} in {int(now-then)} seconds'
 
     def comment(self, post, comment):
         '''load given post then comment given comment
