@@ -28,6 +28,14 @@ from infos import ig_tags_url
 class InstagramBot:
 
     def __init__(self, username, block=True):
+        """
+        inputs:
+        > username (str)
+            >> username of the account being used
+        > block (bool)
+            >> if True, block pop ups, else don't 
+            >> default == True 
+        """
         # set & greet user
         self.username = username
         print(f'hello, {self.username}.')
@@ -47,6 +55,10 @@ class InstagramBot:
 
     def login(self, password):
         """loads and logs in to instagram
+
+        inputs:
+        > password (str)
+            >> password to the account logging in
         """
         # load instagram login page
         self.driver.get(ig_log_page)
@@ -65,33 +77,38 @@ class InstagramBot:
                      limit=False, certify=True, r_log_on=True):
         """collects group of post urls by hashtag
 
-        inputs) 
-        > hashtag 
+        inputs:
+        > hashtag (str)
             >> hashtag from which to gather posts
-        > scroll_range
+        > scroll_range (int)
             >> how many times to scroll the hashtag page
                 > note: more scrolls = more posts
                 > default is 5 scrolls (a lot of posts)
-        > limit
+        > limit (bool (False) when no limit, int when limit)
             >> maximum number of posts to consider 
                 > does not affect scroll_range
                     >> if you have a limit, you may lower scroll_range to save time
                 > limit is applied before certification of new posts {certify}
-        > certify
+        > certify (bool)
             >> compare the post_hrefs found to post hrefs you've seen before {log}
                 > drops posts which have been seen before
-                > adds new ones to log (r_log_on option)
-        > r_log_on
+                > adds new ones to log 
+                > adds repeats to r_log if r_log_on == True 
+            >> default == True
+        > r_log_on (bool)
             >> record href, day, key, and hashtag for pulled hrefs that were already in log
             >> dependent on certify (does not work if certify=False)
+            >> default == True 
 
-        output)
-        > post_hrefs
+        outputs:
+        > post_hrefs (list)
             >> collection of urls to posts form hashtag 
-        > log (optional)
+
+        recording:
+        > log (optional) (bool)
             >> record of seen hrefs and some info on time & hashtag found under
             >> default: it's on, suggusted: turn off if you have no interest in keeping record
-        > r_log (optional)
+        > r_log (optional) (bool)
                 > "repeat log"
             >> record of multi-sighting hrefs and some info on time & hashtag found under (each time)
             >> default: it's on, suggusted: turn off if no interest in keeping record or only want unique record {log}
@@ -176,12 +193,12 @@ class InstagramBot:
     def like_posts(self, hashtag, hrefs, indicator_thresh=5):
         """load and 'like' posts from given list
 
-        input)
-        > hashtag
+        inputs:
+        > hashtag (str)
             >> hashtag from which the posts have been collected
-        > hrefs
+        > hrefs (list)
             >> list of posts (by url) to be liked
-        > indicator_thresh
+        > indicator_thresh (int)
             >> how many posts to process between printing progress 
         """
         # note how many posts there are 
@@ -215,6 +232,12 @@ class InstagramBot:
 
     def comment(self, post, comment):
         '''load given post then comment given comment
+
+        inputs:
+        > post (str) 
+            >> url to the post being commented on 
+        > comment (str)
+            >> comment to comment
         '''
         # pull up post 
         self.driver.get(post)
@@ -225,13 +248,25 @@ class InstagramBot:
         # let us know what happened
         print(f'\ncomment added to post\npost: {post}\ncomment: {comment}\n')
 
-    def close_browser(self):
-        """closes webdriver
+    def close_window(self):
+        """closes the current window
         """
-        self.driver.close() 
+        self.driver.close()
+
+    def quit_driver(self):
+        """quits webdriver and closes every associated window
         
-    def start_browser(self, block=True):
-        """starts webdriver
+        use this: at the end of your script
+        """
+        self.driver.quit() 
+
+    def start_driver(self, block=True):
+        """starts webdriver (gecko)
+        
+        inputs:
+        > block (bool)
+            > if True, blocks pop ups
+            > default == True 
         """
         # do we want to block pop-ups? (default = yes)
         if block:
