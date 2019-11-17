@@ -228,7 +228,22 @@ class InstagramBot:
     def close_browser(self):
         """closes webdriver
         """
-        self.driver.close()  
+        self.driver.close() 
+        
+    def start_browser(self, block=True):
+        """starts webdriver
+        """
+        # do we want to block pop-ups? (default = yes)
+        if block:
+            # tag the options field
+            options = webdriver.FirefoxOptions()  
+            # disable push/popups 
+            options.set_preference("dom.push.enabled", False)  
+            # set driver with options 
+            self.driver = webdriver.Firefox(options=options)
+        # we do not want to block pop ups. 
+        else:
+            self.driver = webdriver.Firefox()
         
     def generate_actionable_uls(self, potential_accounts, n, white_list_accounts):
         """identify accounts elgible for action from pd dataframe via 
