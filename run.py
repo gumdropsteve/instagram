@@ -1,8 +1,6 @@
 from bot import InstagramBot
 from helpers import record_followers_and_following, check_non_followbackers
-# login info (set your own)
-user = 'arthur'  
-pwrd = 'area11ybadpAssword'
+from user import user, pwrd
 
 
 def rec_n_check():
@@ -38,8 +36,8 @@ def add_hashtags(post, comment):
     ig.login(password=pwrd)
     # comment (display output)
     print(ig.comment(post, comment))
-    # close
-    ig.close_browser()
+    # close up shop 
+    ig.quit_driver()
 
 
 def like_by_hashtag(hashtags, scroll_range=5, indicator_thresh=5, limit=50):
@@ -64,7 +62,7 @@ def like_by_hashtag(hashtags, scroll_range=5, indicator_thresh=5, limit=50):
         # like posts 
         ig.like_posts(hashtag=tag, hrefs=to_like, indicator_thresh=indicator_thresh)
     # close up shop
-    ig.close_browser()
+    ig.quit_driver()
 
 
 # make this a runable script 

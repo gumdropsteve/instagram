@@ -6,10 +6,10 @@ import numpy as np
 import pandas as pd
 # recording
 import csv
+from datetime import datetime
 # webdriver
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-
 # .js help
 from infos import scroll
 # functions
@@ -25,27 +25,57 @@ from infos import ig_tags_url
 
 class InstagramBot:
 
-    def __init__(self, username, block=True):
+    def __init__(self, username, 
+                 cold_start=False, block=True, mini=True):
+        """set username and start up a webdriver session
+
+        inputs:
+        > username (str)
+            >> username of the account being used
+            >> tied to the instance (self.username)
+        > cold_start (bool)
+            >> if True, don't start up webdriver
+            >> default == False
+        > block (bool)
+            >> if True, block pop ups, else don't 
+            >> default == True 
+        > mini (bool)
+            >> if True, minimize the browser window
+            >> default == True
+        """
+        # check username isn't blank
+        if username == '':
+            # let this person know they need to set their username
+            raise Exception(f'username not found error\nusername = {username}\nplease set username in user.py')
         # set & greet user
         self.username = username
         print(f'hello, {self.username}.')
-        # do we want to block pop-ups? (default = yes)
-        if block:
+        # start up webdriver? (default = yes)
+        if not cold_start:
             # tag the options field
             options = webdriver.FirefoxOptions()  
-            # disable push/popups 
-            options.set_preference("dom.push.enabled", False)  
+            # do we want to block pop-ups? (default = yes)
+            if block:
+                # disable push/popups 
+                options.set_preference("dom.push.enabled", False)  
             # set driver with options 
             self.driver = webdriver.Firefox(options=options)
-        # we do not want to block pop ups. 
-        else:
-            self.driver = webdriver.Firefox()
-        # minimize browser window
-        self.driver.minimize_window()
+            # do we want to minimize the webdriver window? (default = yes)
+            if mini:
+                # minimize browser window
+                self.driver.minimize_window()
 
     def login(self, password):
         """loads and logs in to instagram
+
+        inputs:
+        > password (str)
+            >> password to the account logging in
         """
+        # check username isn't blank
+        if password == '':
+            # let this person know they need to set their username
+            raise Exception(f'password not found error\npassword = {password}\nplease set password in user.py')
         # load instagram login page
         self.driver.get(ig_log_page)
         # wait (hedge load time)
@@ -59,40 +89,43 @@ class InstagramBot:
         # take care if "save info" pop-up page pops up
         check_xpath(webdriver=self.driver, xpath=save_info_popup, click=True)
 
-    def gather_posts(self, hashtag, scroll_range=5, 
+    def gather_posts(self, hashtag, 
+                     scroll_range=5, 
                      limit=False, certify=True, r_log_on=True):
         """collects group of post urls by hashtag
 
-        inputs) 
-        > hashtag 
+        inputs:
+        > hashtag (str)
             >> hashtag from which to gather posts
-        > scroll_range
+        > scroll_range (int)
             >> how many times to scroll the hashtag page
                 > note: more scrolls = more posts
                 > default is 5 scrolls (a lot of posts)
-        > limit
+        > limit (bool (False) when no limit, int when limit)
             >> maximum number of posts to consider 
                 > does not affect scroll_range
                     >> if you have a limit, you may lower scroll_range to save time
                 > limit is applied before certification of new posts {certify}
-        > certify
+        > certify (bool)
             >> compare the post_hrefs found to post hrefs you've seen before {log}
                 > drops posts which have been seen before
-                > adds new ones to log (r_log_on option)
-        > r_log_on
+                > adds new ones to log 
+                    > default recording location: 'data/made/post_hrefs/log'
+                    > record info: first sighting of pulled hrefs + some info on time & hashtag found under
+                > adds repeats to r_log if r_log_on == True 
+            >> default == True
+                > suggusted: turn off if you have no interest in keeping record
+        > r_log_on (bool)
             >> record href, day, key, and hashtag for pulled hrefs that were already in log
+                > default recording location: 'data/made/post_hrefs/r_log'
+                > record info: multi-sighting hrefs + some info on time & hashtag found under (each time)
             >> dependent on certify (does not work if certify=False)
+            >> default == True 
+                > suggusted: turn off if no interest in keeping record or only want unique record {log}
 
-        output)
-        > post_hrefs
+        outputs:
+        > post_hrefs (list)
             >> collection of urls to posts form hashtag 
-        > log (optional)
-            >> record of seen hrefs and some info on time & hashtag found under
-            >> default: it's on, suggusted: turn off if you have no interest in keeping record
-        > r_log (optional)
-                > "repeat log"
-            >> record of multi-sighting hrefs and some info on time & hashtag found under (each time)
-            >> default: it's on, suggusted: turn off if no interest in keeping record or only want unique record {log}
         """
         # determine day of week and key strings
         day = time.strftime("%A").lower()
@@ -171,17 +204,20 @@ class InstagramBot:
         # output collection of hrefs
         return post_hrefs        
 
-    def like_posts(self, hashtag, hrefs, indicator_thresh=5):
+    def like_posts(self, hashtag, hrefs, 
+                   indicator_thresh=5):
         """load and 'like' posts from given list
 
-        input)
-        > hashtag
+        inputs:
+        > hashtag (str)
             >> hashtag from which the posts have been collected
-        > hrefs
+        > hrefs (list)
             >> list of posts (by url) to be liked
-        > indicator_thresh
+        > indicator_thresh (int)
             >> how many posts to process between printing progress 
         """
+        # remember starting time
+        now = time.time()
         # note how many posts there are 
         n_unique_posts = len(hrefs)
         # go through each one
@@ -210,9 +246,19 @@ class InstagramBot:
             if n_unique_posts % indicator_thresh == 0:
                 # let us know how many remain
                 print(f'#{hashtag} : remaining = {n_unique_posts}')
+        # note ending time
+        then = time.time()
+        # output what just happened 
+        return f'liked {n_unique_posts} posts from #{hashtag} in {int(now-then)} seconds'
 
     def comment(self, post, comment):
         '''load given post then comment given comment
+
+        inputs:
+        > post (str) 
+            >> url to the post being commented on 
+        > comment (str)
+            >> comment to comment
         '''
         # pull up post 
         self.driver.get(post)
@@ -223,11 +269,38 @@ class InstagramBot:
         # let us know what happened
         print(f'\ncomment added to post\npost: {post}\ncomment: {comment}\n')
 
-    def close_browser(self):
-        """closes webdriver
+    def close_window(self):
+        """closes the current window
         """
-        self.driver.close()  
- 
+        self.driver.close()
+
+    def quit_driver(self):
+        """quits webdriver and closes every associated window
+        
+        use this: at the end of your script
+        """
+        self.driver.quit() 
+
+    def start_driver(self, block=True):
+        """starts webdriver (gecko)
+        
+        inputs:
+        > block (bool)
+            > if True, blocks pop ups
+            > default == True 
+        """
+        # do we want to block pop-ups? (default = yes)
+        if block:
+            # tag the options field
+            options = webdriver.FirefoxOptions()  
+            # disable push/popups 
+            options.set_preference("dom.push.enabled", False)  
+            # set driver with options 
+            self.driver = webdriver.Firefox(options=options)
+        # we do not want to block pop ups. 
+        else:
+            self.driver = webdriver.Firefox()
+
     def record(self, record, log):
         """record given info into given csv 
 
