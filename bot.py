@@ -1,6 +1,5 @@
 # timing 
 import time
-from time import sleep
 # reading
 import numpy as np
 import pandas as pd
@@ -51,7 +50,7 @@ class InstagramBot:
             raise Exception(f'username not found error\nusername = {username}\nplease set username in user.py')
         # set & greet user
         self.username = username
-        print(f'hello, {self.username}.')
+        print(f'\nhello, {self.username}.\n')
         # start up webdriver? (default = yes)
         if not cold_start:
             # tag the options field
@@ -66,6 +65,9 @@ class InstagramBot:
             if mini:
                 # minimize browser window
                 self.driver.minimize_window()
+        # start counters for # posts liked and # comments posted this sessison  
+        self.n_posts_liked_this_session = 0
+        self.n_comments_this_session = 0
 
     def login(self, password):
         """loads and logs in to instagram
@@ -74,26 +76,33 @@ class InstagramBot:
         > password (str)
             >> password to the account logging in
         """
-        # check username isn't blank
+        # check password isn't blank
         if password == '':
-            # let this person know they need to set their username
+            # let this person know they need to set their password
             raise Exception(f'password not found error\npassword = {password}\nplease set password in user.py')
         # load instagram login page
         self.driver.get(ig_log_page)
         # wait (hedge load time)
-        sleep(3)
-        # find user box, type in account id
-        self.driver.find_element_by_xpath(username_box).send_keys(self.username)
-        # find key box and call locksmith, he should be able to punch in
-        self.driver.find_element_by_xpath(password_box).send_keys(password, Keys.RETURN)
+        time.sleep(3)
+        # log in 
+        try:
+            # find user box, type in account id
+            self.driver.find_element_by_xpath(username_box).send_keys(self.username)
+            # find key box and call locksmith, he should be able to punch in
+            self.driver.find_element_by_xpath(password_box).send_keys(password, Keys.RETURN)
+        # error
+        except:
+            # this one is big, so let us know & stop the program
+            raise Exception(f'LOG IN ERROR\nunable to log in')
         # hedge request/load time 
-        sleep(3)
+        time.sleep(3)
         # take care if "save info" pop-up page pops up
         check_xpath(webdriver=self.driver, xpath=save_info_popup, click=True)
 
     def gather_posts(self, hashtag, 
                      scroll_range=5, 
-                     limit=False, certify=True, r_log_on=True):
+                     limit=False, certify=True, r_log_on=True, 
+                     route='data/made/post_hrefs/log', r_route='data/made/post_hrefs/r_log'):
         """collects group of post urls by hashtag
 
         inputs:
@@ -124,18 +133,26 @@ class InstagramBot:
             >> dependent on certify (does not work if certify=False)
             >> default == True 
                 > suggusted: turn off if no interest in keeping record or only want unique record {log}
+        > route (str)
+            >> route to log file
+            >> default == 'data/made/post_hrefs/log'
+        > r_route (str)
+            >> route to r_log file
+            >> default == 'data/made/post_hrefs/r_log'
 
         outputs:
         > post_hrefs (list)
             >> collection of urls to posts form hashtag 
         """
+        # let us know what's going on
+        print(f'\ncollecting posts from #{hashtag}')
         # determine day of week and key strings
         day = time.strftime("%A").lower()
         key = time.strftime("%Y%m%d_%H%M%S")
         # load the webpage to which the image belongs 
         self.driver.get(ig_tags_url + hashtag + '/')
         # hedge load time
-        sleep(3)
+        time.sleep(3)
         # set base collection for hrefs 
         post_hrefs = []
         # load n (scroll_range) scrolls of pictures
@@ -145,64 +162,86 @@ class InstagramBot:
                 # it's almost like we're human
                 self.driver.execute_script(scroll)
                 # so pause and maybe they won't catch on
-                sleep(2)
+                time.sleep(2)
                 # get page tags
                 hrefs_in_view = self.driver.find_elements_by_tag_name('a')
-                # finding relevant hrefs
+                # find relevant hrefs
                 hrefs_in_view = [elem.get_attribute('href') for elem in hrefs_in_view
                                  if '.com/p/' in elem.get_attribute('href')]
-                # building list of unique photos
+                # build list of unique photos
                 [post_hrefs.append(href) for href in hrefs_in_view if href not in post_hrefs]
-                # so as not to spam
-                if n % 2 != 0:
-                    # display length of list to user
-                    print("Check: pic href length " + str(len(post_hrefs)))
             # but just in case
             except:
                 # let us know it didn't work, and which iteration 
-                print(f"except Exception: #{n} gathering photos")
+                print(f'ERROR gathering photos on scroll #{n}')
                 # and keep moving
                 continue
+        # let us know how many posts were collected
+        print(f'{len(post_hrefs)} posts collected')
+        time.sleep(1)
         # check for limit
         if limit != False:
             # check if we are over the limit
             if len(post_hrefs) > limit:
                 # apply the limit 
                 post_hrefs = post_hrefs[:limit]
-        # identify log route
-        route = 'data/made/post_hrefs/log'
-        # dataframe this hashtag's existing csv file 
-        log = pd.read_csv(route)     
+                # let us know
+                print(f'limit applied, # posts == {len(post_hrefs)}')
+                time.sleep(1)
         # are we making sure these are unique? (default : yes)
         if certify:
+            # let us know
+            print('checking posts collected vs previously seen')
+            time.sleep(1)
+            # dataframe this hashtag's existing csv file 
+            log = pd.read_csv(route)     
             # tag previously seen hrefs
             repeats = [href for href in post_hrefs if href in list(log.href)]
             # remove previously seen hrefs 
             post_hrefs = [href for href in post_hrefs if href not in repeats]
+            # let us know how many new and how many repeats there are
+            print(f'posts checked, # new == {len(post_hrefs)}, # repeats == {len(repeats)}')
+            time.sleep(1)
             # are we recording repeats? (default : yes)
             if r_log_on:
-                # tag repeat log route
-                r_route = 'data/made/post_hrefs/r_log'
-                # read in repeat log
-                repeat_log = pd.read_csv(r_route)
-                # build dataframe
-                r_df = pd.DataFrame(repeats, columns=['href'])
-                # make lists for day of week, key, and tag columns
-                r_df['dow'] = (  (  (day + ',') * (len(r_df)-1) ) + day).split(',')
-                r_df['key'] = (  (  (key + ',') * (len(r_df)-1) ) + key).split(',')
-                r_df['tag'] = (((hashtag + ',') * (len(r_df)-1) ) + hashtag).split(',')    
-                # join and write the new repeat log
-                pd.concat([repeat_log, r_df], axis=0).to_csv(r_route, index=False)       
-        # define dataframe of hrefs
-        df = pd.DataFrame(post_hrefs, columns=['href'])
-        # make lists for day of week and key columns
-        df['dow'] = (  (  (day + ',') * (len(df)-1) ) + day).split(',')
-        df['key'] = (  (  (key + ',') * (len(df)-1) ) + key).split(',')
-        df['tag'] = (((hashtag + ',') * (len(df)-1) ) + hashtag).split(',')
-        # add new dataframe to existing 
-        df = pd.concat([log, df], axis=0)
-        # write the new dataframe over the old dataframe in csv (w/o index)
-        df.to_csv(route, index=False)
+                # check that there are repeats to add to r_log
+                if len(repeats) > 0:
+                    # let us know what's happening
+                    print(f'adding repeat posts to {r_route}')
+                    time.sleep(1)
+                    # read in repeat log
+                    repeat_log = pd.read_csv(r_route)
+                    # build dataframe
+                    r_df = pd.DataFrame(repeats, columns=['href'])
+                    # make lists for day of week, key, and tag columns
+                    r_df['dow'] = (  (  (day + ',') * (len(r_df)-1) ) + day).split(',')
+                    r_df['key'] = (  (  (key + ',') * (len(r_df)-1) ) + key).split(',')
+                    r_df['tag'] = (((hashtag + ',') * (len(r_df)-1) ) + hashtag).split(',')    
+                    # join and write the new repeat log
+                    pd.concat([repeat_log, r_df], axis=0).to_csv(r_route, index=False) 
+                # there are no repeat posts to add to r_log
+                else:
+                    # so let us know
+                    print(f'no repeat posts to add to r_log, len(repeats) == {len(repeats)}')
+        # check that there are posts to add to log
+        if len(post_hrefs) > 0:
+            # define dataframe of hrefs
+            df = pd.DataFrame(post_hrefs, columns=['href'])
+            # make lists for day of week and key columns
+            df['dow'] = (  (  (day + ',') * (len(df)-1) ) + day).split(',')
+            df['key'] = (  (  (key + ',') * (len(df)-1) ) + key).split(',')
+            df['tag'] = (((hashtag + ',') * (len(df)-1) ) + hashtag).split(',')
+            # add new dataframe to existing 
+            df = pd.concat([log, df], axis=0)
+            # let us know that we're about to record 
+            print(f'adding new posts to {route}')
+            time.sleep(1)
+            # write the new dataframe over the old dataframe in csv (w/o index)
+            df.to_csv(route, index=False)
+        # there are no new posts to add to log
+        else:
+            # so let us know
+            print(f'no new posts to add to log, len(post_hrefs) == {len(post_hrefs)}')
         # output collection of hrefs
         return post_hrefs        
 
@@ -221,37 +260,46 @@ class InstagramBot:
         # remember starting time
         now = time.time()
         # note how many posts there are 
-        n_unique_posts = len(hrefs)
+        n_posts = len(hrefs)
+        # tag how many posts we've liked this session 
+        session_like_count = self.n_posts_liked_this_session 
+        # let us know what's going on 
+        print(f'\nliking {n_posts} posts from #{hashtag}, ETA = {int(n_posts * 15.51)} seconds')
+        # make a lambda function for clicking the like button
+        like_button = lambda: self.driver.find_element_by_xpath(like).click()
         # go through each one
         for post_href in hrefs:
             # load the post
             self.driver.get(post_href)
             # hedge for whatever
-            sleep(5)
+            time.sleep(4)
             # move around a bit, make sure we can see the heart (like button)
             self.driver.execute_script(scroll)
             # this should work
             try:
-                # find the like button 
-                like_button = lambda: self.driver.find_element_by_xpath(like).click()
-                # click the like button
-                like_button().click()
+                # click the like button (using the lambda function)
+                like_button()
+                # update number of posts liked this session 
+                self.n_posts_liked_this_session += 1
                 # hedge over-liking
-                sleep(10)
-            # if it doesn't work
+                time.sleep(10)
+            # but if it doesn't work
             except:
-                # don't really have a backup plan.. so take a break ig..
-                sleep(2)
+                # let us know
+                print(f'ERROR: unable to like post at {post_href}')
+                # and we don't really have a backup plan.. so just take a break i guess..
+                time.sleep(2)
             # update count of remaining posts
-            n_unique_posts -= 1
+            n_posts -= 1
             # check for asked indication
-            if n_unique_posts % indicator_thresh == 0:
+            if n_posts % indicator_thresh == 0:
                 # let us know how many remain
-                print(f'#{hashtag} : remaining = {n_unique_posts}')
+                print(f'#{hashtag} : remaining = {n_posts}')
         # note ending time
         then = time.time()
         # output what just happened 
-        return f'liked {n_unique_posts} posts from #{hashtag} in {int(now-then)} seconds'
+        print(f'liked {self.n_posts_liked_this_session - session_like_count} posts from #{hashtag} in {int(then-now)} seconds')
+        print(f'{self.n_posts_liked_this_session} total posts liked this session')
 
     def comment(self, post, comment):
         '''load given post then comment given comment
@@ -264,12 +312,22 @@ class InstagramBot:
         '''
         # pull up post 
         self.driver.get(post)
-        # locate & click comment button
-        self.driver.find_element_by_xpath(comment_button).click()
-        # write out hashtags
-        self.driver.find_element_by_xpath(comment_box).send_keys(comment, Keys.RETURN)
-        # let us know what happened
-        print(f'\ncomment added to post\npost: {post}\ncomment: {comment}\n')
+        # comment on the post
+        try:
+            # locate & click comment button
+            self.driver.find_element_by_xpath(comment_button).click()
+            # write out hashtags
+            self.driver.find_element_by_xpath(comment_box).send_keys(comment, Keys.RETURN)
+            # update the number of comments we've posted this session 
+            self.n_comments_this_session += 1
+            # let us know what happened
+            print(f'\ncomment added to post\npost: {post}\ncomment: {comment}\n')
+        # error
+        except:
+            # so let us know
+            print(f'\nERROR commenting on {post}\n')
+        # let us know how many comments we've posted this session 
+        print(f'{self.n_comments_this_session} total comments this session')
 
     def close_window(self):
         """closes the current window
@@ -351,7 +409,7 @@ class InstagramBot:
         # following button went well
         if ntract_following == 0:
             # wait a bit (hedge load)
-            sleep(3)                    
+            time.sleep(3)                    
             # test for/find and click the 'unfollow' button (0=success)
             ntract_unfollow = check_xpath(webdriver=self.driver, xpath=unfollow_button, click=True)
         # following buttion did not go well
