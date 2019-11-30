@@ -1,3 +1,4 @@
-pandas>=0.24.1
+blazingsql>=0.4.6
 instapy>=0.6.2
+pandas>=0.24.1
 selenium>=3.141.0
