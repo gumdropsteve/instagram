@@ -18,6 +18,6 @@ Object-oriented Selenium (Python) WebDriver class providing insight and task aut
 
 #### Example Uses:
 - [add_hashtags](https://github.com/gumdropsteve/instagram/blob/master/run.py#L24) to a post as a comment
-- Gather posts then [like_by_hashtag](https://github.com/gumdropsteve/instagram/blob/master/run.py#L43) after making sure you haven't already liked them 
-- [rec_n_check](https://github.com/gumdropsteve/instagram/blob/develop/run.py#L6) an account's followers and following to identify then (optionally) unfollow non-followbackers
+- Gather posts then [like_by_hashtag](https://github.com/gumdropsteve/instagram/blob/master/run.py#L45) after making sure you haven't already liked them 
+- [rec_n_check](https://github.com/gumdropsteve/instagram/blob/master/run.py#L6) an account's followers and following to identify then (optionally) unfollow non-followbackers
   
