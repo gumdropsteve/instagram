@@ -44,30 +44,40 @@ class InstagramBot:
             >> if True, minimize the browser window
             >> default == True
         """
+        # remember start time
+        self.start_time = time.time()
         # check username isn't blank
         if username == '':
             # let this person know they need to set their username
             raise Exception(f'username not found error\nusername = {username}\nplease set username in user.py')
         # set & greet user
         self.username = username
-        print(f'\nhello, {self.username}.\n')
+        print(f'\nwelcome back, {self.username}.')
         # start up webdriver? (default = yes)
         if not cold_start:
-            # tag the options field
-            options = webdriver.FirefoxOptions()  
             # do we want to block pop-ups? (default = yes)
-            if block:
+            if block == True:
                 # disable push/popups 
-                options.set_preference("dom.push.enabled", False)  
-            # set driver with options 
-            self.driver = webdriver.Firefox(options=options)
+                self.start_driver() 
+            # we specified to not block popups
+            else:
+                # so start webdriver & don't block them 
+                self.start_driver(block=False)
             # do we want to minimize the webdriver window? (default = yes)
             if mini:
                 # minimize browser window
                 self.driver.minimize_window()
-        # start counters for # posts liked and # comments posted this sessison  
+        # cold start
+        else:
+            # so note that driver is not on
+            self.driver_on = False
+        # count # posts liked and # comments posted this sessison  
         self.n_posts_liked_this_session = 0
         self.n_comments_this_session = 0
+        # count # posts gathered, # new posts and # previously seen posts this session 
+        self.n_posts_gathered = 0
+        self.n_new_posts = 0
+        self.n_repeat_posts = 0
 
     def login(self, password):
         """loads and logs in to instagram
@@ -188,6 +198,8 @@ class InstagramBot:
                 # let us know
                 print(f'limit applied, # posts == {len(post_hrefs)}')
                 time.sleep(1)
+        # update total number of posts that have been gathered this session 
+        self.n_posts_gathered += len(post_hrefs)
         # are we making sure these are unique? (default : yes)
         if certify:
             # let us know
@@ -199,6 +211,9 @@ class InstagramBot:
             repeats = [href for href in post_hrefs if href in list(log.href)]
             # remove previously seen hrefs 
             post_hrefs = [href for href in post_hrefs if href not in repeats]
+            # update counts of total new and previously seen posts for this session 
+            self.n_new_posts += len(post_hrefs)
+            self.n_repeat_posts += len(repeats)
             # let us know how many new and how many repeats there are
             print(f'posts checked, # new == {len(post_hrefs)}, # repeats == {len(repeats)}')
             time.sleep(1)
@@ -223,6 +238,11 @@ class InstagramBot:
                 else:
                     # so let us know
                     print(f'no repeat posts to add to r_log, len(repeats) == {len(repeats)}')
+        # not checking if the posts have been seen before or not 
+        else:
+            # so update counts of new and repeat posts to indicate these were not counted
+            self.n_new_posts = 'not counted'
+            self.n_repeat_posts = 'not counted'
         # check that there are posts to add to log
         if len(post_hrefs) > 0:
             # define dataframe of hrefs
@@ -263,8 +283,8 @@ class InstagramBot:
         n_posts = len(hrefs)
         # tag how many posts we've liked this session 
         session_like_count = self.n_posts_liked_this_session 
-        # let us know what's going on 
-        print(f'\nliking {n_posts} posts from #{hashtag}, ETA = {int(n_posts * 15.51)} seconds')
+        # let us know what's going on & provide ETA for how long it will take
+        print(f'\nliking {n_posts} posts from #{hashtag}, ETA = {int(n_posts * 15.49)} seconds')
         # make a lambda function for clicking the like button
         like_button = lambda: self.driver.find_element_by_xpath(like).click()
         # go through each one
@@ -330,94 +350,98 @@ class InstagramBot:
         print(f'{self.n_comments_this_session} total comments this session')
 
     def close_window(self):
-        """closes the current window
+        """close the current window
         """
         self.driver.close()
 
     def quit_driver(self):
-        """quits webdriver and closes every associated window
-        
-        use this: at the end of your script
+        """quit webdriver and close every associated window        
         """
-        self.driver.quit() 
+        # check that driver is on 
+        if self.driver_on == True:
+            # quit webdriver
+            self.driver.quit() 
+            # set driver status to off
+            self.driver_on = False
+        # driver is not on
+        else:
+            # driver is not on, let the user know 
+            print(f'\nDRIVER STATUS ERROR\n'
+                  f'trying to run ig.quit_driver() but driver is not running\n'
+                  f'self.driver_on == {self.driver_on}\nDRIVER STATUS ERROR\n')
+            time.sleep(1)
 
     def start_driver(self, block=True):
-        """starts webdriver (gecko)
-        
+        """start webdriver (gecko)
         inputs:
         > block (bool)
             > if True, blocks pop ups
             > default == True 
         """
+        # tag the options field
+        options = webdriver.FirefoxOptions()
         # do we want to block pop-ups? (default = yes)
         if block:
-            # tag the options field
-            options = webdriver.FirefoxOptions()  
-            # disable push/popups 
-            options.set_preference("dom.push.enabled", False)  
-            # set driver with options 
-            self.driver = webdriver.Firefox(options=options)
-        # we do not want to block pop ups. 
-        else:
-            self.driver = webdriver.Firefox()
-        
-    def generate_actionable_uls(self, potential_accounts, n, white_list_accounts):
-        """identify accounts elgible for action from pd dataframe via 
-        compairson to dataframe of non/previously-actionable accounts
+            # adjust options to disable push/popups 
+            options.set_preference("dom.push.enabled", False)
+        # start up driver w/ options (options do nothing if block=False)
+        self.driver = webdriver.Firefox(options=options)
+        # set webdriver status to on
+        self.driver_on = True
 
-        inputs:
-        > potential_accounts
-            >> pandas dataframe of accounts up for action
-                > with account urls in .user_profile column
-        > n
-            >> number of accounts on which action will be taken in this round
-        > white_list_accounts
-            >> pandas dataframe of accounts which have already been acted upon
-                > with account urls in .user_profile column
-
-        output:
-        > list of urls belonging to potential_accounts not found in white_list_accounts
+    def shutdown(self):
         """
-        # pull/tag potential urls 
-        potential_urls = [url for url in potential_accounts.user_profile]
-        # pull/tag previously seen urls
-        already_actioned = [url for url in white_list_accounts.user_profile]
-        # forget already actioned urls
-        elgible_urls = [url for url in potential_urls if url not in already_actioned]
-        # range matters
-        if n != False:
-            # shrink numer of accounts to desired range
-            elgible_urls = elgible_urls[:n]
-        # output actionable accounts
-        return elgible_urls
+        quit webdriver (unless already quit) then shuts down InstagramBot
 
-    def unfollow(self, account_url):
-        """unfollow given account 
+        use this: to end your scritps
 
-        inputs:
-        > account_url
-            >> url of account to unfollow
-
-        output:
-        > list detailing transaction
-            >> check/click 'following', check/click 'unfollowing', datetime
+        note: it is ok to run this even if driver is not running 
         """
-        # load the account's profile
-        self.driver.get(account_url) 
-        # test for/find and click the 'following' button (0=success)
-        ntract_following = check_xpath(webdriver=self.driver, xpath=following_button, click=True, hedge_load=5)
-        # following button went well
-        if ntract_following == 0:
-            # wait a bit (hedge load)
-            time.sleep(3)                    
-            # test for/find and click the 'unfollow' button (0=success)
-            ntract_unfollow = check_xpath(webdriver=self.driver, xpath=unfollow_button, click=True)
-        # following buttion did not go well
+        # check webdriver status
+        if self.driver_on == True:
+            # shut down webdriver & close all windows
+            self.quit_driver()
+            # switch driver status to off
+            self.driver_on = False
+        # define username line for final output
+        user_out = f'user: {self.username}'
+        # tag ending time
+        self.end_time = time.time()
+        # calculate runtime in minutes + seconds + 3 decimals
+        gross_runtime = self.end_time - self.start_time
+        split_runtime = str(gross_runtime).split('.')
+        minutes =     int(float(split_runtime[0]) // 60)
+        seconds = str(int(float(split_runtime[0]) % 60))
+        runtime = minutes + float(seconds + '.' + split_runtime[1][:3])
+        # set runtime line for final output 
+        runtime_out = f'runtime: {runtime} seconds'
+        # compare runtime line to username line to see which is longer
+        if len(user_out) > len(runtime_out):
+            num_stars = len(user_out)
         else:
-            # unfollow no longer possible
-            ntract_unfollow = 'nan'
-        # output instance of unfollowing for log
-        return [ntract_following, ntract_unfollow, datetime.now()]
+            num_stars = len(runtime_out)
+        # make boarder trim for final output = to whichever was longer
+        stars = '*' * num_stars
+        # add int minute and second sub output to runtime_out
+        runtime_out = runtime_out + f'\n  {minutes} minutes\n  {seconds} seconds'
+        # format session output into one long string 
+        output = (f'''
+                   {stars}
+                   {stars}
+                   session stats
+                   {stars}
+                   {user_out}
+                   posts gathered: {self.n_posts_gathered}
+                     new: {self.n_new_posts}
+                     repeat: {self.n_repeat_posts}
+                   posts liked: {self.n_posts_liked_this_session}
+                   comments shared: {self.n_comments_this_session}
+                   {runtime_out}
+                   {stars}
+                   {stars}
+                   ''')
+        # set session overview {ig.final_output} to output
+        self.final_output = output
 
     def record(self, record, log):
         """record given info into given csv 
