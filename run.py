@@ -36,8 +36,10 @@ def add_hashtags(post, comment):
     ig.login(password=pwrd)
     # comment (display output)
     print(ig.comment(post, comment))
-    # close up shop 
-    ig.quit_driver()
+    # close up shop
+    ig.shutdown()
+    # give us the final status 
+    return ig.final_output
 
 
 def like_by_hashtag(hashtags, scroll_range=5, indicator_thresh=5, limit=50):
@@ -56,21 +58,17 @@ def like_by_hashtag(hashtags, scroll_range=5, indicator_thresh=5, limit=50):
     ig.login(password=pwrd)
     # go through hashtags
     for tag in hashtags:
-        # gather posts 
-        to_like = ig.gather_posts(hashtag=tag, scroll_range=scroll_range, 
-                                  limit=limit, certify=True, r_log_on=True)
+        # gather posts (apply inputs to corresponding method params)
+        to_like = ig.gather_posts(hashtag=tag, scroll_range=scroll_range, limit=limit)
         # like posts 
         ig.like_posts(hashtag=tag, hrefs=to_like, indicator_thresh=indicator_thresh)
     # close up shop
-    ig.quit_driver()
+    ig.shutdown()
+    # give us the final status 
+    return ig.final_output
 
 
 # make this a runable script 
 if __name__ == "__main__":
     # tbd
-    # print('nothing here just yet.. ideas?')
-    from infos import default
-    print(like_by_hashtag(hashtags=default, 
-                          scroll_range=5, 
-                          indicator_thresh=5, 
-                          limit=50))
+    print('nothing here just yet.. ideas?')
