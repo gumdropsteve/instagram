@@ -9,7 +9,6 @@ from datetime import datetime
 # webdriver
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException 
 # .js help
 from infos import scroll
 # functions
@@ -18,7 +17,6 @@ from helpers import check_xpath
 from infos import ig_log_page, ig_tags_url
 # paths
 from infos import username_box, password_box, save_info_popup
-from infos import following_button, unfollow_button, follow_button 
 from infos import comment_button, comment_box, like
 # misc
 from infos import ig_tags_url
@@ -284,7 +282,7 @@ class InstagramBot:
         # tag how many posts we've liked this session 
         session_like_count = self.n_posts_liked_this_session 
         # let us know what's going on & provide ETA for how long it will take
-        print(f'\nliking {n_posts} posts from #{hashtag}, ETA = {int(n_posts * 15.49)} seconds')
+        print(f'\nliking {n_posts} posts from #{hashtag}, ETA = {int(n_posts * 15.51)} seconds')
         # make a lambda function for clicking the like button
         like_button = lambda: self.driver.find_element_by_xpath(like).click()
         # go through each one

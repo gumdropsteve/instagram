@@ -8,16 +8,16 @@ Object-oriented Selenium (Python) WebDriver class providing insight and task aut
 
 #### Primary Abilities: 
 - Log in to Instagram
-  - ig.[login()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L46)
+  - ig.[login()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L70)
 - Gather posts by hashtag
-  - ig.[gather_posts()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L62)
+  - ig.[gather_posts()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L100)
 - Like posts based on hashtag
-  - ig.[like_posts()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L174)
+  - ig.[like_posts()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L246)
 - Comment or add hashtags to a post
-  - ig.[comment()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L214)
+  - ig.[comment()](https://github.com/gumdropsteve/instagram/blob/master/bot.py#L302)
 
 #### Example Uses:
-- [add_hashtags](https://github.com/gumdropsteve/instagram/blob/master/run.py#L26) to a post as a comment
-- Gather posts then [like_by_hashtag](https://github.com/gumdropsteve/instagram/blob/master/run.py#L45) after making sure you haven't already liked them 
-- [rec_n_check](https://github.com/gumdropsteve/instagram/blob/develop/run.py#L8) an account's followers and following to identify then (optionally) unfollow non-followbackers
+- [add_hashtags](https://github.com/gumdropsteve/instagram/blob/master/run.py#L24) to a post as a comment
+- Gather posts then [like_by_hashtag](https://github.com/gumdropsteve/instagram/blob/master/run.py#L43) after making sure you haven't already liked them 
+- [rec_n_check](https://github.com/gumdropsteve/instagram/blob/develop/run.py#L6) an account's followers and following to identify then (optionally) unfollow non-followbackers
   

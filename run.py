@@ -68,9 +68,4 @@ def like_by_hashtag(hashtags, scroll_range=5, indicator_thresh=5, limit=50):
 # make this a runable script 
 if __name__ == "__main__":
     # tbd
-    # print('nothing here just yet.. ideas?')
-    from infos import default
-    print(like_by_hashtag(hashtags=default, 
-                          scroll_range=5, 
-                          indicator_thresh=5, 
-                          limit=50))
+    print('nothing here just yet.. ideas?')
