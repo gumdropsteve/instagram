@@ -106,7 +106,7 @@ class InstagramBot:
         # hedge request/load time 
         time.sleep(3)
         # take care if "save info" pop-up page pops up
-        self.check_xpath(webdriver=self.driver, xpath=save_info_popup, click=True)
+        check_xpath(webdriver=self.driver, xpath=save_info_popup, click=True)
 
     def gather_posts(self, hashtag, 
                      scroll_range=5, 
@@ -457,6 +457,65 @@ class InstagramBot:
             writer = csv.writer(f)
             # document the information
             writer.writerow(record)
+        
+    def generate_actionable_uls(self, potential_accounts, n, white_list_accounts):
+        """identify accounts elgible for action from pd dataframe via 
+        compairson to dataframe of non/previously-actionable accounts
+
+        inputs:
+        > potential_accounts
+            >> pandas dataframe of accounts up for action
+                > with account urls in .user_profile column
+        > n
+            >> number of accounts on which action will be taken in this round
+        > white_list_accounts
+            >> pandas dataframe of accounts which have already been acted upon
+                > with account urls in .user_profile column
+
+        output:
+        > list of urls belonging to potential_accounts not found in white_list_accounts
+        """
+        # pull/tag potential urls 
+        potential_urls = [url for url in potential_accounts.user_profile]
+        # pull/tag previously seen urls
+        already_actioned = [url for url in white_list_accounts.user_profile]
+        # forget already actioned urls
+        elgible_urls = [url for url in potential_urls if url not in already_actioned]
+        # range matters
+        if n != False:
+            # shrink numer of accounts to desired range
+            elgible_urls = elgible_urls[:n]
+        # output actionable accounts
+        return elgible_urls
+
+    def unfollow(self, account_url):
+        """unfollow given account 
+
+        inputs:
+        > account_url
+            >> url of account to unfollow
+
+        output:
+        > list detailing transaction
+            >> check/click 'following', check/click 'unfollowing', datetime
+        """
+        # load the account's profile
+        self.driver.get(account_url) 
+        # test for/find and click the 'following' button (0=success)
+        ntract_following = check_xpath(webdriver=self.driver, xpath=following_button, click=True, hedge_load=5)
+        # following button went well
+        if ntract_following == 0:
+            # wait a bit (hedge load)
+            time.sleep(3)                    
+            # test for/find and click the 'unfollow' button (0=success)
+            ntract_unfollow = check_xpath(webdriver=self.driver, xpath=unfollow_button, click=True)
+        # following buttion did not go well
+        else:
+            # unfollow no longer possible
+            ntract_unfollow = 'nan'
+        # output instance of unfollowing for log
+        return [ntract_following, ntract_unfollow, datetime.now()]
+
 
     def check_xpath(self, xpath, webdriver, hedge_load=2,
                     click=False, send_keys=False, keys=None):
@@ -641,14 +700,13 @@ class InstagramBot:
         # start the session 
         with smart_run(session):
             # unfollow those accounts
-            followers = session.unfollow_users(amount=n_unfollow, custom_list_enabled=True,
-                                            custom_list=accounts_to_unfollow, custom_list_param="all",
-                                            instapy_followed_enabled=False, instapy_followed_param="all",
-                                            nonFollowers=False, allFollowing=False,
-                                            style="FIFO", unfollow_after=None,
-                                            sleep_delay=600, delay_followbackers=0) # 864000 = 10 days, 0 = don't delay
+            session.unfollow_users(amount=n_unfollow, custom_list_enabled=True,
+                                   custom_list=accounts_to_unfollow, custom_list_param="all",
+                                   instapy_followed_enabled=False, instapy_followed_param="all",
+                                   nonFollowers=False, allFollowing=False,
+                                   style="FIFO", unfollow_after=None,
+                                   sleep_delay=600, delay_followbackers=0) # 864000 = 10 days, 0 = don't delay
         # indicate completion
         print(f'session complete\n {len(non_follow_backers)-n_unfollow} non-followbackers remain')
         # output accounts we unfollowed
         return accounts_to_unfollow
-
