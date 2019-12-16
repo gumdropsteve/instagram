@@ -26,7 +26,7 @@ from instapy import InstaPy, smart_run
 class InstagramBot:
 
     def __init__(self, username, 
-                 cold_start=False, block=True, mini=True):
+                 cold_start=False, block=True, mini=True, gpu=False):
         """set username and start up a webdriver session
 
         inputs:
@@ -42,6 +42,9 @@ class InstagramBot:
         > mini (bool)
             >> if True, minimize the browser window
             >> default == True
+        > gpu (bool)
+            >> if True, process data w/ cuDF instead of pandas
+            >> default == False
         """
         # remember start time
         self.start_time = time.time()
@@ -70,6 +73,10 @@ class InstagramBot:
         else:
             # so note that driver is not on
             self.driver_on = False
+        # do we want to use GPU for data processing?
+        if gpu == True:
+            # simply replace pandas with cuDF
+            import cudf as pd
         # count # posts liked and # comments posted this sessison  
         self.n_posts_liked_this_session = 0
         self.n_comments_this_session = 0
