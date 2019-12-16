@@ -2,7 +2,7 @@
 import time
 # reading
 import numpy as np
-import pandas as pd
+import cudf
 # recording
 import csv
 from datetime import datetime
@@ -204,7 +204,7 @@ class InstagramBot:
             print('checking posts collected vs previously seen')
             time.sleep(1)
             # dataframe this hashtag's existing csv file 
-            log = pd.read_csv(route)     
+            log = cudf.read_csv(route)     
             # tag previously seen hrefs
             repeats = [href for href in post_hrefs if href in list(log.href)]
             # remove previously seen hrefs 
@@ -223,15 +223,15 @@ class InstagramBot:
                     print(f'adding repeat posts to {r_route}')
                     time.sleep(1)
                     # read in repeat log
-                    repeat_log = pd.read_csv(r_route)
+                    repeat_log = cudf.read_csv(r_route)
                     # build dataframe
-                    r_df = pd.DataFrame(repeats, columns=['href'])
+                    r_df = cudf.DataFrame(repeats, columns=['href'])
                     # make lists for day of week, key, and tag columns
                     r_df['dow'] = (  (  (day + ',') * (len(r_df)-1) ) + day).split(',')
                     r_df['key'] = (  (  (key + ',') * (len(r_df)-1) ) + key).split(',')
                     r_df['tag'] = (((hashtag + ',') * (len(r_df)-1) ) + hashtag).split(',')    
                     # join and write the new repeat log
-                    pd.concat([repeat_log, r_df], axis=0).to_csv(r_route, index=False) 
+                    cudf.concat([repeat_log, r_df], axis=0).to_csv(r_route, index=False) 
                 # there are no repeat posts to add to r_log
                 else:
                     # so let us know
@@ -244,13 +244,13 @@ class InstagramBot:
         # check that there are posts to add to log
         if len(post_hrefs) > 0:
             # define dataframe of hrefs
-            df = pd.DataFrame(post_hrefs, columns=['href'])
+            df = cudf.DataFrame(post_hrefs, columns=['href'])
             # make lists for day of week and key columns
             df['dow'] = (  (  (day + ',') * (len(df)-1) ) + day).split(',')
             df['key'] = (  (  (key + ',') * (len(df)-1) ) + key).split(',')
             df['tag'] = (((hashtag + ',') * (len(df)-1) ) + hashtag).split(',')
             # add new dataframe to existing 
-            df = pd.concat([log, df], axis=0)
+            df = cudf.concat([log, df], axis=0)
             # let us know that we're about to record 
             print(f'adding new posts to {route}')
             time.sleep(1)
