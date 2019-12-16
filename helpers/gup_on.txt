@@ -1,2 +1,0 @@
-blazingsql>=0.4.7
-cudf>=0.10.0
