@@ -631,33 +631,41 @@ class InstagramBot:
         return non_follow_backers
 
     def unfollow(self, pwrd, accounts_to_unfollow='live', ref='ask'):
+        # FORMER HELPERS.PY sub-FUNCTION 
+        # bottom half of .check_non_followbackers()
+        # USES INSTAPY
         """
         > still in experimental mode
             >> primary method for unfollowing
-        > uses instapy
+        >> IF YOU ENCOUNTER ANY ERRORS
+            > PLEASE RAISE AN ISSUE HERE: https://github.com/gumdropsteve/instagram/issues
 
         inputs:
-        > pwrd
+        > pwrd (str)
             >> password to account
-        > accounts_to_unfollow
-            >> CSV containing accounts to unfollow
-            >> feeds into ig.check_non_followbackers()
+        > accounts_to_unfollow (list or str)
+            >> list or path to CSV containing accounts to unfollow
+            >> if path to CSV 
+                > feeds into ig.check_non_followbackers()
             >> default == 'live'
-                > provide path to CSV on run
-        > ref
+                > evaluate followers & following for accounts to unfollow upon being called
+                > will use input {ref} as path to CSV
+        > ref (str)
             >> path to followers & following CSV
-            >> param for ig.check_non_followbackers()
+            >> only used if accounts_to_unfollow=='live'
+                > param for ig.check_non_followbackers()
+            >> default == 'ask' 
+                > ask user to input file path
         """
-        # make sure there is not a session going
+        # make sure there is not a WebDriver session going
         if self.driver_on:
             raise Exception('WebDriver must be shutdown before using unfollow method.')
-        # the only current option is to do this live
-        accounts_to_unfollow = 'live'
         # so make sure to set a ref for checking for nonfollowbackers
         if accounts_to_unfollow == 'live':
-            non_follow_backers = self.check_non_followbackers(ref=ref)
+            # evaluate CSV {ref} to identify non-followbackers
+            accounts_to_unfollow = self.check_non_followbackers(ref=ref)
         # are there accounts worthy of unfollowing? 
-        if len(non_follow_backers) > 0:
+        if len(accounts_to_unfollow) > 0:
             # ask user opinion
             to_unfollow = input('would you like to unfollow any non-follow backers (y/n)? ')
             # proceed with unfollowing
@@ -676,18 +684,18 @@ class InstagramBot:
                     # enforce cap
                     n_unfollow = cap
                 # cut down to accounts to unfollow
-                accounts_to_unfollow = list(non_follow_backers[:n_unfollow])
+                accounts_to_unfollow = list(accounts_to_unfollow[:n_unfollow])
                 # give us the accounts to unfollow
                 return accounts_to_unfollow
             # not unfollowing anyone
             else:
                 print('ok, cool.')
                 # output non-followbackers
-                return non_follow_backers
+                return accounts_to_unfollow
         # nobody to unfollow
         else:
             # indicate so 
-            print(f'nobody to unfollow\nlen(non_follow_backers) == {len(non_follow_backers)}')
+            print(f'nobody to unfollow\nlen(accounts_to_unfollow) == {len(accounts_to_unfollow)}')
         # make a session 
         session = InstaPy(username=self.username, password=pwrd, headless_browser=True)
         # start the session 
@@ -700,7 +708,7 @@ class InstagramBot:
                                    style="FIFO", unfollow_after=None,
                                    sleep_delay=600, delay_followbackers=0) # 864000 = 10 days, 0 = don't delay
         # indicate completion
-        print(f'session complete\n {len(non_follow_backers)-n_unfollow} non-followbackers remain')
+        print(f'session complete\n {len(accounts_to_unfollow)-n_unfollow} non-followbackers remain')
         # output accounts we unfollowed
         return accounts_to_unfollow
 
