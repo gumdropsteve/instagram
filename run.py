@@ -1,5 +1,4 @@
 from bot import InstagramBot
-from helpers import record_followers_and_following, check_non_followbackers
 from user import user, pwrd
 
 
@@ -13,10 +12,13 @@ def rec_n_check():
         > record_followers_and_following (helpers.py)
         > check_non_followbackers (helpers.py)
     """
-    # variable to make record
-    record = record_followers_and_following(account=user)
-    # variable to check that record
-    run = check_non_followbackers(record)
+    ig = InstagramBot(username=user)
+    # make record & return file path 
+    record = ig.record_followers_and_following(user=user, pwrd=pwrd, account=user)
+    # check that record (file path) & return list of non-followbackers
+    check = ig.check_non_followbackers(ref=record)
+    # unfollow given accounts from that list
+    run = ig.unfollow(pwrd=pwrd, accounts_to_unfollow=check)
     # record then check followbackers (display output)
     print(run)
 
