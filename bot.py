@@ -106,7 +106,7 @@ class InstagramBot:
         # hedge request/load time 
         time.sleep(3)
         # take care if "save info" pop-up page pops up
-        check_xpath(webdriver=self.driver, xpath=save_info_popup, click=True)
+        self.check_xpath(webdriver=self.driver, xpath=save_info_popup, click=True)
 
     def gather_posts(self, hashtag, 
                      scroll_range=5, 
@@ -411,7 +411,7 @@ class InstagramBot:
         split_runtime = str(gross_runtime).split('.')
         minutes =     int(float(split_runtime[0]) // 60)
         seconds = str(int(float(split_runtime[0]) % 60))
-        runtime = minutes + float(seconds + '.' + split_runtime[1][:3])
+        runtime = (minutes * 60) + float(seconds + '.' + split_runtime[1][:3])
         # set runtime line for final output 
         runtime_out = f'runtime: {runtime} seconds'
         # compare runtime line to username line to see which is longer
@@ -421,8 +421,6 @@ class InstagramBot:
             num_stars = len(runtime_out)
         # make boarder trim for final output = to whichever was longer
         stars = '*' * num_stars
-        # add int minute and second sub output to runtime_out
-        runtime_out = runtime_out + f'\n  {minutes} minutes\n  {seconds} seconds'
         # format session output into one long string 
         output = (f'''
                    {stars}
@@ -436,6 +434,8 @@ class InstagramBot:
                    posts liked: {self.n_posts_liked_this_session}
                    comments shared: {self.n_comments_this_session}
                    {runtime_out}
+                     {minutes} minutes
+                     {seconds} seconds
                    {stars}
                    {stars}
                    ''')
@@ -488,35 +488,6 @@ class InstagramBot:
         # output actionable accounts
         return elgible_urls
 
-    def unfollow(self, account_url):
-        """unfollow given account 
-
-        inputs:
-        > account_url
-            >> url of account to unfollow
-
-        output:
-        > list detailing transaction
-            >> check/click 'following', check/click 'unfollowing', datetime
-        """
-        # load the account's profile
-        self.driver.get(account_url) 
-        # test for/find and click the 'following' button (0=success)
-        ntract_following = check_xpath(webdriver=self.driver, xpath=following_button, click=True, hedge_load=5)
-        # following button went well
-        if ntract_following == 0:
-            # wait a bit (hedge load)
-            time.sleep(3)                    
-            # test for/find and click the 'unfollow' button (0=success)
-            ntract_unfollow = check_xpath(webdriver=self.driver, xpath=unfollow_button, click=True)
-        # following buttion did not go well
-        else:
-            # unfollow no longer possible
-            ntract_unfollow = 'nan'
-        # output instance of unfollowing for log
-        return [ntract_following, ntract_unfollow, datetime.now()]
-
-
     def check_xpath(self, xpath, webdriver, hedge_load=2,
                     click=False, send_keys=False, keys=None):
         """checks if an xpath exists on the current page
@@ -568,6 +539,7 @@ class InstagramBot:
             >> then return that file path 
             >> optional output_df param
                 > print file name & return the pandas dataframe
+        > uses InstaPy
         """
         # set InstaPy session
         session = InstaPy(username=user, password=pwrd, headless_browser=True)
@@ -653,13 +625,27 @@ class InstagramBot:
 
     def unfollow(self, pwrd, accounts_to_unfollow='live', ref='ask'):
         """
-        still in experimental mode
+        > still in experimental mode
+            >> primary method for unfollowing
+        > uses instapy
+
+        inputs:
+        > pwrd
+            >> password to account
+        > accounts_to_unfollow
+            >> CSV containing accounts to unfollow
+            >> feeds into ig.check_non_followbackers()
+            >> default == 'live'
+                > provide path to CSV on run
+        > ref
+            >> path to followers & following CSV
+            >> param for ig.check_non_followbackers()
         """
         # make sure there is not a session going
         if self.driver_on:
             raise Exception('WebDriver must be shutdown before using unfollow method.')
         # the only current option is to do this live
-        accounts_to_unfollow='live'
+        accounts_to_unfollow = 'live'
         # so make sure to set a ref for checking for nonfollowbackers
         if accounts_to_unfollow == 'live':
             non_follow_backers = self.check_non_followbackers(ref=ref)
@@ -710,3 +696,33 @@ class InstagramBot:
         print(f'session complete\n {len(non_follow_backers)-n_unfollow} non-followbackers remain')
         # output accounts we unfollowed
         return accounts_to_unfollow
+
+    # def unfollow(self, account_url):
+    #     """unfollow given account 
+
+    #     inputs:
+    #     > account_url
+    #         >> url of account to unfollow
+
+    #     output:
+    #     > list detailing transaction
+    #         >> check/click 'following', check/click 'unfollowing', datetime
+    #     """
+    #     # TO DO (address the future of this method)
+    #     from infos import following_button, unfollow_button
+    #     # load the account's profile
+    #     self.driver.get(account_url) 
+    #     # test for/find and click the 'following' button (0=success)
+    #     ntract_following = self.check_xpath(webdriver=self.driver, xpath=following_button, click=True, hedge_load=5)
+    #     # following button went well
+    #     if ntract_following == 0:
+    #         # wait a bit (hedge load)
+    #         time.sleep(3)                    
+    #         # test for/find and click the 'unfollow' button (0=success)
+    #         ntract_unfollow = self.check_xpath(webdriver=self.driver, xpath=unfollow_button, click=True)
+    #     # following buttion did not go well
+    #     else:
+    #         # unfollow no longer possible
+    #         ntract_unfollow = 'nan'
+    #     # output instance of unfollowing for log
+    #     return [ntract_following, ntract_unfollow, datetime.now()]
