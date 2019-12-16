@@ -62,3 +62,6 @@ mw_tags = ['quickscope', 'codnation', 'callofdutymodernwarfare',
 tags4likes = ['t4l', 'likeforlike', 'tagsforlikes', 'like4like']
 # default 
 default = ['callofduty', 'codtopplays', 'modernwarfare', 'clipagame', 'killstreak']
+# 25 a pop sprint
+default25 = ['callofduty', 'codtopplays', 'modernwarfare', 'clipagame', 'killstreak',
+             'callofdutyclips', 'callofdutymodernwarfare', 'bo4', 'treyarch', 'codclips']
