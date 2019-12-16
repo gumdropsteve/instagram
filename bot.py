@@ -27,8 +27,9 @@ class InstagramBot:
 
     def __init__(self, username, 
                  cold_start=False, block=True, mini=True, gpu=False):
-        """set username and start up a webdriver session
-
+        """
+        set username & start up InstagramBot w/ given (input) settings
+        
         inputs:
         > username (str)
             >> username of the account being used
@@ -86,7 +87,8 @@ class InstagramBot:
         self.n_repeat_posts = 0
 
     def login(self, password):
-        """loads and logs in to instagram
+        """
+        load & login to instagram
 
         inputs:
         > password (str)
@@ -116,10 +118,10 @@ class InstagramBot:
         self.check_xpath(webdriver=self.driver, xpath=save_info_popup, click=True)
 
     def gather_posts(self, hashtag, 
-                     scroll_range=5, 
-                     limit=False, certify=True, r_log_on=True, 
+                     scroll_range=5, limit=False, certify=True, r_log_on=True, 
                      route='data/made/post_hrefs/log', r_route='data/made/post_hrefs/r_log'):
-        """collects group of post urls by hashtag
+        """
+        collect group of post urls (hrefs) from given hashtag
 
         inputs:
         > hashtag (str)
@@ -271,9 +273,9 @@ class InstagramBot:
         # output collection of hrefs
         return post_hrefs        
 
-    def like_posts(self, hashtag, hrefs, 
-                   indicator_thresh=5):
-        """load and 'like' posts from given list
+    def like_posts(self, hashtag, hrefs, indicator_thresh=5):
+        """
+        load and 'like' posts from given list (of urls)
 
         inputs:
         > hashtag (str)
@@ -328,7 +330,8 @@ class InstagramBot:
         print(f'{self.n_posts_liked_this_session} total posts liked this session')
 
     def comment(self, post, comment):
-        '''load given post then comment given comment
+        '''
+        load given post then comment given comment
 
         inputs:
         > post (str) 
@@ -361,7 +364,7 @@ class InstagramBot:
         self.driver.close()
 
     def quit_driver(self):
-        """quit webdriver and close every associated window        
+        """quit webdriver & close every associated window        
         """
         # check that driver is on 
         if self.driver_on == True:
@@ -379,6 +382,7 @@ class InstagramBot:
 
     def start_driver(self, block=True):
         """start webdriver (gecko)
+        
         inputs:
         > block (bool)
             > if True, blocks pop ups
@@ -397,11 +401,9 @@ class InstagramBot:
 
     def shutdown(self):
         """
-        quit webdriver (unless already quit) then shuts down InstagramBot
-
-        use this: to end your scritps
-
-        note: it is ok to run this even if driver is not running 
+        quit webdriver (unless already quit) & shut down InstagramBot
+            >> use this: to end your scritps
+            >> note: it is ok to run this even if driver is not running 
         """
         # check webdriver status
         if self.driver_on == True:
@@ -450,13 +452,15 @@ class InstagramBot:
         self.final_output = output
 
     def record(self, record, log):
-        """record given info into given csv 
-
+        """
+        record given info into CSV 
+        
         inputs:
         > record
             >> information to be recorded
-        > log
-            >> csv file where information is to be recorded
+            >> default is pandas (or cuDF) DataFrame or Series
+        > log (str)
+            >> path to CSV file where information is to be recorded
         """
         # open up that redo log 
         with open(log, 'a') as f:
@@ -465,55 +469,29 @@ class InstagramBot:
             # document the information
             writer.writerow(record)
         
-    def generate_actionable_uls(self, potential_accounts, n, white_list_accounts):
-        """identify accounts elgible for action from pd dataframe via 
-        compairson to dataframe of non/previously-actionable accounts
-
-        inputs:
-        > potential_accounts
-            >> pandas dataframe of accounts up for action
-                > with account urls in .user_profile column
-        > n
-            >> number of accounts on which action will be taken in this round
-        > white_list_accounts
-            >> pandas dataframe of accounts which have already been acted upon
-                > with account urls in .user_profile column
-
-        output:
-        > list of urls belonging to potential_accounts not found in white_list_accounts
-        """
-        # pull/tag potential urls 
-        potential_urls = [url for url in potential_accounts.user_profile]
-        # pull/tag previously seen urls
-        already_actioned = [url for url in white_list_accounts.user_profile]
-        # forget already actioned urls
-        elgible_urls = [url for url in potential_urls if url not in already_actioned]
-        # range matters
-        if n != False:
-            # shrink numer of accounts to desired range
-            elgible_urls = elgible_urls[:n]
-        # output actionable accounts
-        return elgible_urls
-
     def check_xpath(self, xpath, webdriver, hedge_load=2,
                     click=False, send_keys=False, keys=None):
-        """checks if an xpath exists on the current page
-        inputs)
-            > webdriver
-                >> driver being used
-            > xpath
-                >> xpath in question
-            > click
-                >> if clicking the element once/if found
-            > send_keys
-                >> if sending keys to element once/if found
-            > keys
-                >> keys being sent if sending keys (i.e. send_keys=True)
-        output)
-            > if successful
-                >> 0
-            > if unsuccessful
-                >> 1
+        # FORMER HELPERS.PY FUNCTION 
+        """
+        check if an xpath exists on the current page
+        
+        inputs:
+        > webdriver
+            >> driver being used
+        > xpath
+            >> xpath in question
+        > click
+            >> if clicking the element once/if found
+        > send_keys
+            >> if sending keys to element once/if found
+        > keys
+            >> keys being sent if sending keys (i.e. send_keys=True)
+        
+        output:
+        > if successful
+            >> 0
+        > if unsuccessful
+            >> 1
         """
         # hedge laod time
         time.sleep(hedge_load)
@@ -540,13 +518,23 @@ class InstagramBot:
             # indicate as such
             return 1
 
-    def record_followers_and_following(self, user, pwrd, account, **output_df):
+    def record_followers_and_following(self, user, pwrd, account, output_df=False):
+        # FORMER HELPERS.PY FUNCTION 
+        # USES INSTAPY
         """
-        > pull up a given account and record it's followers and following to csv
+        pull up a given account and record it's followers & following to CSV
             >> then return that file path 
-            >> optional output_df param
-                > print file name & return the pandas dataframe
-        > uses InstaPy
+        inputs:
+        > user (str)
+            >> session account username
+        > pwrd (str)
+            >> session account password
+        > account (str)
+            >> account to record 
+        > otput_df (bool)
+            >> if True, return record (pandas or cuDF) DataFrame after writing it to CSV
+                > and print the file path instead of returning it
+            >> default == False
         """
         # set InstaPy session
         session = InstaPy(username=user, password=pwrd, headless_browser=True)
@@ -592,7 +580,7 @@ class InstagramBot:
         # record dataframe as csv
         df.to_csv(path_or_buf=file, index=False)
         # did we request the dataframe?
-        if output_df:
+        if output_df == True:
             # display file name
             print(f'{file}')
             # output dataframe for further use
@@ -601,6 +589,7 @@ class InstagramBot:
         return file
 
     def check_non_followbackers(self, ref='ask'):
+        # FORMER HELPERS.PY FUNCTION 
         """
         > compare followers and following from given csv 
             >> to identify non-followbackers
@@ -631,10 +620,12 @@ class InstagramBot:
         return non_follow_backers
 
     def unfollow(self, pwrd, accounts_to_unfollow='live', ref='ask'):
+        # FORMER HELPERS.PY sub-FUNCTION 
+        # bottom half of .check_non_followbackers()
+        # USES INSTAPY
         """
         > still in experimental mode
             >> primary method for unfollowing
-        > uses instapy
 
         inputs:
         > pwrd
@@ -703,33 +694,3 @@ class InstagramBot:
         print(f'session complete\n {len(non_follow_backers)-n_unfollow} non-followbackers remain')
         # output accounts we unfollowed
         return accounts_to_unfollow
-
-    # def unfollow(self, account_url):
-    #     """unfollow given account 
-
-    #     inputs:
-    #     > account_url
-    #         >> url of account to unfollow
-
-    #     output:
-    #     > list detailing transaction
-    #         >> check/click 'following', check/click 'unfollowing', datetime
-    #     """
-    #     # TO DO (address the future of this method)
-    #     from infos import following_button, unfollow_button
-    #     # load the account's profile
-    #     self.driver.get(account_url) 
-    #     # test for/find and click the 'following' button (0=success)
-    #     ntract_following = self.check_xpath(webdriver=self.driver, xpath=following_button, click=True, hedge_load=5)
-    #     # following button went well
-    #     if ntract_following == 0:
-    #         # wait a bit (hedge load)
-    #         time.sleep(3)                    
-    #         # test for/find and click the 'unfollow' button (0=success)
-    #         ntract_unfollow = self.check_xpath(webdriver=self.driver, xpath=unfollow_button, click=True)
-    #     # following buttion did not go well
-    #     else:
-    #         # unfollow no longer possible
-    #         ntract_unfollow = 'nan'
-    #     # output instance of unfollowing for log
-    #     return [ntract_following, ntract_unfollow, datetime.now()]
