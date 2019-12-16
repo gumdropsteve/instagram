@@ -9,10 +9,9 @@ from datetime import datetime
 # webdriver
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchElementException
 # .js help
 from infos import scroll
-# functions
-from helpers import check_xpath
 # urls
 from infos import ig_log_page, ig_tags_url
 # paths
@@ -20,14 +19,17 @@ from infos import username_box, password_box, save_info_popup
 from infos import comment_button, comment_box, like
 # misc
 from infos import ig_tags_url
+# instapy
+from instapy import InstaPy, smart_run
 
 
 class InstagramBot:
 
     def __init__(self, username, 
-                 cold_start=False, block=True, mini=True):
-        """set username and start up a webdriver session
-
+                 cold_start=False, block=True, mini=True, gpu=False):
+        """
+        set username & start up InstagramBot w/ given (input) settings
+        
         inputs:
         > username (str)
             >> username of the account being used
@@ -41,6 +43,9 @@ class InstagramBot:
         > mini (bool)
             >> if True, minimize the browser window
             >> default == True
+        > gpu (bool)
+            >> if True, process data w/ cuDF instead of pandas
+            >> default == False
         """
         # remember start time
         self.start_time = time.time()
@@ -69,6 +74,10 @@ class InstagramBot:
         else:
             # so note that driver is not on
             self.driver_on = False
+        # do we want to use GPU for data processing?
+        if gpu == True:
+            # simply replace pandas with cuDF
+            import cudf as pd
         # count # posts liked and # comments posted this sessison  
         self.n_posts_liked_this_session = 0
         self.n_comments_this_session = 0
@@ -78,7 +87,8 @@ class InstagramBot:
         self.n_repeat_posts = 0
 
     def login(self, password):
-        """loads and logs in to instagram
+        """
+        load & login to instagram
 
         inputs:
         > password (str)
@@ -105,13 +115,13 @@ class InstagramBot:
         # hedge request/load time 
         time.sleep(3)
         # take care if "save info" pop-up page pops up
-        check_xpath(webdriver=self.driver, xpath=save_info_popup, click=True)
+        self.check_xpath(webdriver=self.driver, xpath=save_info_popup, click=True)
 
     def gather_posts(self, hashtag, 
-                     scroll_range=5, 
-                     limit=False, certify=True, r_log_on=True, 
+                     scroll_range=5, limit=False, certify=True, r_log_on=True, 
                      route='data/made/post_hrefs/log', r_route='data/made/post_hrefs/r_log'):
-        """collects group of post urls by hashtag
+        """
+        collect group of post urls (hrefs) from given hashtag
 
         inputs:
         > hashtag (str)
@@ -263,9 +273,9 @@ class InstagramBot:
         # output collection of hrefs
         return post_hrefs        
 
-    def like_posts(self, hashtag, hrefs, 
-                   indicator_thresh=5):
-        """load and 'like' posts from given list
+    def like_posts(self, hashtag, hrefs, indicator_thresh=5):
+        """
+        load and 'like' posts from given list (of urls)
 
         inputs:
         > hashtag (str)
@@ -320,7 +330,8 @@ class InstagramBot:
         print(f'{self.n_posts_liked_this_session} total posts liked this session')
 
     def comment(self, post, comment):
-        '''load given post then comment given comment
+        '''
+        load given post then comment given comment
 
         inputs:
         > post (str) 
@@ -353,7 +364,7 @@ class InstagramBot:
         self.driver.close()
 
     def quit_driver(self):
-        """quit webdriver and close every associated window        
+        """quit webdriver & close every associated window        
         """
         # check that driver is on 
         if self.driver_on == True:
@@ -371,6 +382,7 @@ class InstagramBot:
 
     def start_driver(self, block=True):
         """start webdriver (gecko)
+        
         inputs:
         > block (bool)
             > if True, blocks pop ups
@@ -389,11 +401,9 @@ class InstagramBot:
 
     def shutdown(self):
         """
-        quit webdriver (unless already quit) then shuts down InstagramBot
-
-        use this: to end your scritps
-
-        note: it is ok to run this even if driver is not running 
+        quit webdriver (unless already quit) & shut down InstagramBot
+            >> use this: to end your scritps
+            >> note: it is ok to run this even if driver is not running 
         """
         # check webdriver status
         if self.driver_on == True:
@@ -410,7 +420,7 @@ class InstagramBot:
         split_runtime = str(gross_runtime).split('.')
         minutes =     int(float(split_runtime[0]) // 60)
         seconds = str(int(float(split_runtime[0]) % 60))
-        runtime = minutes + float(seconds + '.' + split_runtime[1][:3])
+        runtime = (minutes * 60) + float(seconds + '.' + split_runtime[1][:3])
         # set runtime line for final output 
         runtime_out = f'runtime: {runtime} seconds'
         # compare runtime line to username line to see which is longer
@@ -420,8 +430,6 @@ class InstagramBot:
             num_stars = len(runtime_out)
         # make boarder trim for final output = to whichever was longer
         stars = '*' * num_stars
-        # add int minute and second sub output to runtime_out
-        runtime_out = runtime_out + f'\n  {minutes} minutes\n  {seconds} seconds'
         # format session output into one long string 
         output = (f'''
                    {stars}
@@ -435,6 +443,8 @@ class InstagramBot:
                    posts liked: {self.n_posts_liked_this_session}
                    comments shared: {self.n_comments_this_session}
                    {runtime_out}
+                     {minutes} minutes
+                     {seconds} seconds
                    {stars}
                    {stars}
                    ''')
@@ -442,13 +452,15 @@ class InstagramBot:
         self.final_output = output
 
     def record(self, record, log):
-        """record given info into given csv 
-
+        """
+        record given info into CSV 
+        
         inputs:
         > record
             >> information to be recorded
-        > log
-            >> csv file where information is to be recorded
+            >> default is pandas (or cuDF) DataFrame or Series
+        > log (str)
+            >> path to CSV file where information is to be recorded
         """
         # open up that redo log 
         with open(log, 'a') as f:
@@ -456,3 +468,235 @@ class InstagramBot:
             writer = csv.writer(f)
             # document the information
             writer.writerow(record)
+        
+    def check_xpath(self, xpath, webdriver, hedge_load=2,
+                    click=False, send_keys=False, keys=None):
+        # FORMER HELPERS.PY FUNCTION 
+        """
+        check if an xpath exists on the current page
+        
+        inputs:
+        > webdriver
+            >> driver being used
+        > xpath
+            >> xpath in question
+        > click
+            >> if clicking the element once/if found
+        > send_keys
+            >> if sending keys to element once/if found
+        > keys
+            >> keys being sent if sending keys (i.e. send_keys=True)
+        
+        output:
+        > if successful
+            >> 0
+        > if unsuccessful
+            >> 1
+        """
+        # hedge laod time
+        time.sleep(hedge_load)
+        # test this 
+        try:
+            # find xpath in question
+            find_element = webdriver.find_element_by_xpath(xpath)
+            # are we clicking
+            if click == True:
+                # yes, so click
+                find_element.click()
+                # hedge time
+                time.sleep(3)
+            # are we sending keys
+            if send_keys == True:
+                # yes, so send them
+                find_element.send_keys(keys)
+                # hedge time
+                time.sleep(3)
+            # element exists and was successfull
+            return 0
+        # if it didn't work
+        except NoSuchElementException:
+            # indicate as such
+            return 1
+
+    def record_followers_and_following(self, user, pwrd, account, output_df=False):
+        # FORMER HELPERS.PY FUNCTION 
+        # USES INSTAPY
+        """
+        pull up a given account and record it's followers & following to CSV
+            >> then return that file path 
+        inputs:
+        > user (str)
+            >> session account username
+        > pwrd (str)
+            >> session account password
+        > account (str)
+            >> account to record 
+        > otput_df (bool)
+            >> if True, return record (pandas or cuDF) DataFrame after writing it to CSV
+                > and print the file path instead of returning it
+            >> default == False
+        """
+        # set InstaPy session
+        session = InstaPy(username=user, password=pwrd, headless_browser=True)
+        # start the session
+        with smart_run(session):
+            # grab followers (list)
+            followers = session.grab_followers(username=account, amount="full", 
+                                            live_match=True, store_locally=False)
+            # grab following (list)
+            following = session.grab_following(username=account, amount="full", 
+                                            live_match=True, store_locally=False)
+        # merge for single list of all unique accounts in following/followers
+        unique_accounts = list(set(followers + following))
+        # make dataframe of all (unique) accounts
+        df = pd.DataFrame(data=unique_accounts, columns=['account'])
+        # make bool list of followers (1 == True)
+        bool_followers = []
+        for account in df['account']:
+            # is follower
+            if account in followers:
+                bool_followers.append(1)
+            # not follower
+            else:
+                bool_followers.append(0)
+        # make bool list of following (1 == True)
+        bool_following = []
+        for account in df['account']:
+            # are following
+            if account in following:
+                bool_following.append(1)
+            # not following
+            else:
+                bool_following.append(0)
+        # add bool columns to dataframe
+        df['follower'] = bool_followers
+        df['following'] = bool_following
+        # id day of week 
+        dow = time.strftime("%A_").lower()
+        # numerical year, month, day _ hour, minute, second
+        ymdhms = time.strftime("%Y%m%d_%H%M%S")
+        # generate file name
+        file = 'data/made/followers_and_following/' + dow + ymdhms + '.csv'
+        # record dataframe as csv
+        df.to_csv(path_or_buf=file, index=False)
+        # did we request the dataframe?
+        if output_df == True:
+            # display file name
+            print(f'{file}')
+            # output dataframe for further use
+            return df
+        # output file name
+        return file
+
+    def check_non_followbackers(self, ref='ask'):
+        # FORMER HELPERS.PY FUNCTION 
+        """
+        > compare followers and following from given csv 
+            >> to identify non-followbackers
+        > print out findings
+        > ask if the user would like to unfollow any found non-followbackers
+            >> limit 24 per session (rec max 99 / day)
+        """
+        # check there's a file loaded
+        if ref == 'ask':
+            # ask for reference file
+            ref = input('csv to run: ')
+        # load data into frame
+        df = pd.read_csv(ref)
+        # tag followers & following 
+        followers = df.account.loc[df.follower == 1]
+        following = df.account.loc[df.following == 1]
+        # identify accounts our account is following that are followers of our account
+        follow_backers = df.account.loc[((df.follower == 1) & (df.following == 1))]
+        # identify accounts our account is following that are NOT followers of our account
+        non_follow_backers = df.account.loc[((df.follower == 0) & (df.following == 1))]
+        # display number of follow backers and number of non follow backers
+        print(f'\n{len(followers)} followers\n'
+            f'{len(following)} following\n'
+            f'{len(follow_backers)} follow backers\n'
+            f'{len(non_follow_backers)} non-follow backers\n')
+        time.sleep(2)
+        # output non-followbackers
+        return non_follow_backers
+
+    def unfollow(self, pwrd, accounts_to_unfollow='live', ref='ask'):
+        # FORMER HELPERS.PY sub-FUNCTION 
+        # bottom half of .check_non_followbackers()
+        # USES INSTAPY
+        """
+        > still in experimental mode
+            >> primary method for unfollowing
+        >> IF YOU ENCOUNTER ANY ERRORS
+            > PLEASE RAISE AN ISSUE HERE: https://github.com/gumdropsteve/instagram/issues
+
+        inputs:
+        > pwrd (str)
+            >> password to account
+        > accounts_to_unfollow (list or str)
+            >> list or path to CSV containing accounts to unfollow
+            >> if path to CSV 
+                > feeds into ig.check_non_followbackers()
+            >> default == 'live'
+                > evaluate followers & following for accounts to unfollow upon being called
+                > will use input {ref} as path to CSV
+        > ref (str)
+            >> path to followers & following CSV
+            >> only used if accounts_to_unfollow=='live'
+                > param for ig.check_non_followbackers()
+            >> default == 'ask' 
+                > ask user to input file path
+        """
+        # make sure there is not a WebDriver session going
+        if self.driver_on:
+            raise Exception('WebDriver must be shutdown before using unfollow method.')
+        # so make sure to set a ref for checking for nonfollowbackers
+        if accounts_to_unfollow == 'live':
+            # evaluate CSV {ref} to identify non-followbackers
+            accounts_to_unfollow = self.check_non_followbackers(ref=ref)
+        # are there accounts worthy of unfollowing? 
+        if len(accounts_to_unfollow) > 0:
+            # ask user opinion
+            to_unfollow = input('would you like to unfollow any non-follow backers (y/n)? ')
+            # proceed with unfollowing
+            if to_unfollow == 'y':
+                # determine how many accounts to unfollow
+                n_unfollow = int(input('how many would you like to unfollow (int <= 24)? '))
+                # set a cap (limit number of unfollows per session)
+                cap = 24
+                # is desired number of unfollow more than max amount allowed per session (cap)?
+                if n_unfollow > cap:
+                    # output warning, action and times to read 
+                    print(f'\nWARNING: MAX UNFOLLOWS EXCEEDED\nmax n_unfollow = {cap}\n')
+                    time.sleep(1)
+                    print(f'resetting n_unfollow from {n_unfollow} to {cap}\n\n')
+                    time.sleep(1)
+                    # enforce cap
+                    n_unfollow = cap
+                # cut down to accounts to unfollow
+                accounts_to_unfollow = list(accounts_to_unfollow[:n_unfollow])
+                # give us the accounts to unfollow
+                return accounts_to_unfollow
+            # not unfollowing anyone
+            else:
+                print('ok, cool.')
+                # output non-followbackers
+                return accounts_to_unfollow
+        # nobody to unfollow
+        else:
+            # indicate so 
+            print(f'nobody to unfollow\nlen(accounts_to_unfollow) == {len(accounts_to_unfollow)}')
+        # make a session 
+        session = InstaPy(username=self.username, password=pwrd, headless_browser=True)
+        # start the session 
+        with smart_run(session):
+            # unfollow those accounts
+            session.unfollow_users(amount=n_unfollow, custom_list_enabled=True,
+                                   custom_list=accounts_to_unfollow, custom_list_param="all",
+                                   instapy_followed_enabled=False, instapy_followed_param="all",
+                                   nonFollowers=False, allFollowing=False,
+                                   style="FIFO", unfollow_after=None,
+                                   sleep_delay=600, delay_followbackers=0) # 864000 = 10 days, 0 = don't delay
+        # indicate completion
+        print(f'session complete\n {len(accounts_to_unfollow)-n_unfollow} non-followbackers remain')
+        # output accounts we unfollowed
+        return accounts_to_unfollow

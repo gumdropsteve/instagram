@@ -38,27 +38,5 @@ user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) \
 
 """hashtag sets
 """
-# general real estate
-gen_real_estate_tags = ['homesforsale', 'fsbo', 'forsalebyowner', 'realestate', 'realty', 'realtor', 'nar']
-# california real estate
-ca_real_estate_tags = ['californiarealestate']
-# bay area real estate
-bay_real_estate_tags =['bayarearealestate', 'bayareahomes']
-# general california
-gen_california_tags = ['californialife', 'californiaadventure']
-# east bay real estate
-pleasanton_tags = ['pleasanton', 'pleasantonhomesforsale']
-# gaming tags
-hashtags_2 = ['videogames', 'videogame', 'battleroyale', 'freeforall', 'codblackout', 'coptopplays',
-            'codclipsdaily', 'codclips', 'proplayer', 'like4like', 'fazetesty', 'streamer']
-# gaming tags
-hashtags = ['callofduty', 'codnation', 'blackops4', 'multiplayer', 'xbox', 'ps4', 'twitch', 'esports',
-                'coderedtourneyment', 'popupcup', 'gamingmemes', 'memes', 'ninja', 'pogchamp', 'twitch',
-            'likeback', 'cod', 'longshot', 'ttv', 'faze']
-# cod modern warfare (related) tags
-mw_tags = ['quickscope', 'codnation', 'callofdutymodernwarfare', 
-           'modernwarfare', 'callofduty', 'blackops4', 'codmw']
-# tags for likes
-tags4likes = ['t4l', 'likeforlike', 'tagsforlikes', 'like4like']
 # default 
 default = ['callofduty', 'codtopplays', 'modernwarfare', 'clipagame', 'killstreak']
